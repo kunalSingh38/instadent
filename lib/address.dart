@@ -75,7 +75,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
                             builder: (context) => AddUpdateAddressScreen(
                                   update: false,
                                   map: {},
-                                )));
+                                ))).then((value) {
+                      getAddressList();
+                    });
                   },
                   icon: Icon(Icons.add),
                   label: Text("ADD"))
@@ -180,56 +182,80 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  InkWell(
-                                    onTap: () {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                "Setting Default Address."),
-                                            duration: Duration(seconds: 1)),
-                                      );
-                                      LoginAPI()
-                                          .setDefaultAddress(e['id'].toString())
-                                          .then((value) {
-                                        if (value) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(e['address_type']
-                                                        .toString() +
-                                                    " set as default address."),
-                                                duration: Duration(seconds: 1)),
-                                          );
-                                          getAddressList();
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text("Error"),
-                                                duration: Duration(seconds: 1)),
-                                          );
-                                        }
-                                      });
-                                    },
-                                    child: Container(
-                                      width: 70,
-                                      decoration: BoxDecoration(
-                                          color: Colors.green[800],
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: Text(
-                                          "Set Default",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.white),
+                                  e['is_default'] == 1
+                                      ? Container(
+                                          width: 70,
+                                          decoration: BoxDecoration(
+                                              color: Colors.grey,
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: Text(
+                                              "Set Default",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        )
+                                      : InkWell(
+                                          onTap: () {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      "Setting Default Address."),
+                                                  duration:
+                                                      Duration(seconds: 1)),
+                                            );
+                                            LoginAPI()
+                                                .setDefaultAddress(
+                                                    e['id'].toString())
+                                                .then((value) {
+                                              if (value) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(e[
+                                                                  'address_type']
+                                                              .toString() +
+                                                          " set as default address."),
+                                                      duration:
+                                                          Duration(seconds: 1)),
+                                                );
+                                                getAddressList();
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                      content: Text("Error"),
+                                                      duration:
+                                                          Duration(seconds: 1)),
+                                                );
+                                              }
+                                            });
+                                          },
+                                          child: Container(
+                                            width: 70,
+                                            decoration: BoxDecoration(
+                                                color: Colors.green[800],
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: Text(
+                                                "Set Default",
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
                                   InkWell(
                                     onTap: () {
                                       Navigator.push(

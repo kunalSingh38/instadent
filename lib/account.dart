@@ -1,11 +1,14 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
+import 'package:instadent/address.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
 import 'package:instadent/main.dart';
+import 'package:instadent/user_profile.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +22,7 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   List yourInfo = [
+    {"title": "Profile", "id": "4", "icon": "account.png"},
     {"title": "Order History", "id": "1", "icon": "order.png"},
     {"title": "Address Book", "id": "2", "icon": "address.png"},
     {"title": "Share the app", "id": "3", "icon": "share.png"}
@@ -190,6 +194,31 @@ class _AccountScreenState extends State<AccountScreen> {
                               e['title'],
                               style: TextStyle(fontSize: 16),
                             ),
+                            onTap: () async {
+                              switch (e['id'].toString()) {
+                                case "4":
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: ((context) =>
+                                              UserProfileViewUpdate())));
+                                  break;
+                                case "2":
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: ((context) =>
+                                              AddressListScreen())));
+                                  break;
+                                case "3":
+                                  await FlutterShare.share(
+                                    title: 'InstaDent App',
+                                    linkUrl:
+                                        'https://play.google.com/store/apps/details?id=com.tayal.tayalFintech',
+                                  );
+                                  break;
+                              }
+                            },
                           ))
                       .toList(),
                 ),

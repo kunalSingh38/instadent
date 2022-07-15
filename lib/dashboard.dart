@@ -65,7 +65,7 @@ class DashboardState extends State<Dashboard> {
 
   // sets current tab index
   // and update state
-  void _selectTab(int index) {
+  void selectTab(int index) {
     if (index != 4) {
       Provider.of<UpdateCartData>(context, listen: false).showCartorNot();
     }
@@ -99,7 +99,7 @@ class DashboardState extends State<Dashboard> {
           // if not on the 'main' tab
           if (currentTab != 0) {
             // select 'main' tab
-            _selectTab(0);
+            selectTab(0);
             // back button handled by app
             return false;
           }
@@ -120,7 +120,7 @@ class DashboardState extends State<Dashboard> {
         // Bottom navigation
 
         bottomNavigationBar: BottomNavigation(
-          onSelectTab: _selectTab,
+          onSelectTab: selectTab,
           tabs: tabs,
         ),
       ),

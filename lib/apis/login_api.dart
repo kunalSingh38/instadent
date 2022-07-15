@@ -45,6 +45,23 @@ class LoginAPI {
     return false;
   }
 
+  Future<bool> profileUpdate(Map m) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(
+      Uri.parse(URL + "user/profile-update"),
+      headers: {
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(m),
+    );
+    print(response.body);
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return true;
+    }
+    return false;
+  }
+
   Future<List> addressList() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     print(pref.getString("token").toString());
@@ -119,5 +136,20 @@ class LoginAPI {
       return true;
     }
     return false;
+  }
+
+  Future<Map> userProfile() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(
+      Uri.parse(URL + "profile"),
+      headers: {
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Content-Type': 'application/json'
+      },
+    );
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response'];
+    }
+    return {};
   }
 }

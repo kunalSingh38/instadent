@@ -69,6 +69,9 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
             key: form,
             child: Column(
               children: [
+                SizedBox(
+                  height: 15,
+                ),
                 TextFormField(
                   validator: (value) {
                     if (value!.isEmpty)
@@ -79,6 +82,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                   controller: addressType,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   textCapitalization: TextCapitalization.characters,
+                  maxLength: 15,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -87,6 +91,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                         borderSide: BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.circular(10)),
                     labelText: "Address Type",
+                    counterText: "",
                     labelStyle: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
