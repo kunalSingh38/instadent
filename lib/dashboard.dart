@@ -22,7 +22,7 @@ class Dashboard extends StatefulWidget {
 class DashboardState extends State<Dashboard> {
   // this is static property so other widget throughout the app
   // can access it simply by AppState.currentTab
-  static int currentTab = 0;
+  static int currentTab = 1;
 
   static bool showCart = true;
 
@@ -66,19 +66,20 @@ class DashboardState extends State<Dashboard> {
   // sets current tab index
   // and update state
   void selectTab(int index) {
-    if (index != 4) {
-      Provider.of<UpdateCartData>(context, listen: false).showCartorNot();
-    }
-
-    if (index == currentTab) {
-      // pop to first route
-      // if the user taps on the active tab
-      tabs[index].key.currentState?.popUntil((route) => route.isFirst);
-    } else {
-      // update the state
-      // in order to repaint
-      setState(() => currentTab = index);
-    }
+    // if (index == currentTab) {
+    // pop to first route
+    // if the user taps on the active tab
+    setState(() {
+      currentTab = index;
+    });
+    tabs[index].key.currentState?.popUntil((route) => route.isFirst);
+    //   print("if");
+    // } else {
+    //   // update the state
+    //   // in order to repaint
+    //   setState(() => currentTab = index);
+    //   print("else");
+    // }
   }
 
   @override

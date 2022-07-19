@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors
+// ignore_for_file: use_key_in_widget_constructors, unrelated_type_equality_checks, prefer_const_constructors
 
 import 'dashboard.dart';
 import 'package:flutter/material.dart';
@@ -14,48 +14,30 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 60,
-      child: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 13,
-        unselectedFontSize: 13,
-        currentIndex: DashboardState.currentTab,
-        items: tabs
-            .map(
-              (e) => _buildItem(
-                index: e.getIndex(),
-                icon: e.icon,
-                tabName: e.tabName,
-              ),
-            )
-            .toList(),
-        onTap: (index) => onSelectTab(
-          index,
-        ),
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey,
+      selectedFontSize: 13,
+      unselectedFontSize: 13,
+      currentIndex: DashboardState.currentTab,
+      items: tabs
+          .map((e) => BottomNavigationBarItem(
+                icon: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Image.asset(
+                      e.icon.toString(),
+                      scale: 30,
+                      color: DashboardState.currentTab == e.getIndex() 
+                          ? Colors.black
+                          : Colors.grey,
+                    )),
+                label: e.tabName,
+              ))
+          .toList(),
+      onTap: (index) => onSelectTab(
+        index,
       ),
     );
-  }
-
-  BottomNavigationBarItem _buildItem(
-      {int? index, String? icon, String? tabName}) {
-    return BottomNavigationBarItem(
-      icon: Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Image.asset(
-            icon.toString(),
-            scale: 30,
-            color:
-                DashboardState.currentTab == index ? Colors.black : Colors.grey,
-          )),
-      label: tabName,
-    );
-    // }
-  }
-
-  Color _tabColor({int? index}) {
-    return DashboardState.currentTab == index ? Colors.black : Colors.grey;
   }
 }

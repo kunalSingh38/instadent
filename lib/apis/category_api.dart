@@ -14,7 +14,6 @@ class CategoryAPI {
         'Content-Type': 'application/json'
       },
     );
-    print(jsonDecode(response.body)['Response']['category']);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['category'];
     }
@@ -31,6 +30,21 @@ class CategoryAPI {
         body: jsonEncode({"parent_id": id.toString()}));
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response'];
+    }
+    return [];
+  }
+
+  Future<List> productList(String id) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(URL + "category-productlist"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"category_id": id.toString()}));
+    print(response.body);
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['ItemResponse']['category_products'];
     }
     return [];
   }

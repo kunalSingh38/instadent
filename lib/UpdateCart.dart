@@ -12,7 +12,7 @@ class UpdateCartData extends ChangeNotifier {
   String get counterPrice => _totalItemCost;
   bool get counterShowCart => _showCart;
 
-  void incrementCounter() async {
+  Future<void> incrementCounter() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.getBool("loggedIn") ?? false) {
       CartAPI().cartBadge().then((value) {
@@ -34,8 +34,7 @@ class UpdateCartData extends ChangeNotifier {
     }
   }
 
-  void showCartorNot() async {
-    print("object1");
+  Future<void> showCartorNot() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.getBool("loggedIn") ?? false) {
       if (_totalItemCount != "0") {

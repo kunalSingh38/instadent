@@ -45,6 +45,11 @@ dependencies:
   expandable: ^5.0.1
   provider: ^6.0.3
   flutter_share: ^2.0.0
+  flutter_breadcrumb: ^1.0.1
+  modal_progress_hud_nsn: ^0.2.1
+  sqflite: ^2.0.3
+  path: ^1.8.1
+  skeletons: ^0.0.3
 
 
 dev_dependencies:

@@ -70,14 +70,15 @@ class _AccountScreenState extends State<AccountScreen> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text("My Account",
                         style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.bold, fontSize: 25)),
-                    Text("v" + appVersion,
+                    Text("InstaDent\nv" + appVersion,
                         style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
                             color: Colors.grey)),
                   ],
                 ),
@@ -171,7 +172,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 35,
+                  height: 30,
                 ),
                 Text("YOUR INFORMATION",
                     style: GoogleFonts.montserrat(
@@ -179,7 +180,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         fontSize: 14,
                         color: Colors.grey)),
                 SizedBox(
-                  height: 15,
+                  height: 10,
                 ),
                 Column(
                   children: yourInfo
@@ -223,7 +224,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       .toList(),
                 ),
                 SizedBox(
-                  height: 35,
+                  height: 25,
                 ),
                 Text("OTHER INFORMATION",
                     style: GoogleFonts.montserrat(
@@ -231,7 +232,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         fontSize: 14,
                         color: Colors.grey)),
                 SizedBox(
-                  height: 15,
+                  height: 10,
                 ),
                 Column(
                   children: otherInfo.map((e) {
