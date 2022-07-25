@@ -3,14 +3,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(debug: true);
 
   runApp(const MyApp());
 }

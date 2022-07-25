@@ -28,7 +28,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
       LoginAPI().addressList().then((value) {
         setState(() {
           addressList.clear();
-
           value.sort((a, b) => a['id'].compareTo(b['id']));
           addressList.addAll(value);
         });
@@ -37,6 +36,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
           if (element['is_default'] == 1) {
             setState(() {
               groupValue = element['id'];
+              pref.setString("pincode", element['pincode'].toString());
             });
           }
         });
@@ -213,7 +213,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                             LoginAPI()
                                                 .setDefaultAddress(
                                                     e['id'].toString())
-                                                .then((value) {
+                                                .then((value) async {
                                               if (value) {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(

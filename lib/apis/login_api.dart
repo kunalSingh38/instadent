@@ -22,13 +22,14 @@ class LoginAPI {
       body: {"phone": phone, "otp": otp.toString()},
     );
 
-    if (jsonDecode(response.body)["ErrorCode"] == 101) {
-      return true;
-    } else {
+    if (jsonDecode(response.body)["ErrorCode"] == 0) {
       SharedPreferences pref = await SharedPreferences.getInstance();
       pref.setBool("loggedIn", true);
       pref.setString("userPhoneNo", phone.toString());
       pref.setString("token", jsonDecode(response.body)["token"].toString());
+
+      return true;
+    } else {
       return false;
     }
   }
@@ -117,7 +118,7 @@ class LoginAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode(m));
-
+    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return true;
     }

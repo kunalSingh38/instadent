@@ -22,9 +22,7 @@ class Dashboard extends StatefulWidget {
 class DashboardState extends State<Dashboard> {
   // this is static property so other widget throughout the app
   // can access it simply by AppState.currentTab
-  static int currentTab = 1;
-
-  static bool showCart = true;
+  static int currentTab = 0;
 
   // list tabs here
   List<TabItem> tabs = [
@@ -66,19 +64,14 @@ class DashboardState extends State<Dashboard> {
   // sets current tab index
   // and update state
   void selectTab(int index) {
-    // if (index == currentTab) {
-    // pop to first route
-    // if the user taps on the active tab
+    // if (index == 2) {
+    //   Navigator.push(
+    //       context, MaterialPageRoute(builder: (context) => SearchScreen()));
+    // } else {
     setState(() {
       currentTab = index;
     });
     tabs[index].key.currentState?.popUntil((route) => route.isFirst);
-    //   print("if");
-    // } else {
-    //   // update the state
-    //   // in order to repaint
-    //   setState(() => currentTab = index);
-    //   print("else");
     // }
   }
 

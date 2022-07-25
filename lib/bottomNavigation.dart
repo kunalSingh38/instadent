@@ -24,11 +24,11 @@ class BottomNavigation extends StatelessWidget {
       items: tabs
           .map((e) => BottomNavigationBarItem(
                 icon: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(bottom: 5),
                     child: Image.asset(
                       e.icon.toString(),
                       scale: 30,
-                      color: DashboardState.currentTab == e.getIndex() 
+                      color: DashboardState.currentTab == e.getIndex()
                           ? Colors.black
                           : Colors.grey,
                     )),

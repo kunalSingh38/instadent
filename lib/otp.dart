@@ -60,8 +60,16 @@ class _OTPScreenState extends State<OTPScreen> {
         .then((value) {
       Navigator.of(context, rootNavigator: true).pop();
       if (value) {
-        //sent to signup screen
-
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text("Logged In"),
+              duration: Duration(microseconds: 500)),
+        );
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => Dashboard()),
+            (route) => false);
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text("Record not found. Please signup"),
@@ -74,16 +82,6 @@ class _OTPScreenState extends State<OTPScreen> {
                 builder: (context) => SignUpScreen(
                       phoneNumber: widget.phoneNumber.toString(),
                     )));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text("Logged In"),
-              duration: Duration(microseconds: 500)),
-        );
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => Dashboard()),
-            (route) => false);
       }
     });
   }

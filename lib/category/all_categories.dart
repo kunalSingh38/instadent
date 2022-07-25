@@ -107,7 +107,7 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                           crossAxisCount: 4,
                           mainAxisSpacing: 10,
                           crossAxisSpacing: 10,
-                          childAspectRatio: 0.55,
+                          childAspectRatio: 0.6,
                           physics: ClampingScrollPhysics(),
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
@@ -140,10 +140,13 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                                     .size
                                                     .width,
                                                 decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  color: Colors.teal[100],
-                                                ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    color:
+                                                        Colors.tealAccent[50],
+                                                    border: Border.all(
+                                                        color: Colors.teal)),
                                                 child: e['icon'] == null
                                                     ? ClipRRect(
                                                         borderRadius:
@@ -160,6 +163,7 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                                                 .circular(10),
                                                         child: Image.network(
                                                           e['icon'].toString(),
+
                                                           // fit: BoxFit.cover,
                                                           loadingBuilder: (context,
                                                               child,
@@ -191,9 +195,10 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                           e['category_name'] == ""
                                               ? "No Name"
                                               : e['category_name'].toString(),
+                                          softWrap: true,
                                           textAlign: TextAlign.center,
                                           overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
+                                          maxLines: 1,
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 12),

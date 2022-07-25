@@ -5,6 +5,7 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/address.dart';
+import 'package:instadent/cart/order_history.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
 import 'package:instadent/main.dart';
@@ -203,6 +204,13 @@ class _AccountScreenState extends State<AccountScreen> {
                                       MaterialPageRoute(
                                           builder: ((context) =>
                                               UserProfileViewUpdate())));
+                                  break;
+                                case "1":
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: ((context) =>
+                                              OrderHistoryScreen())));
                                   break;
                                 case "2":
                                   Navigator.push(
