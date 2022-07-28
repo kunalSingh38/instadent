@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
+import 'package:instadent/add_to_cart_helper.dart';
 import 'package:instadent/apis/category_api.dart';
 import 'package:instadent/category/sub_categories.dart';
 import 'package:instadent/constants.dart';
@@ -140,13 +141,10 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                                     .size
                                                     .width,
                                                 decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    color:
-                                                        Colors.tealAccent[50],
-                                                    border: Border.all(
-                                                        color: Colors.teal)),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  color: Colors.tealAccent[50],
+                                                ),
                                                 child: e['icon'] == null
                                                     ? ClipRRect(
                                                         borderRadius:
@@ -163,8 +161,7 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                                                 .circular(10),
                                                         child: Image.network(
                                                           e['icon'].toString(),
-
-                                                          // fit: BoxFit.cover,
+                                                          fit: BoxFit.cover,
                                                           loadingBuilder: (context,
                                                               child,
                                                               loadingProgress) {

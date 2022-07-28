@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "649776695893",
+    "project_id": "instadent-3cd58",
+    "storage_bucket": "instadent-3cd58.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:649776695893:android:212668c4b86306961262dc",
+        "android_client_info": {
+          "package_name": "com.instadent.instadent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "649776695893-mj02k09liaphehp3s1vk7f4npi79k8he.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUGiNEb9BnCBRA1Ehnq1ATdwJZbKqsJZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "649776695893-mj02k09liaphehp3s1vk7f4npi79k8he.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

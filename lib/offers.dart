@@ -13,6 +13,11 @@ class _OffersScreenState extends State<OffersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomSheet: bottomSheet(),
+      body: Center(
+        child: Container(
+          child: Image.asset("assets/logo.png"),
+        ),
+      ),
     );
   }
 }

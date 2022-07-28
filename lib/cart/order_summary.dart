@@ -5,7 +5,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/apis/cart_api.dart';
+import 'package:instadent/constants.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -23,6 +25,15 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   bool isLoading = true;
   List items = [];
   ReceivePort _port = ReceivePort();
+  String orderId = "";
+  String payment = "";
+  String orderPlaced = "";
+  String trackLink = "";
+  String total = "";
+  TextStyle style1 = TextStyle(
+      fontWeight: FontWeight.w400, fontSize: 16, color: Colors.grey[600]);
+  TextStyle style2 =
+      TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black);
   @override
   void dispose() {
     IsolateNameServer.removePortNameMapping('downloader_send_port');
@@ -84,6 +95,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     super.initState();
 
     CartAPI().orderDetails(widget.map['orderId'].toString()).then((value) {
+      print("___" + value.toString());
       setState(() {
         isLoading = false;
       });
@@ -91,6 +103,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
         setState(() {
           orderMap = value;
           items.addAll(value['items']);
+          orderId = value['order_number'].toString();
+          orderPlaced = value['order_date'].toString();
+          payment = value['payment_mode'].toString();
+          trackLink = widget.map['liveTrackLink'].toString();
+          total = value['total'].toString();
         });
       }
     });
@@ -108,18 +125,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.map);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey[50],
-        leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: Icon(
-              Icons.arrow_back_outlined,
-              color: Colors.black,
-              size: 22,
-            )),
+        leading: backIcon(context),
         elevation: 0,
         leadingWidth: 30,
       ),
@@ -150,30 +160,50 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                       fontSize: 12),
                 ),
                 SizedBox(height: 8),
-                InkWell(
-                  onTap: () {
-                    _setPath(widget.map['download_invoice'].toString());
-                  },
-                  child: Row(
-                    children: [
-                      Text("Download summary",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.green[700],
-                              fontSize: 14)),
-                      Icon(
-                        Icons.file_download_outlined,
-                        color: Colors.green[700],
-                        size: 20,
-                      )
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        _setPath(widget.map['download_invoice'].toString());
+                      },
+                      child: Row(
+                        children: [
+                          Text("Download summary",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.green[700],
+                                  fontSize: 14)),
+                          Icon(
+                            Icons.file_download_outlined,
+                            color: Colors.green[700],
+                            size: 20,
+                          )
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          cancelReason.clear();
+                        });
+                        suggestCancelReason(orderId);
+                      },
+                      child: Text(
+                        "Cancel Order",
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14),
+                      ),
+                    )
+                  ],
                 ),
                 Divider(
                   thickness: 0.9,
                 ),
                 Text(
-                  "13 items in this order",
+                  items.length.toString() + " items in this order",
                   textAlign: TextAlign.left,
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
@@ -238,7 +268,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                       children: [
-                                        Text(e['product_name'].toString()),
+                                        SelectableText(
+                                            e['product_name'].toString()),
                                         SizedBox(
                                           height: 10,
                                         ),
@@ -269,6 +300,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 ),
                 Divider(
                   thickness: 0.9,
+                  height: 30,
                 ),
                 Text(
                   "Bill Details",
@@ -353,7 +385,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                           fontSize: 18),
                     ),
                     Text(
-                      "₹495",
+                      "₹" + total.toString(),
                       textAlign: TextAlign.left,
                       style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -364,12 +396,193 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 ),
                 Divider(
                   thickness: 0.9,
-                )
+                  height: 30,
+                ),
+                Text(
+                  "Order details",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      fontSize: 18),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text("Order id", style: style1),
+                SizedBox(
+                  height: 10,
+                ),
+                SelectableText(orderId.toString().toUpperCase(), style: style2),
+                SizedBox(
+                  height: 20,
+                ),
+                Text("Payment", style: style1),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(payment.toString(), style: style2),
+                SizedBox(
+                  height: 20,
+                ),
+                Text("Order placed", style: style1),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(orderPlaced.toString(), style: style2),
+                Divider(
+                  thickness: 0.9,
+                  height: 30,
+                ),
+                SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 45,
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            )),
+                            backgroundColor: MaterialStateProperty.all(
+                                trackLink.isEmpty
+                                    ? Colors.grey
+                                    : Colors.teal[700])),
+                        onPressed: () {
+                          if (trackLink.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text("Tracking not available".toString()),
+                                  duration: Duration(seconds: 1)),
+                            );
+                          } else {
+                            print(trackLink);
+                          }
+                        },
+                        child: Text(
+                          "track your order",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                              color: Colors.white),
+                        )))
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  TextEditingController cancelReason = TextEditingController();
+  Future<void> suggestCancelReason(String orderId) async {
+    await showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+        backgroundColor: Colors.white,
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => Padding(
+            padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+            child: SingleChildScrollView(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                  Text("Why do you want to cancel the order?",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      )),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        side: BorderSide(color: Color(0xFFEEEEEE))),
+                    child: TextFormField(
+                      // autofocus: true,
+
+                      controller: cancelReason,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      maxLines: 6,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        contentPadding: EdgeInsets.all(10),
+                        filled: true,
+                        fillColor: Colors.teal[50],
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.lightBlue),
+                            borderRadius: BorderRadius.circular(10)),
+                        hintText: "Enter your reason",
+                        hintStyle: TextStyle(
+                            color: Colors.teal[200],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width / 1.15,
+                      height: 45,
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              )),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.teal[700])),
+                          onPressed: () {
+                            if (cancelReason.text.isNotEmpty) {
+                              print(orderId);
+                              print(cancelReason.text);
+                              CartAPI()
+                                  .cancelOrder(orderId.toString(),
+                                      cancelReason.text.toString())
+                                  .then((value) {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                                if (value) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text("Order Cancelled".toString()),
+                                        duration: Duration(seconds: 1)),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            "Order cancellation failed"
+                                                .toString()),
+                                        duration: Duration(seconds: 1)),
+                                  );
+                                }
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text("Please enter cancel reason."
+                                        .toString()),
+                                    duration: Duration(seconds: 1)),
+                              );
+                            }
+                          },
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 16,
+                                color: Colors.white),
+                          ))),
+                ]))));
   }
 }

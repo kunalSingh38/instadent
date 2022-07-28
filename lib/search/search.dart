@@ -54,17 +54,6 @@ class _SearchScreenState extends State<SearchScreen> {
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.black),
         toolbarHeight: 50,
-        // leading: DashboardState.currentTab == 2
-        //     ? SizedBox()
-        //     : IconButton(
-        //         onPressed: () {
-        //           Navigator.of(context).pop();
-        //         },
-        //         icon: Icon(
-        //           Icons.arrow_back_outlined,
-        //           color: Colors.black,
-        //           size: 22,
-        //         )),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -285,7 +274,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     children: searchResult
                         .map(
                           (e) => AbsorbPointer(
-                            absorbing: e['is_stock'] == 1,
+                            absorbing: false,
                             child: Stack(
                               children: [
                                 InkWell(

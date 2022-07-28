@@ -1,4 +1,4 @@
-package com.example.instadent
+package com.instadent.instadent
 
 import io.flutter.embedding.android.FlutterActivity
 

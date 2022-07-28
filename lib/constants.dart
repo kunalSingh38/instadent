@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/cart/cart_view.dart';
 import 'package:provider/provider.dart';
@@ -99,7 +100,20 @@ Widget bottomSheet() =>
           : SizedBox();
     });
 
+String removeNull(String data) {
+  return data == "null" ? "" : data.toString();
+}
+
 Future<void> showProdcutDetails(context, m) async {
+  String group_Data = m['group_price']
+      .toString()
+      .replaceAll("&#8377;", "₹")
+      .replaceAll("<br/>", ",")
+      .toString();
+
+  List data = group_Data.split(",");
+  data.removeLast();
+
   await showModalBottomSheet(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
@@ -135,17 +149,134 @@ Future<void> showProdcutDetails(context, m) async {
                         SizedBox(
                           height: 10,
                         ),
-                        Text("Product details",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 18)),
-                        SizedBox(
-                          height: 10,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text("Product details",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 18)),
+                            RichText(
+                              text: TextSpan(
+                                text: '',
+                                style: DefaultTextStyle.of(context).style,
+                                children: [
+                                  TextSpan(
+                                      text: "₹" +
+                                          removeNull(
+                                              m['item_price'].toString()),
+                                      style: TextStyle(
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.grey,
+                                          fontSize: 16)),
+                                  TextSpan(
+                                      text: "  ₹" +
+                                          m['discount_price'].toString(),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16)),
+                                ],
+                              ),
+                            )
+                          ],
                         ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "L x W x H (cm)",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              removeNull(m['item_length'].toString()) +
+                                  " x " +
+                                  removeNull(m['item_width'].toString()) +
+                                  " x " +
+                                  removeNull(m['item_height'].toString()),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Weight (g)",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              removeNull(m['item_weight'].toString()),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        data.length == 0
+                            ? SizedBox()
+                            : Column(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: data
+                                        .map(
+                                          (e) => Column(
+                                            children: [
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.blue,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5)),
+                                                child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Text(
+                                                      e.toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: Colors.white),
+                                                    )),
+                                              ),
+                                              SizedBox(
+                                                height: 2,
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                  SizedBox(
+                                    height: 12,
+                                  ),
+                                ],
+                              ),
+
                         Text("Description",
                             style: TextStyle(
                                 fontWeight: FontWeight.w400, fontSize: 17)),
                         SizedBox(
-                          height: 8,
+                          height: 5,
                         ),
                         Text(m['short_description'].toString(),
                             style: TextStyle(
@@ -170,4 +301,16 @@ Future<void> showProdcutDetails(context, m) async {
                       ]),
                 )),
           ));
+}
+
+Widget backIcon(context) {
+  return InkWell(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      child: Icon(
+        Icons.arrow_back_outlined,
+        color: Colors.black,
+        size: 27,
+      ));
 }

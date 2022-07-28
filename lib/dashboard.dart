@@ -23,7 +23,7 @@ class DashboardState extends State<Dashboard> {
   // this is static property so other widget throughout the app
   // can access it simply by AppState.currentTab
   static int currentTab = 0;
-
+  static bool showSearch = false;
   // list tabs here
   List<TabItem> tabs = [
     TabItem(
@@ -80,6 +80,7 @@ class DashboardState extends State<Dashboard> {
     // TODO: implement initState
     super.initState();
     Provider.of<UpdateCartData>(context, listen: false).showCartorNot();
+    Provider.of<UpdateCartData>(context, listen: false).setDefaultAddress();
   }
 
   @override
@@ -107,10 +108,12 @@ class DashboardState extends State<Dashboard> {
       // eventually breaking the app
       child: Scaffold(
         // indexed stack shows only one child
-        body: IndexedStack(
-          index: currentTab,
-          children: tabs.map((e) => e.page).toList(),
-        ),
+        body: showSearch
+            ? SearchScreen()
+            : IndexedStack(
+                index: currentTab,
+                children: tabs.map((e) => e.page).toList(),
+              ),
         // Bottom navigation
 
         bottomNavigationBar: BottomNavigation(

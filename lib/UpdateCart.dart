@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:instadent/apis/cart_api.dart';
+import 'package:instadent/apis/login_api.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,10 +8,16 @@ class UpdateCartData extends ChangeNotifier {
   String _totalItemCount = "0";
   String _totalItemCost = "0";
   bool _showCart = false;
+  String _defaultOffice = "";
+  String _defaultPincode = "";
+  String _defaultAddress = "";
 
   String get counter => _totalItemCount;
   String get counterPrice => _totalItemCost;
   bool get counterShowCart => _showCart;
+  String get counterDefaultOffice => _defaultOffice;
+  String get counterDefaultPinCode => _defaultPincode;
+  String get counterDefaultAddress => _defaultAddress;
 
   Future<void> incrementCounter() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -48,5 +55,12 @@ class UpdateCartData extends ChangeNotifier {
       _showCart = false;
       notifyListeners();
     }
+  }
+
+  Future<void> setDefaultAddress() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    _defaultPincode = pref.getString('pincode').toString();
+    _defaultOffice = pref.getString('address_type').toString();
+    _defaultAddress = pref.getString('defaultAddress').toString();
   }
 }

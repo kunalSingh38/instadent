@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/address.dart';
 import 'package:instadent/cart/order_history.dart';
+import 'package:instadent/contact_us.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
 import 'package:instadent/main.dart';
@@ -31,6 +32,7 @@ class _AccountScreenState extends State<AccountScreen> {
   List otherInfo = [
     {"title": "About", "id": "1", "icon": "aboutus.png"},
     {"title": "Rate us on Play Store", "id": "2", "icon": "star.png"},
+    {"title": "Contact Us", "id": "4", "icon": "contact.png"},
     {"title": "Logout", "id": "3", "icon": "logout.png"}
   ];
 
@@ -145,36 +147,43 @@ class _AccountScreenState extends State<AccountScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.teal[50],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: list
-                            .map(
-                              (e) => Column(
-                                children: [
-                                  Image.asset(
-                                    "assets/" + e['icon'].toString(),
-                                    scale: 18,
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(e['title']),
-                                ],
-                              ),
-                            )
-                            .toList()),
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
+                phoneNumber == "null"
+                    ? SizedBox()
+                    : Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.teal[50],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: list
+                                      .map(
+                                        (e) => Column(
+                                          children: [
+                                            Image.asset(
+                                              "assets/" + e['icon'].toString(),
+                                              scale: 18,
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(e['title']),
+                                          ],
+                                        ),
+                                      )
+                                      .toList()),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                        ],
+                      ),
                 Text("YOUR INFORMATION",
                     style: GoogleFonts.montserrat(
                         fontWeight: FontWeight.w400,
@@ -185,50 +194,53 @@ class _AccountScreenState extends State<AccountScreen> {
                 ),
                 Column(
                   children: yourInfo
-                      .map((e) => ListTile(
-                            dense: true,
-                            minLeadingWidth: 2,
-                            leading: Image.asset(
-                              "assets/" + e['icon'].toString(),
-                              scale: 25,
-                            ),
-                            title: Text(
-                              e['title'],
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            onTap: () async {
-                              switch (e['id'].toString()) {
-                                case "4":
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: ((context) =>
-                                              UserProfileViewUpdate())));
-                                  break;
-                                case "1":
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: ((context) =>
-                                              OrderHistoryScreen())));
-                                  break;
-                                case "2":
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: ((context) =>
-                                              AddressListScreen())));
-                                  break;
-                                case "3":
-                                  await FlutterShare.share(
-                                    title: 'InstaDent App',
-                                    linkUrl:
-                                        'https://play.google.com/store/apps/details?id=com.tayal.tayalFintech',
-                                  );
-                                  break;
-                              }
-                            },
-                          ))
+                      .map((e) => phoneNumber == "null" && e['id'] == "4" ||
+                              phoneNumber == "null" && e['id'] == "1"
+                          ? SizedBox()
+                          : ListTile(
+                              dense: true,
+                              minLeadingWidth: 2,
+                              leading: Image.asset(
+                                "assets/" + e['icon'].toString(),
+                                scale: 25,
+                              ),
+                              title: Text(
+                                e['title'],
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              onTap: () async {
+                                switch (e['id'].toString()) {
+                                  case "4":
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: ((context) =>
+                                                UserProfileViewUpdate())));
+                                    break;
+                                  case "1":
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: ((context) =>
+                                                OrderHistoryScreen())));
+                                    break;
+                                  case "2":
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: ((context) =>
+                                                AddressListScreen())));
+                                    break;
+                                  case "3":
+                                    await FlutterShare.share(
+                                      title: 'InstaDent App',
+                                      linkUrl:
+                                          'https://play.google.com/store/apps/details?id=com.tayal.tayalFintech',
+                                    );
+                                    break;
+                                }
+                              },
+                            ))
                       .toList(),
                 ),
                 SizedBox(
@@ -245,13 +257,13 @@ class _AccountScreenState extends State<AccountScreen> {
                 Column(
                   children: otherInfo.map((e) {
                     int index = otherInfo.indexOf(e);
-                    return phoneNumber == "null" && index == 2
+                    return phoneNumber == "null" && e['id'] == "3"
                         ? SizedBox()
                         : ListTile(
                             onTap: () async {
                               switch (e['id']) {
                                 case "3":
-                                  return showDialog(
+                                  showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
                                             title: Text(
@@ -298,6 +310,13 @@ class _AccountScreenState extends State<AccountScreen> {
                                           ));
 
                                   break;
+                                case "4":
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ContactUsScreen()));
+                                  break;
                               }
                             },
                             dense: true,
@@ -312,6 +331,16 @@ class _AccountScreenState extends State<AccountScreen> {
                             ),
                           );
                   }).toList(),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Center(
+                  child: Text(
+                    "Copyright© 2022 InstaDent. Designed By TechStreet.in",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
                 )
               ],
             ),

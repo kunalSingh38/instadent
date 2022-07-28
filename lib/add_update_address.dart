@@ -44,15 +44,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: Icon(
-              Icons.arrow_back_outlined,
-              color: Colors.black,
-              size: 22,
-            )),
+        leading: backIcon(context),
         elevation: 3,
         leadingWidth: 30,
         title: Text(
@@ -239,7 +231,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                                 m['address'] = deliveryAddress.text.toString();
                                 m['landmark'] = landmark.text.toString();
                                 m['address_type'] = addressType.text.toString();
-
+                                print(m);
                                 showLaoding(context);
 
                                 LoginAPI().editAddress(m).then((value) async {

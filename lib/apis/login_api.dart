@@ -1,7 +1,10 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/constants.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginAPI {
@@ -88,7 +91,6 @@ class LoginAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode({"address_id": id.toString()}));
-    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return true;
     }
