@@ -11,6 +11,7 @@ class UpdateCartData extends ChangeNotifier {
   String _defaultOffice = "";
   String _defaultPincode = "";
   String _defaultAddress = "";
+  bool _showSearch = false;
 
   String get counter => _totalItemCount;
   String get counterPrice => _totalItemCost;
@@ -18,6 +19,7 @@ class UpdateCartData extends ChangeNotifier {
   String get counterDefaultOffice => _defaultOffice;
   String get counterDefaultPinCode => _defaultPincode;
   String get counterDefaultAddress => _defaultAddress;
+  bool get counterShowSearch => _showSearch;
 
   Future<void> incrementCounter() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -62,5 +64,10 @@ class UpdateCartData extends ChangeNotifier {
     _defaultPincode = pref.getString('pincode').toString();
     _defaultOffice = pref.getString('address_type').toString();
     _defaultAddress = pref.getString('defaultAddress').toString();
+  }
+
+  Future<void> changeSearchView() async {
+    _showSearch = !_showSearch;
+    notifyListeners();
   }
 }

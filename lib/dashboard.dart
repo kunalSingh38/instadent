@@ -23,7 +23,6 @@ class DashboardState extends State<Dashboard> {
   // this is static property so other widget throughout the app
   // can access it simply by AppState.currentTab
   static int currentTab = 0;
-  static bool showSearch = false;
   // list tabs here
   List<TabItem> tabs = [
     TabItem(
@@ -108,18 +107,25 @@ class DashboardState extends State<Dashboard> {
       // eventually breaking the app
       child: Scaffold(
         // indexed stack shows only one child
-        body: showSearch
-            ? SearchScreen()
-            : IndexedStack(
-                index: currentTab,
-                children: tabs.map((e) => e.page).toList(),
-              ),
+        body: Consumer<UpdateCartData>(builder: (context, viewModel, child) {
+          return viewModel.counterShowSearch
+              ? SearchScreen()
+              : IndexedStack(
+                  index: currentTab,
+                  children: tabs.map((e) => e.page).toList(),
+                );
+        }),
         // Bottom navigation
 
-        bottomNavigationBar: BottomNavigation(
-          onSelectTab: selectTab,
-          tabs: tabs,
-        ),
+        bottomNavigationBar:
+            Consumer<UpdateCartData>(builder: (context, viewModel, child) {
+          return viewModel.counterShowSearch
+              ? SizedBox()
+              : BottomNavigation(
+                  onSelectTab: selectTab,
+                  tabs: tabs,
+                );
+        }),
       ),
     );
   }

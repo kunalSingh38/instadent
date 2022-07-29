@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CartAPI {
   Future<Map> cartData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    print(pref.getString("token").toString());
     var response = await http.post(
       Uri.parse(URL + "cart"),
       headers: {

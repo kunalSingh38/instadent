@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/apis/cart_api.dart';
+import 'package:instadent/cart/return_order_details.dart';
 import 'package:instadent/constants.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:path_provider/path_provider.dart';
@@ -30,6 +31,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   String orderPlaced = "";
   String trackLink = "";
   String total = "";
+  bool isDelivered = false;
   TextStyle style1 = TextStyle(
       fontWeight: FontWeight.w400, fontSize: 16, color: Colors.grey[600]);
   TextStyle style2 =
@@ -77,9 +79,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           showNotification: true,
           openFileFromNotification: true);
 
-      print(id.toString());
-
-      print(externalDir.path + "/" + fileName);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -95,7 +94,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     super.initState();
 
     CartAPI().orderDetails(widget.map['orderId'].toString()).then((value) {
-      print("___" + value.toString());
       setState(() {
         isLoading = false;
       });
@@ -108,6 +106,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           payment = value['payment_mode'].toString();
           trackLink = widget.map['liveTrackLink'].toString();
           total = value['total'].toString();
+          isDelivered = value['order_status'] == "Delivered" ? true : false;
         });
       }
     });
@@ -125,7 +124,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.map);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey[50],
@@ -182,21 +180,23 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         ],
                       ),
                     ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          cancelReason.clear();
-                        });
-                        suggestCancelReason(orderId);
-                      },
-                      child: Text(
-                        "Cancel Order",
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14),
-                      ),
-                    )
+                    isDelivered
+                        ? SizedBox()
+                        : InkWell(
+                            onTap: () {
+                              setState(() {
+                                cancelReason.clear();
+                              });
+                              suggestCancelReason(orderId);
+                            },
+                            child: Text(
+                              "Cancel Order",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14),
+                            ),
+                          )
                   ],
                 ),
                 Divider(
@@ -434,38 +434,67 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   thickness: 0.9,
                   height: 30,
                 ),
-                SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: 45,
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            )),
-                            backgroundColor: MaterialStateProperty.all(
-                                trackLink.isEmpty
-                                    ? Colors.grey
-                                    : Colors.teal[700])),
-                        onPressed: () {
-                          if (trackLink.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text("Tracking not available".toString()),
-                                  duration: Duration(seconds: 1)),
-                            );
-                          } else {
-                            print(trackLink);
-                          }
-                        },
-                        child: Text(
-                          "track your order",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                              color: Colors.white),
-                        )))
+                isDelivered
+                    ? SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 45,
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                )),
+                                backgroundColor: MaterialStateProperty.all(
+                                    trackLink.isEmpty
+                                        ? Colors.grey
+                                        : Colors.teal[700])),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ReturnOrderDetailsScreen(
+                                              m: orderMap)));
+                            },
+                            child: Text(
+                              "Return and Replacement",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                  color: Colors.white),
+                            )))
+                    : SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 45,
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                )),
+                                backgroundColor: MaterialStateProperty.all(
+                                    trackLink.isEmpty
+                                        ? Colors.grey
+                                        : Colors.teal[700])),
+                            onPressed: () {
+                              if (trackLink.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          "Tracking not available".toString()),
+                                      duration: Duration(seconds: 1)),
+                                );
+                              } else {
+                                print(trackLink);
+                              }
+                            },
+                            child: Text(
+                              "track your order",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                  color: Colors.white),
+                            )))
               ],
             ),
           ),
@@ -542,8 +571,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                   MaterialStateProperty.all(Colors.teal[700])),
                           onPressed: () {
                             if (cancelReason.text.isNotEmpty) {
-                              print(orderId);
-                              print(cancelReason.text);
                               CartAPI()
                                   .cancelOrder(orderId.toString(),
                                       cancelReason.text.toString())

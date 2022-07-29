@@ -58,8 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
           readOnly: true,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SearchScreen()));
+            Provider.of<UpdateCartData>(context, listen: false)
+                .changeSearchView();
           },
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),

@@ -1,6 +1,7 @@
-// ignore_for_file: sort_child_properties_last, prefer_const_constructors
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_interpolation_to_compose_strings, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
@@ -10,6 +11,7 @@ import 'package:instadent/contact_us.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
 import 'package:instadent/main.dart';
+import 'package:instadent/policy_view.dart';
 import 'package:instadent/user_profile.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +32,36 @@ class _AccountScreenState extends State<AccountScreen> {
     {"title": "Share the app", "id": "3", "icon": "share.png"}
   ];
   List otherInfo = [
-    {"title": "About", "id": "1", "icon": "aboutus.png"},
+    {
+      "title": "About Us",
+      "id": "1",
+      "icon": "aboutus.png",
+      "data": "aboutus.html"
+    },
+    {
+      "title": "Privacy Policy",
+      "id": "5",
+      "icon": "policy.png",
+      "data": "privacy.html"
+    },
+    {
+      "title": "Shipping Policy",
+      "id": "6",
+      "icon": "shipping.png",
+      "data": "shipping.html"
+    },
+    {
+      "title": "Refund & Replacement",
+      "id": "7",
+      "icon": "refund.png",
+      "data": "refund.html"
+    },
+    {
+      "title": "Terms & Condition",
+      "id": "8",
+      "icon": "terms.png",
+      "data": "term_condition.html"
+    },
     {"title": "Rate us on Play Store", "id": "2", "icon": "star.png"},
     {"title": "Contact Us", "id": "4", "icon": "contact.png"},
     {"title": "Logout", "id": "3", "icon": "logout.png"}
@@ -262,6 +293,19 @@ class _AccountScreenState extends State<AccountScreen> {
                         : ListTile(
                             onTap: () async {
                               switch (e['id']) {
+                                case "1":
+                                case "5":
+                                case "6":
+                                case "7":
+                                case "8":
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Policy_View(
+                                              policy: e['title'].toString(),
+                                              data: e['data'].toString())));
+                                  break;
+
                                 case "3":
                                   showDialog(
                                       context: context,

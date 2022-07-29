@@ -94,14 +94,44 @@ class CategoryAPI {
           // "pincode": pref.getString("pincode").toString()
           "pincode": "201301"
         }));
-    print(jsonEncode({
-      "search": searchData.toString(),
-      // "pincode": pref.getString("pincode").toString()
-      "pincode": "201301"
-    }));
+
     if (jsonDecode(response.body)['ErrorCode'] == 0 &&
         jsonDecode(response.body)['ItemResponse'] != null) {
       return jsonDecode(response.body)['ItemResponse'];
+    }
+    return [];
+  }
+
+  Future<List> brandCategory() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    var response = await http.post(
+      Uri.parse(URL + "brand/list"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+      },
+    );
+
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response'];
+    }
+    return [];
+  }
+
+  Future<List> featuredProducts() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    var response = await http.post(
+      Uri.parse(URL + "featured-product"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+      },
+    );
+
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['ItemResponse']['data'];
     }
     return [];
   }

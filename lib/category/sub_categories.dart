@@ -180,7 +180,10 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
           ),
           actions: [
             InkWell(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SearchScreen()));
+              },
               child: Image.asset(
                 "assets/search.png",
                 scale: 25,
@@ -432,13 +435,25 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                         child: Column(
                                           children: [
                                             Expanded(
-                                              child: Container(
-                                                  child: Image.asset(
-                                                      "assets/logo.png")),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15),
+                                                child: Image.network(
+                                                  "https://dev.techstreet.in/idc/public/public/assets/images/item-images/" +
+                                                      e['image'].toString(),
+                                                  scale: 10,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Image.asset(
+                                                      "assets/no_image.jpeg",
+                                                    );
+                                                  },
+                                                ),
+                                              ),
                                             ),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
+                                            // SizedBox(
+                                            //   height: 2,
+                                            // ),
                                             Expanded(
                                                 child: Padding(
                                               padding:

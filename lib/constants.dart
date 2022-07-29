@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, dead_code, prefer_interpolation_to_compose_strings
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
@@ -113,194 +113,207 @@ Future<void> showProdcutDetails(context, m) async {
 
   List data = group_Data.split(",");
   data.removeLast();
-
+  double height = 220;
+  double heightMain = 1.7;
   await showModalBottomSheet(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
       backgroundColor: Colors.white,
       context: context,
       isScrollControlled: true,
-      builder: (context) => Container(
-            height: MediaQuery.of(context).size.height / 1.7,
-            child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: SingleChildScrollView(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          height: 220,
-                          child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: List.generate(
-                                4,
-                                (index) => Card(
+      builder: (context) => StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height / heightMain,
+              child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: SingleChildScrollView(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              if (height == 500) {
+                                setState(() {
+                                  height = 200;
+                                  heightMain = 1.7;
+                                });
+                              } else {
+                                setState(() {
+                                  height = 500;
+                                  heightMain = 1.2;
+                                });
+                              }
+                            },
+                            child: SizedBox(
+                              height: height,
+                              child: Card(
                                   elevation: 8,
-                                  child: Container(
-                                    height: 200,
-                                    width: 200,
-                                    child: Image.asset("assets/logo.png"),
-                                  ),
+                                  child: Image.network(
+                                      "https://dev.techstreet.in/idc/public/public/assets/images/item-images/" +
+                                          m['image'].toString())),
+                            ),
+                          ),
+                          Divider(),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text("Product details",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18)),
+                              RichText(
+                                text: TextSpan(
+                                  text: '',
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: [
+                                    TextSpan(
+                                        text: "₹" +
+                                            removeNull(
+                                                m['item_price'].toString()),
+                                        style: TextStyle(
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.grey,
+                                            fontSize: 16)),
+                                    TextSpan(
+                                        text: "  ₹" +
+                                            m['discount_price'].toString(),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16)),
+                                  ],
                                 ),
-                              ).toList()),
-                        ),
-                        Divider(),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text("Product details",
+                              )
+                            ],
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "L x W x H (cm)",
                                 style: TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 18)),
-                            RichText(
-                              text: TextSpan(
-                                text: '',
-                                style: DefaultTextStyle.of(context).style,
-                                children: [
-                                  TextSpan(
-                                      text: "₹" +
-                                          removeNull(
-                                              m['item_price'].toString()),
-                                      style: TextStyle(
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.grey,
-                                          fontSize: 16)),
-                                  TextSpan(
-                                      text: "  ₹" +
-                                          m['discount_price'].toString(),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 16)),
-                                ],
+                                    fontSize: 15, fontWeight: FontWeight.w600),
                               ),
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "L x W x H (cm)",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              removeNull(m['item_length'].toString()) +
-                                  " x " +
-                                  removeNull(m['item_width'].toString()) +
-                                  " x " +
-                                  removeNull(m['item_height'].toString()),
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Weight (g)",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              removeNull(m['item_weight'].toString()),
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 12,
-                        ),
-                        data.length == 0
-                            ? SizedBox()
-                            : Column(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: data
-                                        .map(
-                                          (e) => Column(
-                                            children: [
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.blue,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5)),
-                                                child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      e.toString(),
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          color: Colors.white),
-                                                    )),
-                                              ),
-                                              SizedBox(
-                                                height: 2,
-                                              )
-                                            ],
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                  SizedBox(
-                                    height: 12,
-                                  ),
-                                ],
+                              Text(
+                                removeNull(m['item_length'].toString()) +
+                                    " x " +
+                                    removeNull(m['item_width'].toString()) +
+                                    " x " +
+                                    removeNull(m['item_height'].toString()),
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.w500),
                               ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Weight (g)",
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                removeNull(m['item_weight'].toString()),
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 12,
+                          ),
+                          data.length == 0
+                              ? SizedBox()
+                              : Column(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: data
+                                          .map(
+                                            (e) => Column(
+                                              children: [
+                                                Container(
+                                                  width: MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.blue,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5)),
+                                                  child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                        e.toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color:
+                                                                Colors.white),
+                                                      )),
+                                                ),
+                                                SizedBox(
+                                                  height: 2,
+                                                )
+                                              ],
+                                            ),
+                                          )
+                                          .toList(),
+                                    ),
+                                    SizedBox(
+                                      height: 12,
+                                    ),
+                                  ],
+                                ),
 
-                        Text("Description",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400, fontSize: 17)),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Text(m['short_description'].toString(),
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 15,
-                                color: Colors.grey)),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // Text("Nutrient Value & Benefits",
-                        //     style: TextStyle(
-                        //         fontWeight: FontWeight.w400, fontSize: 17)),
-                        // SizedBox(
-                        //   height: 8,
-                        // ),
-                        // Text(
-                        //     "Contains Folic Acid, Vitamin C, Vitamin K, .Vitamin C act as a powerful antioxidants and also helps formation of collagen that is responsible for skin and hair health.",
-                        //     style: TextStyle(
-                        //         fontWeight: FontWeight.w400,
-                        //         fontSize: 15,
-                        //         color: Colors.grey)),
-                      ]),
-                )),
-          ));
+                          Text("Description",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400, fontSize: 17)),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(m['short_description'].toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15,
+                                  color: Colors.grey)),
+                          // SizedBox(
+                          //   height: 10,
+                          // ),
+                          // Text("Nutrient Value & Benefits",
+                          //     style: TextStyle(
+                          //         fontWeight: FontWeight.w400, fontSize: 17)),
+                          // SizedBox(
+                          //   height: 8,
+                          // ),
+                          // Text(
+                          //     "Contains Folic Acid, Vitamin C, Vitamin K, .Vitamin C act as a powerful antioxidants and also helps formation of collagen that is responsible for skin and hair health.",
+                          //     style: TextStyle(
+                          //         fontWeight: FontWeight.w400,
+                          //         fontSize: 15,
+                          //         color: Colors.grey)),
+                        ]),
+                  )),
+            );
+          }));
 }
 
 Widget backIcon(context) {

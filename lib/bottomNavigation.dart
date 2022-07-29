@@ -1,5 +1,8 @@
 // ignore_for_file: use_key_in_widget_constructors, unrelated_type_equality_checks, prefer_const_constructors
 
+import 'package:instadent/UpdateCart.dart';
+import 'package:provider/provider.dart';
+
 import 'dashboard.dart';
 import 'package:flutter/material.dart';
 import 'tabItem.dart';
@@ -35,9 +38,16 @@ class BottomNavigation extends StatelessWidget {
                 label: e.tabName,
               ))
           .toList(),
-      onTap: (index) => onSelectTab(
-        index,
-      ),
+      onTap: (index) {
+        if (index == 2) {
+          Provider.of<UpdateCartData>(context, listen: false)
+              .changeSearchView();
+        } else {
+          return onSelectTab(
+            index,
+          );
+        }
+      },
     );
   }
 }
