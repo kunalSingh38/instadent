@@ -38,7 +38,6 @@ class _UserProfileViewUpdateState extends State<UserProfileViewUpdate> {
           backgroundColor: Colors.white,
           leading: backIcon(context),
           elevation: 3,
-          leadingWidth: 30,
           title: const Text(
             "Profile",
             textAlign: TextAlign.left,

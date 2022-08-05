@@ -71,7 +71,6 @@ class _ReturnItemScreenState extends State<ReturnItemScreen> {
           backgroundColor: Colors.white,
           leading: backIcon(context),
           elevation: 3,
-          leadingWidth: 30,
           title: const Text(
             "Return & Refund",
             textAlign: TextAlign.left,

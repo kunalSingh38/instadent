@@ -9,6 +9,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
+import 'package:instadent/noInternet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,15 +64,22 @@ class _SplashScreenState extends State<SplashScreen> {
     return pref.getBool("loggedIn") ?? false;
   }
 
+  // Future<bool> checkIntenert() async {
+  //   bool result = await InternetConnectionChecker().hasConnection;
+  //   print(result);
+  //   return result;
+  // }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    Provider.of<UpdateCartData>(context, listen: false).incrementCounter();
 
-    Timer(Duration(seconds: 1), () {
+    Timer(Duration(milliseconds: 2450), () {
       checkLoggedIn().then((value) {
         if (value) {
+          Provider.of<UpdateCartData>(context, listen: false)
+              .incrementCounter();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => Dashboard()),
@@ -88,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: Colors.white),
-      child: Image.asset("assets/logo.png"),
+      child: Image.asset("assets/splash.gif"),
     );
   }
 }

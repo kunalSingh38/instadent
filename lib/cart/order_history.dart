@@ -67,7 +67,6 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         backgroundColor: Colors.white,
         leading: backIcon(context),
         elevation: 3,
-        leadingWidth: 30,
         title: Text(
           "Order History (" + len.toString() + ")",
           textAlign: TextAlign.left,

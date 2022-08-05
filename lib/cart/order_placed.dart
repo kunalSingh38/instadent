@@ -23,7 +23,6 @@ class _OrderPlacedScreenState extends State<OrderPlacedScreen> {
           backgroundColor: Colors.white,
           leading: backIcon(context),
           elevation: 3,
-          leadingWidth: 30,
           title: const Text(
             "Order Placed",
             textAlign: TextAlign.left,

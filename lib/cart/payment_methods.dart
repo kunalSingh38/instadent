@@ -22,6 +22,7 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
   static const platform = const MethodChannel("razorpay_flutter");
 
   late Razorpay _razorpay;
+  bool placingOrder = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -63,19 +64,15 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
         .paymentUpdate(
             response.orderId.toString(), response.paymentId.toString())
         .then((value) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Order Placed."),
-        ),
-      );
-
+      setState(() {
+        placingOrder = false;
+      });
       Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => OrderPlacedScreen(
                       orderId: value['Response']['idc_order_id'].toString())))
           .then((value) {
-        Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.of(context).pop();
       });
@@ -121,7 +118,6 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
         backgroundColor: Colors.white,
         leading: backIcon(context),
         elevation: 3,
-        leadingWidth: 30,
         title: Text(
           "Bill total: " + widget.totalPayment.toString(),
           textAlign: TextAlign.left,
@@ -129,165 +125,161 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
               fontWeight: FontWeight.w600, color: Colors.black, fontSize: 14),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: InkWell(
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Placing Order. Please Wait..."),
-                  ),
-                );
-                CartAPI().placeOrder().then((value) {
-                  if (value['ErrorCode'] == 0) {
-                    openCheckout(
-                        value['Response']['razorpay_order']['id'].toString());
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Order place failed. Try again."),
-                      ),
-                    );
-                  }
-                });
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Pay Online",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 18),
-                      ),
-                      Icon(Icons.arrow_right)
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: payOnline
-                          .map(
-                            (e) => Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 0.7, color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Image.asset(
-                                      "assets/" + e['image'].toString(),
-                                      scale: scale,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  e['title'].toString(),
-                                  style: TextStyle(fontSize: 10),
-                                )
-                              ],
+      body: placingOrder
+          ? loadingProducts("Please don't press back. Placing Order...")
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        placingOrder = true;
+                      });
+                      CartAPI().placeOrder().then((value) {
+                        if (value['ErrorCode'] == 0) {
+                          openCheckout(value['Response']['razorpay_order']['id']
+                              .toString());
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Order place failed. Try again."),
                             ),
-                          )
-                          .toList()),
-                ],
-              ),
-            ),
-          ),
-          Divider(
-            thickness: 10,
-            // height: 40,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: InkWell(
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Placing Order. Please Wait..."),
-                  ),
-                );
-                CartAPI().cashOnDelivery().then((value) {
-                  if (value['ErrorCode'] == 0) {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => OrderPlacedScreen(
-                                orderId:
-                                    value['Response']['order_id'].toString())));
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Order Placed."),
-                      ),
-                    );
-                  }
-                });
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Pay On Delivery",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 18),
-                      ),
-                      Icon(Icons.arrow_right)
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(width: 0.7, color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Image.asset(
-                            "assets/cash-payment.png",
-                            scale: scale,
-                          ),
+                          );
+                        }
+                      });
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Pay Online",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400, fontSize: 18),
+                            ),
+                            Icon(Icons.arrow_right)
+                          ],
                         ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        "COD",
-                        style: TextStyle(fontSize: 10),
-                      )
-                    ],
-                  )
-                ],
-              ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: payOnline
+                                .map(
+                                  (e) => Column(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                width: 0.7, color: Colors.grey),
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Image.asset(
+                                            "assets/" + e['image'].toString(),
+                                            scale: scale,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                        e['title'].toString(),
+                                        style: TextStyle(fontSize: 10),
+                                      )
+                                    ],
+                                  ),
+                                )
+                                .toList()),
+                      ],
+                    ),
+                  ),
+                ),
+                Divider(
+                  thickness: 10,
+                  // height: 40,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        placingOrder = true;
+                      });
+                      CartAPI().cashOnDelivery().then((value) {
+                        if (value['ErrorCode'] == 0) {
+                          setState(() {
+                            placingOrder = false;
+                          });
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => OrderPlacedScreen(
+                                      orderId: value['Response']['order_id']
+                                          .toString())));
+                        }
+                      });
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Pay On Delivery",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400, fontSize: 18),
+                            ),
+                            Icon(Icons.arrow_right)
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      width: 0.7, color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Image.asset(
+                                  "assets/cash-payment.png",
+                                  scale: scale,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              "COD",
+                              style: TextStyle(fontSize: 10),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Divider(
+                  thickness: 10,
+                  // height: 40,
+                ),
+              ],
             ),
-          ),
-          Divider(
-            thickness: 10,
-            // height: 40,
-          ),
-        ],
-      ),
     );
   }
 }

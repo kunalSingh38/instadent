@@ -129,7 +129,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
         backgroundColor: Colors.grey[50],
         leading: backIcon(context),
         elevation: 0,
-        leadingWidth: 30,
       ),
       body: ModalProgressHUD(
         inAsyncCall: isLoading,

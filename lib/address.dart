@@ -98,7 +98,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
           ],
           leading: backIcon(context),
           elevation: 3,
-          leadingWidth: 30,
           title: const Text(
             "Address List",
             textAlign: TextAlign.left,
@@ -611,7 +610,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
     if (int.parse(count.toString()) > 0) {
       showDialog(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (dialogContext) => AlertDialog(
                 title: Text("Remove cart items?"),
                 content: Text(
                   "Your cart contains items from " +
@@ -631,7 +630,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 actions: [
                   TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(dialogContext).pop();
                       },
                       child: Text(
                         "NO",
@@ -639,8 +638,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
                       )),
                   TextButton(
                       onPressed: () {
+                        Navigator.of(dialogContext).pop();
                         pref.setString("pincode", pincode.toString());
-                        pref.setString("defaultAddress", defaultAddress);
+                        pref.setString("defaultAddress", address);
                         pref.setString("address_type", address_type);
 
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -660,7 +660,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                       .toString()),
                                   duration: Duration(seconds: 1)),
                             );
-                            Navigator.of(context).pop();
 
                             Provider.of<UpdateCartData>(context, listen: false)
                                 .incrementCounter();
@@ -673,7 +672,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                       Text("Cart removal failed".toString()),
                                   duration: Duration(seconds: 1)),
                             );
-                            Navigator.of(context).pop();
                           }
                         });
                       },

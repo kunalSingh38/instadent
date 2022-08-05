@@ -93,4 +93,18 @@ class OtherAPI {
     }
     return [];
   }
+
+  Future<List> brandProductData(String brandId) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(URL + "brand/products/list"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"brand_id": brandId.toString()}));
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response']['brand_products_list'];
+    }
+    return [];
+  }
 }

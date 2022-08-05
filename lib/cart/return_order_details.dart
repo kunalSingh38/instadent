@@ -38,7 +38,6 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
         backgroundColor: Colors.white,
         leading: backIcon(context),
         elevation: 3,
-        leadingWidth: 30,
         title: const Text(
           "Order Details",
           textAlign: TextAlign.left,

@@ -100,7 +100,6 @@ class _OTPScreenState extends State<OTPScreen> {
         backgroundColor: Colors.white,
         leading: backIcon(context),
         elevation: 3,
-        leadingWidth: 30,
         title: const Text(
           "OTP verification",
           textAlign: TextAlign.left,

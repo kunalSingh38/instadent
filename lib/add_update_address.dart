@@ -46,7 +46,6 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
         backgroundColor: Colors.white,
         leading: backIcon(context),
         elevation: 3,
-        leadingWidth: 30,
         title: Text(
           widget.update ? "Update Address" : "New Address",
           textAlign: TextAlign.left,

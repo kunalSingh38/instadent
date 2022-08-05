@@ -38,7 +38,6 @@ class _Policy_ViewState extends State<Policy_View> {
         backgroundColor: Colors.white,
         leading: backIcon(context),
         elevation: 3,
-        leadingWidth: 30,
         title: Text(
           widget.policy.toString(),
           textAlign: TextAlign.left,

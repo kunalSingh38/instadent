@@ -34,7 +34,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         backgroundColor: Colors.white,
         leading: backIcon(context),
         elevation: 3,
-        leadingWidth: 30,
         title: const Text(
           "Sign Up",
           textAlign: TextAlign.left,

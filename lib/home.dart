@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
             focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.lightBlue),
                 borderRadius: BorderRadius.circular(10)),
-            hintText: "Search for atta, dal, coke and more",
+            hintText: searchHint,
             hintStyle: TextStyle(
                 color: Colors.black, fontSize: 16, fontWeight: FontWeight.w300),
             prefixIcon: Padding(
@@ -96,18 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    Provider.of<UpdateCartData>(context, listen: false).counterShowCart;
     getAddressList();
-    // scrollController.addListener(() {
-    //   scrollOffset = double.parse(scrollController.offset.toString());
-    //   setState(() {});
-    // });
-    CategoryAPI().cartegoryList().then((value) {
-      setState(() {
-        categoryList.clear();
-        categoryList.addAll(value);
-      });
-    });
   }
 
   @override
@@ -157,524 +147,441 @@ class _HomeScreenState extends State<HomeScreen> {
                 ));
       },
       child: SafeArea(
-        child: ModalProgressHUD(
-          inAsyncCall: isLoading,
-          child: Scaffold(
-            extendBodyBehindAppBar: true,
-            appBar: scrollOffset > 81.5
-                ? AppBar(
-                    backgroundColor: Colors.white,
-                    toolbarHeight: 60,
-                    title: searchCard())
-                : null,
-            bottomSheet: bottomSheet(),
-            body:
-                Consumer<UpdateCartData>(builder: (context, viewModel, child) {
-              return Padding(
-                padding:
-                    EdgeInsets.only(bottom: viewModel.counterShowCart ? 70 : 0),
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Delivery in 11 mintues",
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.w800, fontSize: 20)),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 2),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AddressListScreen()))
-                                      .then((value) async {
-                                    SharedPreferences pref =
-                                        await SharedPreferences.getInstance();
-
-                                    setState(() {
-                                      addressType = pref
-                                          .getString("address_type")
-                                          .toString();
-                                      defaultAddress = pref
-                                          .getString("defaultAddress")
-                                          .toString();
-                                    });
-                                  });
-                                },
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 15,
-                                      child: Text(
-                                          addressType +
-                                              ", " +
-                                              defaultAddress.toString(),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: GoogleFonts.montserrat(
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 15)),
-                                    ),
-                                    Expanded(child: Icon(Icons.arrow_drop_down))
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            searchCard(),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.teal[100]),
-                              child: ImageSlideshow(
-                                width: double.infinity,
-                                height: 160,
-                                initialPage: 0,
-                                indicatorColor: Colors.blue,
-                                indicatorBackgroundColor: Colors.grey,
-                                children: List.generate(
-                                    3,
-                                    (index) => ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          child: Image.asset(
-                                            'assets/banner' +
-                                                (index + 1).toString() +
-                                                '.jpeg',
-                                            fit: BoxFit.fill,
-                                          ),
-                                        )).toList(),
-                                onPageChanged: (value) {},
-                                autoPlayInterval: 3000,
-                                isLoop: true,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            GridView.count(
-                              crossAxisCount: 4,
-                              mainAxisSpacing: 10,
-                              crossAxisSpacing: 10,
-                              childAspectRatio: 0.6,
-                              physics: ClampingScrollPhysics(),
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              children: categoryList
-                                  .map((e) => InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      SubCategoriesScreen(
-                                                        catName:
-                                                            e['category_name']
-                                                                .toString(),
-                                                        catId:
-                                                            e['id'].toString(),
-                                                      ))).then((value) {
-                                            Provider.of<UpdateCartData>(context,
-                                                    listen: false)
-                                                .incrementCounter();
-                                            Provider.of<UpdateCartData>(context,
-                                                    listen: false)
-                                                .showCartorNot();
-                                          });
-                                        },
-                                        child: Column(
-                                          children: [
-                                            Expanded(
-                                                flex: 2,
-                                                child: Container(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .width,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      color:
-                                                          Colors.tealAccent[50],
-                                                    ),
-                                                    child: e['icon'] == null
-                                                        ? ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                            child: Image.asset(
-                                                              "assets/no_image.jpeg",
-                                                              fit: BoxFit.fill,
-                                                            ),
-                                                          )
-                                                        : ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                            child:
-                                                                Image.network(
-                                                              e['icon']
-                                                                  .toString(),
-                                                              fit: BoxFit.cover,
-                                                              loadingBuilder:
-                                                                  (context,
-                                                                      child,
-                                                                      loadingProgress) {
-                                                                if (loadingProgress ==
-                                                                    null)
-                                                                  return child;
-                                                                return Center(
-                                                                    child:
-                                                                        Container(
-                                                                  color: Colors
-                                                                      .white,
-                                                                ));
-                                                              },
-                                                            ),
-                                                          ))),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Expanded(
-                                                child: Text(
-                                              e['category_name'] == ""
-                                                  ? "No Name"
-                                                  : e['category_name']
-                                                      .toString(),
-                                              softWrap: true,
-                                              textAlign: TextAlign.center,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 12),
-                                            ))
-                                          ],
-                                        ),
-                                      ))
-                                  .toList(),
-                            )
-                          ],
-                        ),
-                      ),
-                      // Divider(
-                      //   thickness: 10,
-                      //   color: Colors.grey[200],
-                      // ),
-                      // SizedBox(
-                      //   height: 5,
-                      // ),
-                      // GridView.count(
-                      //   padding: EdgeInsets.zero,
-                      //   crossAxisCount: 2,
-                      //   mainAxisSpacing: 0,
-                      //   crossAxisSpacing: 0,
-                      //   childAspectRatio: 0.8,
-                      //   physics: ClampingScrollPhysics(),
-                      //   scrollDirection: Axis.vertical,
-                      //   shrinkWrap: true,
-                      //   children: List.generate(
-                      //     6,
-                      //     (index) => Stack(
-                      //       children: [
-                      //         InkWell(
-                      //           onTap: () async {},
-                      //           child: Container(
-                      //             decoration: BoxDecoration(
-                      //                 border: Border.all(
-                      //                     color: Color(0xFFD6D6D6), width: 0.3)),
-                      //             child: Column(
-                      //               children: [
-                      //                 Expanded(
-                      //                   child: Container(
-                      //                       child: Image.asset("assets/logo.png")),
-                      //                 ),
-                      //                 SizedBox(
-                      //                   height: 5,
-                      //                 ),
-                      //                 Expanded(
-                      //                     child: Padding(
-                      //                   padding: const EdgeInsets.fromLTRB(
-                      //                       10, 15, 8, 10),
-                      //                   child: Column(
-                      //                     crossAxisAlignment:
-                      //                         CrossAxisAlignment.start,
-                      //                     children: [
-                      //                       Text(
-                      //                         "Potato + Onion",
-                      //                         textAlign: TextAlign.left,
-                      //                         overflow: TextOverflow.ellipsis,
-                      //                         maxLines: 2,
-                      //                         style: TextStyle(
-                      //                             fontWeight: FontWeight.w500,
-                      //                             fontSize: 12),
-                      //                       ),
-                      //                       Text(
-                      //                         "500 g",
-                      //                         textAlign: TextAlign.left,
-                      //                         maxLines: 1,
-                      //                         style: TextStyle(
-                      //                             fontWeight: FontWeight.w300,
-                      //                             fontSize: 12),
-                      //                       ),
-                      //                       SizedBox(
-                      //                         height: 10,
-                      //                       ),
-                      //                       Row(
-                      //                         mainAxisAlignment:
-                      //                             MainAxisAlignment.spaceBetween,
-                      //                         children: [
-                      //                           Column(
-                      //                             crossAxisAlignment:
-                      //                                 CrossAxisAlignment.start,
-                      //                             children: [
-                      //                               Text("₹42",
-                      //                                   //  +
-                      //                                   //     e['discount_price']
-                      //                                   //         .toString()
-                      //                                   //         .split(".")[0],
-                      //                                   style: TextStyle(
-                      //                                       fontWeight:
-                      //                                           FontWeight.w700,
-                      //                                       fontSize: 12)),
-                      //                               Text("₹50",
-                      //                                   // +
-                      //                                   //     e['item_price']
-                      //                                   //         .toString()
-                      //                                   //         .split(".")[0],
-                      //                                   style: TextStyle(
-                      //                                       fontWeight:
-                      //                                           FontWeight.w400,
-                      //                                       fontSize: 11,
-                      //                                       decoration:
-                      //                                           TextDecoration
-                      //                                               .lineThrough,
-                      //                                       color: Colors.grey))
-                      //                             ],
-                      //                           ),
-                      //                         ],
-                      //                       )
-                      //                     ],
-                      //                   ),
-                      //                 ))
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         ),
-                      //         Padding(
-                      //           padding: const EdgeInsets.only(top: 12),
-                      //           child: Container(
-                      //             width: 70,
-                      //             decoration: BoxDecoration(
-                      //                 color: Colors.teal,
-                      //                 borderRadius: BorderRadius.only(
-                      //                     topRight: Radius.circular(10),
-                      //                     bottomRight: Radius.circular(10))),
-                      //             child: Padding(
-                      //               padding: const EdgeInsets.all(2.0),
-                      //               child: Text(
-                      //                 "25% OFF",
-                      //                 style: TextStyle(
-                      //                     fontSize: 12,
-                      //                     color: Colors.white,
-                      //                     fontWeight: FontWeight.bold),
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ),
-                      //         Align(
-                      //           alignment: Alignment.bottomRight,
-                      //           child: Padding(
-                      //             padding:
-                      //                 const EdgeInsets.only(bottom: 15, right: 10),
-                      //             child: Container(
-                      //               width: 75,
-                      //               height: 28,
-                      //               decoration: BoxDecoration(
-                      //                   color: 0 > 0
-                      //                       ? Colors.teal[400]
-                      //                       : Colors.teal[50],
-                      //                   border:
-                      //                       Border.all(color: Color(0xFF004D40)),
-                      //                   borderRadius: BorderRadius.circular(10)),
-                      //               child: 0 > 0
-                      //                   ? Stack(
-                      //                       children: [
-                      //                         Row(
-                      //                           mainAxisAlignment:
-                      //                               MainAxisAlignment.spaceBetween,
-                      //                           children: [
-                      //                             Padding(
-                      //                               padding:
-                      //                                   const EdgeInsets.fromLTRB(
-                      //                                       8, 4, 2, 4),
-                      //                               child: Text(
-                      //                                 "-",
-                      //                                 style: textStyle1,
-                      //                               ),
-                      //                             ),
-                      //                             Text(
-                      //                               "0",
-                      //                               style: textStyle1,
-                      //                             ),
-                      //                             Padding(
-                      //                               padding:
-                      //                                   const EdgeInsets.fromLTRB(
-                      //                                       2, 4, 8, 4),
-                      //                               child: Text(
-                      //                                 "+",
-                      //                                 style: textStyle1,
-                      //                               ),
-                      //                             ),
-                      //                           ],
-                      //                         ),
-                      //                         Row(
-                      //                           mainAxisAlignment:
-                      //                               MainAxisAlignment.spaceBetween,
-                      //                           children: [
-                      //                             Expanded(
-                      //                                 child: InkWell(
-                      //                               onTap: () async {},
-                      //                               child: Container(
-                      //                                 color: Colors.transparent,
-                      //                               ),
-                      //                             )),
-                      //                             Expanded(
-                      //                                 child: InkWell(
-                      //                               onTap: () async {},
-                      //                               child: Container(
-                      //                                   color: Colors.transparent),
-                      //                             )),
-                      //                             Expanded(
-                      //                                 child: InkWell(
-                      //                               onTap: () async {},
-                      //                               child: Container(
-                      //                                   color: Colors.transparent),
-                      //                             ))
-                      //                           ],
-                      //                         )
-                      //                       ],
-                      //                     )
-                      //                   : InkWell(
-                      //                       onTap: () async {},
-                      //                       child: Stack(
-                      //                         alignment: Alignment.topRight,
-                      //                         children: [
-                      //                           Padding(
-                      //                             padding:
-                      //                                 const EdgeInsets.fromLTRB(
-                      //                                     8, 2, 8, 2),
-                      //                             child: Center(
-                      //                               child: Text(
-                      //                                 "ADD",
-                      //                                 textAlign: TextAlign.center,
-                      //                                 style: TextStyle(
-                      //                                     fontSize: 12,
-                      //                                     color: Colors.teal[900]),
-                      //                               ),
-                      //                             ),
-                      //                           ),
-                      //                           Padding(
-                      //                             padding:
-                      //                                 const EdgeInsets.all(5.0),
-                      //                             child: Icon(
-                      //                               Icons.add,
-                      //                               color: Colors.teal[900],
-                      //                               size: 10,
-                      //                             ),
-                      //                           )
-                      //                         ],
-                      //                       ),
-                      //                     ),
-                      //             ),
-                      //           ),
-                      //         )
-                      //       ],
-                      //     ),
-                      //   ).toList(),
-                      // ),
-                      Container(
-                        height: 300,
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            image: DecorationImage(
-                                alignment: Alignment(0.6, -0.15),
-                                scale: 10,
-                                image: AssetImage(
-                                  "assets/emoji1.png",
-                                ))),
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(18, 20, 20, 20),
+        child: Consumer<UpdateCartData>(builder: (context, viewModel, child) {
+          return Scaffold(
+              extendBodyBehindAppBar: true,
+              // appBar: scrollOffset > 81.5
+              //     ? AppBar(
+              //         backgroundColor: Colors.white,
+              //         toolbarHeight: 60,
+              //         title: searchCard())
+              //     : null,
+              // bottomNavigationBar:
+              //     viewModel.counterShowCart ? bottomSheet() : null,
+              body: isLoading
+                  ? loadingProducts("Getting your InstaDent products")
+                  : Stack(
+                      children: [
+                        SingleChildScrollView(
+                          controller: scrollController,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("didn't find\nwhat you were\nlooking for?",
-                                  textAlign: TextAlign.left,
-                                  style: GoogleFonts.montserrat(
-                                      fontSize: 35,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.grey[400])),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Text("Suggest something & we'll look into it",
-                                  style: GoogleFonts.montserrat(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey[400])),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  suggestProductBottom();
-                                },
-                                child: Container(
-                                  child: Text("Suggest a Product",
-                                      style: GoogleFonts.montserrat(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.pink[700])),
-                                  padding: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white70,
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: Colors.grey)),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Delivery in 11 mintues",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.montserrat(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 20)),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 2),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          AddressListScreen()))
+                                              .then((value) async {
+                                            SharedPreferences pref =
+                                                await SharedPreferences
+                                                    .getInstance();
+
+                                            setState(() {
+                                              addressType = pref
+                                                  .getString("address_type")
+                                                  .toString();
+                                              defaultAddress = pref
+                                                  .getString("defaultAddress")
+                                                  .toString();
+                                            });
+                                          });
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 15,
+                                              child: Text(
+                                                  addressType +
+                                                      ", " +
+                                                      defaultAddress.toString(),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: GoogleFonts.montserrat(
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 15)),
+                                            ),
+                                            Expanded(
+                                                child:
+                                                    Icon(Icons.arrow_drop_down))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    searchCard(),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Colors.teal[100]),
+                                      child: ImageSlideshow(
+                                        width: double.infinity,
+                                        height: 160,
+                                        initialPage: 0,
+                                        indicatorColor: Colors.blue,
+                                        indicatorBackgroundColor: Colors.grey,
+                                        children: List.generate(
+                                            3,
+                                            (index) => ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  child: Image.asset(
+                                                    'assets/banner' +
+                                                        (index + 1).toString() +
+                                                        '.jpeg',
+                                                    fit: BoxFit.fill,
+                                                  ),
+                                                )).toList(),
+                                        onPageChanged: (value) {},
+                                        autoPlayInterval: 3000,
+                                        isLoop: true,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    allCategoryGrid(categoryList, context)
+                                  ],
                                 ),
-                              )
+                              ),
+                              // Divider(
+                              //   thickness: 10,
+                              //   color: Colors.grey[200],
+                              // ),
+                              // SizedBox(
+                              //   height: 5,
+                              // ),
+                              // GridView.count(
+                              //   padding: EdgeInsets.zero,
+                              //   crossAxisCount: 2,
+                              //   mainAxisSpacing: 0,
+                              //   crossAxisSpacing: 0,
+                              //   childAspectRatio: 0.8,
+                              //   physics: ClampingScrollPhysics(),
+                              //   scrollDirection: Axis.vertical,
+                              //   shrinkWrap: true,
+                              //   children: List.generate(
+                              //     6,
+                              //     (index) => Stack(
+                              //       children: [
+                              //         InkWell(
+                              //           onTap: () async {},
+                              //           child: Container(
+                              //             decoration: BoxDecoration(
+                              //                 border: Border.all(
+                              //                     color: Color(0xFFD6D6D6), width: 0.3)),
+                              //             child: Column(
+                              //               children: [
+                              //                 Expanded(
+                              //                   child: Container(
+                              //                       child: Image.asset("assets/logo.png")),
+                              //                 ),
+                              //                 SizedBox(
+                              //                   height: 5,
+                              //                 ),
+                              //                 Expanded(
+                              //                     child: Padding(
+                              //                   padding: const EdgeInsets.fromLTRB(
+                              //                       10, 15, 8, 10),
+                              //                   child: Column(
+                              //                     crossAxisAlignment:
+                              //                         CrossAxisAlignment.start,
+                              //                     children: [
+                              //                       Text(
+                              //                         "Potato + Onion",
+                              //                         textAlign: TextAlign.left,
+                              //                         overflow: TextOverflow.ellipsis,
+                              //                         maxLines: 2,
+                              //                         style: TextStyle(
+                              //                             fontWeight: FontWeight.w500,
+                              //                             fontSize: 12),
+                              //                       ),
+                              //                       Text(
+                              //                         "500 g",
+                              //                         textAlign: TextAlign.left,
+                              //                         maxLines: 1,
+                              //                         style: TextStyle(
+                              //                             fontWeight: FontWeight.w300,
+                              //                             fontSize: 12),
+                              //                       ),
+                              //                       SizedBox(
+                              //                         height: 10,
+                              //                       ),
+                              //                       Row(
+                              //                         mainAxisAlignment:
+                              //                             MainAxisAlignment.spaceBetween,
+                              //                         children: [
+                              //                           Column(
+                              //                             crossAxisAlignment:
+                              //                                 CrossAxisAlignment.start,
+                              //                             children: [
+                              //                               Text("₹42",
+                              //                                   //  +
+                              //                                   //     e['discount_price']
+                              //                                   //         .toString()
+                              //                                   //         .split(".")[0],
+                              //                                   style: TextStyle(
+                              //                                       fontWeight:
+                              //                                           FontWeight.w700,
+                              //                                       fontSize: 12)),
+                              //                               Text("₹50",
+                              //                                   // +
+                              //                                   //     e['item_price']
+                              //                                   //         .toString()
+                              //                                   //         .split(".")[0],
+                              //                                   style: TextStyle(
+                              //                                       fontWeight:
+                              //                                           FontWeight.w400,
+                              //                                       fontSize: 11,
+                              //                                       decoration:
+                              //                                           TextDecoration
+                              //                                               .lineThrough,
+                              //                                       color: Colors.grey))
+                              //                             ],
+                              //                           ),
+                              //                         ],
+                              //                       )
+                              //                     ],
+                              //                   ),
+                              //                 ))
+                              //               ],
+                              //             ),
+                              //           ),
+                              //         ),
+                              //         Padding(
+                              //           padding: const EdgeInsets.only(top: 12),
+                              //           child: Container(
+                              //             width: 70,
+                              //             decoration: BoxDecoration(
+                              //                 color: Colors.teal,
+                              //                 borderRadius: BorderRadius.only(
+                              //                     topRight: Radius.circular(10),
+                              //                     bottomRight: Radius.circular(10))),
+                              //             child: Padding(
+                              //               padding: const EdgeInsets.all(2.0),
+                              //               child: Text(
+                              //                 "25% OFF",
+                              //                 style: TextStyle(
+                              //                     fontSize: 12,
+                              //                     color: Colors.white,
+                              //                     fontWeight: FontWeight.bold),
+                              //               ),
+                              //             ),
+                              //           ),
+                              //         ),
+                              //         Align(
+                              //           alignment: Alignment.bottomRight,
+                              //           child: Padding(
+                              //             padding:
+                              //                 const EdgeInsets.only(bottom: 15, right: 10),
+                              //             child: Container(
+                              //               width: 75,
+                              //               height: 28,
+                              //               decoration: BoxDecoration(
+                              //                   color: 0 > 0
+                              //                       ? Colors.teal[400]
+                              //                       : Colors.teal[50],
+                              //                   border:
+                              //                       Border.all(color: Color(0xFF004D40)),
+                              //                   borderRadius: BorderRadius.circular(10)),
+                              //               child: 0 > 0
+                              //                   ? Stack(
+                              //                       children: [
+                              //                         Row(
+                              //                           mainAxisAlignment:
+                              //                               MainAxisAlignment.spaceBetween,
+                              //                           children: [
+                              //                             Padding(
+                              //                               padding:
+                              //                                   const EdgeInsets.fromLTRB(
+                              //                                       8, 4, 2, 4),
+                              //                               child: Text(
+                              //                                 "-",
+                              //                                 style: textStyle1,
+                              //                               ),
+                              //                             ),
+                              //                             Text(
+                              //                               "0",
+                              //                               style: textStyle1,
+                              //                             ),
+                              //                             Padding(
+                              //                               padding:
+                              //                                   const EdgeInsets.fromLTRB(
+                              //                                       2, 4, 8, 4),
+                              //                               child: Text(
+                              //                                 "+",
+                              //                                 style: textStyle1,
+                              //                               ),
+                              //                             ),
+                              //                           ],
+                              //                         ),
+                              //                         Row(
+                              //                           mainAxisAlignment:
+                              //                               MainAxisAlignment.spaceBetween,
+                              //                           children: [
+                              //                             Expanded(
+                              //                                 child: InkWell(
+                              //                               onTap: () async {},
+                              //                               child: Container(
+                              //                                 color: Colors.transparent,
+                              //                               ),
+                              //                             )),
+                              //                             Expanded(
+                              //                                 child: InkWell(
+                              //                               onTap: () async {},
+                              //                               child: Container(
+                              //                                   color: Colors.transparent),
+                              //                             )),
+                              //                             Expanded(
+                              //                                 child: InkWell(
+                              //                               onTap: () async {},
+                              //                               child: Container(
+                              //                                   color: Colors.transparent),
+                              //                             ))
+                              //                           ],
+                              //                         )
+                              //                       ],
+                              //                     )
+                              //                   : InkWell(
+                              //                       onTap: () async {},
+                              //                       child: Stack(
+                              //                         alignment: Alignment.topRight,
+                              //                         children: [
+                              //                           Padding(
+                              //                             padding:
+                              //                                 const EdgeInsets.fromLTRB(
+                              //                                     8, 2, 8, 2),
+                              //                             child: Center(
+                              //                               child: Text(
+                              //                                 "ADD",
+                              //                                 textAlign: TextAlign.center,
+                              //                                 style: TextStyle(
+                              //                                     fontSize: 12,
+                              //                                     color: Colors.teal[900]),
+                              //                               ),
+                              //                             ),
+                              //                           ),
+                              //                           Padding(
+                              //                             padding:
+                              //                                 const EdgeInsets.all(5.0),
+                              //                             child: Icon(
+                              //                               Icons.add,
+                              //                               color: Colors.teal[900],
+                              //                               size: 10,
+                              //                             ),
+                              //                           )
+                              //                         ],
+                              //                       ),
+                              //                     ),
+                              //             ),
+                              //           ),
+                              //         )
+                              //       ],
+                              //     ),
+                              //   ).toList(),
+                              // ),
+                              Container(
+                                height: 300,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    image: DecorationImage(
+                                        alignment: Alignment(0.6, -0.15),
+                                        scale: 10,
+                                        image: AssetImage(
+                                          "assets/emoji1.png",
+                                        ))),
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(18, 20, 20, 20),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          "didn't find\nwhat you were\nlooking for?",
+                                          textAlign: TextAlign.left,
+                                          style: GoogleFonts.montserrat(
+                                              fontSize: 35,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.grey[400])),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      Text(
+                                          "Suggest something & we'll look into it",
+                                          style: GoogleFonts.montserrat(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[400])),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          suggestProductBottom();
+                                        },
+                                        child: Container(
+                                          child: Text("Suggest a Product",
+                                              style: GoogleFonts.montserrat(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.pink[700])),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                              color: Colors.white70,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                  color: Colors.grey)),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              viewModel.counterShowCart
+                                  ? SizedBox(
+                                      height: 50,
+                                    )
+                                  : SizedBox(),
                             ],
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: viewModel.counterShowCart
+                                ? bottomSheet()
+                                : SizedBox())
+                      ],
+                    ));
+        }),
       ),
     );
   }
@@ -749,7 +656,13 @@ class _HomeScreenState extends State<HomeScreen> {
       ];
       pref.setString("recent_address_list", jsonEncode(temp));
       Provider.of<UpdateCartData>(context, listen: false).setDefaultAddress();
-      isLoading = false;
+    });
+    CategoryAPI().cartegoryList().then((value) {
+      setState(() {
+        categoryList.clear();
+        categoryList.addAll(value);
+        isLoading = false;
+      });
     });
   }
 

@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CartAPI {
   Future<Map> cartData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    print(pref.getString("token").toString());
     var response = await http.post(
       Uri.parse(URL + "cart"),
       headers: {
@@ -31,7 +30,7 @@ class CartAPI {
         'Content-Type': 'application/json'
       },
     );
-    print(response.body);
+
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return int.parse(jsonDecode(response.body)['Response'].toString());
     }
@@ -46,7 +45,6 @@ class CartAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode(m));
-    print(response.body);
     // if (jsonDecode(response.body)['ErrorCode'] == 0) {
     //   return int.parse(jsonDecode(response.body)['Response'].toString());
     // }

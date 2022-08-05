@@ -17,7 +17,6 @@ class _CancelledPaymentScreenState extends State<CancelledPaymentScreen> {
         backgroundColor: Colors.white,
         leading: backIcon(context),
         elevation: 3,
-        leadingWidth: 30,
         title: const Text(
           "Payment Cancelled",
           textAlign: TextAlign.left,
