@@ -8,6 +8,7 @@ import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/cart/cart_view.dart';
 import 'package:instadent/category/sub_categories.dart';
+import 'package:instadent/main.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -117,6 +118,7 @@ String removeNull(String data) {
 TextStyle textStyle1 = TextStyle(color: Colors.white);
 Future<void> showProdcutDetails(BuildContext context, Map m, bool inStock,
     TextEditingController controller, List productItems) async {
+  print(m);
   String group_Data = m['group_price']
       .toString()
       .replaceAll("&#8377;", "₹")
@@ -127,6 +129,25 @@ Future<void> showProdcutDetails(BuildContext context, Map m, bool inStock,
   data.removeLast();
   double height = 220;
   double heightMain = 1.7;
+
+  String disccount = "";
+  String temp = m['item_discount'].toString().split("%")[0];
+
+  if (temp.split(".")[0].toString() == "0" &&
+      temp.split(".")[1].toString() == "00") {
+    disccount = "0";
+  } else if (temp.split(".")[1].toString() == "00") {
+    disccount = temp.split(".")[0].toString();
+  } else {
+    disccount = temp;
+  }
+  print("disccount" + disccount.toString());
+
+  List multipleImages = [];
+  if (m.containsKey("multiple_images")) {
+    multipleImages = m['multiple_images'];
+  }
+
   await showModalBottomSheet(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
@@ -160,223 +181,268 @@ Future<void> showProdcutDetails(BuildContext context, Map m, bool inStock,
                             },
                             child: SizedBox(
                               height: height,
-                              child: Card(
-                                  elevation: 8,
-                                  child: Image.network(
-                                    m['product_image'].toString(),
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        "assets/no_image.jpeg",
-                                      );
-                                    },
-                                  )),
+                              child: multipleImages.length > 0
+                                  ? ListView(
+                                      scrollDirection: Axis.horizontal,
+                                      children: multipleImages
+                                          .map((e) => Card(
+                                              elevation: 8,
+                                              child: Image.network(
+                                                e['image'].toString(),
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Image.asset(
+                                                    "assets/no_image.jpeg",
+                                                  );
+                                                },
+                                              )))
+                                          .toList(),
+                                    )
+                                  : Card(
+                                      elevation: 8,
+                                      child: Image.network(
+                                        m['product_image'].toString(),
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Image.asset(
+                                            "assets/no_image.jpeg",
+                                          );
+                                        },
+                                      )),
                             ),
                           ),
                           Divider(),
                           SizedBox(
                             height: 10,
                           ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: inStock
-                                ? Container(
-                                    width: 75,
-                                    height: 28,
-                                    decoration: BoxDecoration(
-                                        color: Colors.grey[350],
-                                        border: Border.all(color: Colors.black),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(8, 2, 8, 2),
-                                      child: Center(
-                                        child: Text(
-                                          "Out of Stock",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 9,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                    ))
-                                : Container(
-                                    width: 75,
-                                    height: 28,
-                                    decoration: BoxDecoration(
-                                        color: m['quantity'] > 0
-                                            ? Colors.teal[400]
-                                            : Colors.teal[50],
-                                        border: Border.all(
-                                            color: Color(0xFF004D40)),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: m['quantity'] > 0
-                                        ? Stack(
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(8, 4, 2, 4),
-                                                    child: Text(
-                                                      "-",
-                                                      style: textStyle1,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    m['quantity'].toString(),
-                                                    style: textStyle1,
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(2, 4, 8, 4),
-                                                    child: Text(
-                                                      "+",
-                                                      style: textStyle1,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                      child: InkWell(
-                                                    onTap: () async {
-                                                      await setQunatity(
-                                                          productItems
-                                                              .indexOf(m),
-                                                          false,
-                                                          productItems,
-                                                          context);
-                                                    },
-                                                    child: Container(
-                                                      color: Colors.transparent,
-                                                    ),
-                                                  )),
-                                                  Expanded(
-                                                      child: InkWell(
-                                                    onTap: () async {
-                                                      setState(() {
-                                                        controller.clear();
-                                                      });
-                                                      await manuallyUpdateQuantity(
-                                                          productItems
-                                                              .indexOf(m),
-                                                          productItems,
-                                                          context,
-                                                          controller);
-                                                    },
-                                                    child: Container(
-                                                        color:
-                                                            Colors.transparent),
-                                                  )),
-                                                  Expanded(
-                                                      child: InkWell(
-                                                    onTap: () async {
-                                                      await setQunatity(
-                                                          productItems
-                                                              .indexOf(m),
-                                                          true,
-                                                          productItems,
-                                                          context);
-                                                    },
-                                                    child: Container(
-                                                        color:
-                                                            Colors.transparent),
-                                                  ))
-                                                ],
-                                              )
-                                            ],
-                                          )
-                                        : InkWell(
-                                            onTap: () async {
-                                              await setQunatity(
-                                                  productItems.indexOf(m),
-                                                  true,
-                                                  productItems,
-                                                  context);
-                                            },
-                                            child: Stack(
-                                              alignment: Alignment.topRight,
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          8, 2, 8, 2),
-                                                  child: Center(
-                                                    child: Text(
-                                                      "ADD",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              Colors.teal[900]),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5.0),
-                                                  child: Icon(
-                                                    Icons.add,
-                                                    color: Colors.teal[900],
-                                                    size: 10,
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                  ),
-                          ),
+                          Text(m['product_name'].toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 18)),
                           SizedBox(
                             height: 12,
                           ),
+
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text("Product details",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 18)),
-                              RichText(
-                                text: TextSpan(
-                                  text: '',
-                                  style: DefaultTextStyle.of(context).style,
-                                  children: [
-                                    TextSpan(
-                                        text: "₹" +
-                                            removeNull(m['mrp'].toString()),
-                                        style: TextStyle(
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.grey,
-                                            fontSize: 16)),
-                                    TextSpan(
-                                        text: "  ₹" +
-                                            m['discount_price'].toString(),
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 20)),
-                                  ],
+                              Expanded(
+                                flex: 2,
+                                child: RichText(
+                                  text: TextSpan(
+                                    text: '',
+                                    style: DefaultTextStyle.of(context).style,
+                                    children: [
+                                      TextSpan(
+                                          text: "₹" +
+                                              removeNull(m['mrp'].toString()),
+                                          style: TextStyle(
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.grey,
+                                              fontSize: 16)),
+                                      TextSpan(
+                                          text: "  ₹" +
+                                              m['discount_price'].toString(),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 20)),
+                                    ],
+                                  ),
                                 ),
-                              )
+                              ),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: inStock
+                                      ? Container(
+                                          width: 75,
+                                          height: 28,
+                                          decoration: BoxDecoration(
+                                              color: Colors.grey[350],
+                                              border: Border.all(
+                                                  color: Colors.black),
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                8, 2, 8, 2),
+                                            child: Center(
+                                              child: Text(
+                                                "Out of Stock",
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    fontSize: 9,
+                                                    color: Colors.black,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            ),
+                                          ))
+                                      : Container(
+                                          width: 75,
+                                          height: 28,
+                                          decoration: BoxDecoration(
+                                              color: m['quantity'] > 0
+                                                  ? Colors.teal[400]
+                                                  : Colors.teal[50],
+                                              border: Border.all(
+                                                  color: Color(0xFF004D40)),
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: m['quantity'] > 0
+                                              ? Stack(
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .fromLTRB(
+                                                                  8, 4, 2, 4),
+                                                          child: Text(
+                                                            "-",
+                                                            style: textStyle1,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          m['quantity']
+                                                              .toString(),
+                                                          style: textStyle1,
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .fromLTRB(
+                                                                  2, 4, 8, 4),
+                                                          child: Text(
+                                                            "+",
+                                                            style: textStyle1,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Expanded(
+                                                            child: InkWell(
+                                                          onTap: () async {
+                                                            await setQunatity(
+                                                                productItems
+                                                                    .indexOf(m),
+                                                                false,
+                                                                productItems,
+                                                                context);
+                                                          },
+                                                          child: Container(
+                                                            color: Colors
+                                                                .transparent,
+                                                          ),
+                                                        )),
+                                                        Expanded(
+                                                            child: InkWell(
+                                                          onTap: () async {
+                                                            setState(() {
+                                                              controller
+                                                                  .clear();
+                                                            });
+                                                            await manuallyUpdateQuantity(
+                                                                productItems
+                                                                    .indexOf(m),
+                                                                productItems,
+                                                                context,
+                                                                controller);
+                                                          },
+                                                          child: Container(
+                                                              color: Colors
+                                                                  .transparent),
+                                                        )),
+                                                        Expanded(
+                                                            child: InkWell(
+                                                          onTap: () async {
+                                                            await setQunatity(
+                                                                productItems
+                                                                    .indexOf(m),
+                                                                true,
+                                                                productItems,
+                                                                context);
+                                                          },
+                                                          child: Container(
+                                                              color: Colors
+                                                                  .transparent),
+                                                        ))
+                                                      ],
+                                                    )
+                                                  ],
+                                                )
+                                              : InkWell(
+                                                  onTap: () async {
+                                                    await setQunatity(
+                                                        productItems.indexOf(m),
+                                                        true,
+                                                        productItems,
+                                                        context);
+                                                  },
+                                                  child: Stack(
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .fromLTRB(
+                                                                8, 2, 8, 2),
+                                                        child: Center(
+                                                          child: Text(
+                                                            "ADD",
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .teal[900]),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(5.0),
+                                                        child: Icon(
+                                                          Icons.add,
+                                                          color:
+                                                              Colors.teal[900],
+                                                          size: 10,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                        ),
+                                ),
+                              ),
                             ],
                           ),
                           SizedBox(
-                            height: 15,
+                            height: 10,
                           ),
-
+                          disccount == "0"
+                              ? SizedBox()
+                              : Text(
+                                  disccount.toString() + "% OFF",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.blue[800],
+                                      fontWeight: FontWeight.bold),
+                                ),
+                          SizedBox(
+                            height: 10,
+                          ),
                           data.length == 0
                               ? SizedBox()
                               : Column(
@@ -425,12 +491,62 @@ Future<void> showProdcutDetails(BuildContext context, Map m, bool inStock,
                                   ],
                                 ),
 
-                          Text("Description",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400, fontSize: 17)),
+                          m['warranty_duration'] == null ||
+                                  m['warranty_duration'].toString() == ""
+                              ? SizedBox()
+                              : Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("Warranty Duration",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 17)),
+                                        Text(m['warranty_duration'].toString(),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 15,
+                                            )),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+
+                          m['expiry_date'] == null ||
+                                  m['expiry_date'].toString() == ""
+                              ? SizedBox()
+                              : Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("Expiry Date",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 17)),
+                                        Text(m['expiry_date'].toString(),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 15,
+                                            )),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+
                           SizedBox(
-                            height: 5,
+                            height: 10,
                           ),
+
                           Text(m['short_description'].toString(),
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
@@ -934,11 +1050,38 @@ Future setQunatity(
       });
     }
   } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Please log in to continue".toString()),
-      ),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text("Please log in to continue".toString()),
+    //   ),
+    // );
+    showDialog(
+        context: context,
+        builder: (contextMy) => AlertDialog(
+              title: Text("Login Required"),
+              content: Text("Please log in to continue"),
+              actions: [
+                TextButton(
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+
+                      await prefs.clear().then((value) {
+                        Navigator.of(context, rootNavigator: true)
+                            .pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => SplashScreen()),
+                                (route) => false);
+                      });
+                      Provider.of<UpdateCartData>(context, listen: false)
+                          .changeSearchView(0);
+                      Provider.of<UpdateCartData>(context, listen: false)
+                          .showCartorNot();
+                    },
+                    child: Text("Continue Login"))
+              ],
+            ));
+    Provider.of<UpdateCartData>(context, listen: false).changeSearchView(4);
   }
 }
 

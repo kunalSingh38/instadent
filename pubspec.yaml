@@ -70,6 +70,7 @@ dependencies:
   # internet_connection_checker: ^0.0.1+4
   flutter_offline: ^2.0.0
   cached_network_image: ^3.2.1
+  collection: ^1.16.0
 
 dev_dependencies:
   flutter_test:

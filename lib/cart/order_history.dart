@@ -26,7 +26,6 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   void getOrderDetails(String url) async {
     CartAPI().orderHistory(url).then((value) {
-      print("object");
       setState(() {
         isLoading = false;
       });
@@ -279,7 +278,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                "13 items",
+                                                "Payment Method",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.w400,
                                                     color: Colors.grey[600]),
@@ -289,7 +288,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                     .toString()
                                                     .toUpperCase(),
                                                 style: TextStyle(
-                                                    fontWeight: FontWeight.w400,
+                                                    fontWeight: FontWeight.w700,
                                                     color: Colors.grey[600]),
                                               ),
                                             ],

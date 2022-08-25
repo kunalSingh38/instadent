@@ -41,7 +41,7 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
 
   void openCheckout(String orderId) async {
     var options = {
-      'key': 'rzp_test_MhKrOdDQM8C8PL',
+      'key': 'rzp_test_rmwv0ZpcpVrzrz',
       'name': 'InstaDent',
       'order_id': orderId,
       'description': '',
@@ -75,6 +75,7 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
           .then((value) {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
+        Provider.of<UpdateCartData>(context, listen: false).changeSearchView(0);
       });
     });
   }
@@ -138,6 +139,7 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
                         placingOrder = true;
                       });
                       CartAPI().placeOrder().then((value) {
+                        print(value);
                         if (value['ErrorCode'] == 0) {
                           openCheckout(value['Response']['razorpay_order']['id']
                               .toString());
@@ -214,18 +216,22 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
                         placingOrder = true;
                       });
                       CartAPI().cashOnDelivery().then((value) {
+                        print(value);
                         if (value['ErrorCode'] == 0) {
                           setState(() {
                             placingOrder = false;
                           });
                           Navigator.of(context).pop();
                           Navigator.of(context).pop();
+
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => OrderPlacedScreen(
                                       orderId: value['Response']['order_id']
                                           .toString())));
+                          Provider.of<UpdateCartData>(context, listen: false)
+                              .changeSearchView(0);
                         }
                       });
                     },

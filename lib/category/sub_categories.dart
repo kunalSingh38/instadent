@@ -76,6 +76,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   }
 
   Future getSubCategoryProducts(String id) async {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
       isLoadingRight = true;
@@ -190,7 +191,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
               InkWell(
                 onTap: () {
                   Provider.of<UpdateCartData>(context, listen: false)
-                      .changeSearchView();
+                      .changeSearchView(2);
                 },
                 child: Image.asset(
                   "assets/search.png",
@@ -347,32 +348,45 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                             ),
                                                             Expanded(
                                                                 flex: 2,
-                                                                child: e['icon'] ==
-                                                                            null ||
-                                                                        e['icon'] ==
-                                                                            ""
-                                                                    ? CircleAvatar(
-                                                                        maxRadius:
-                                                                            30,
-                                                                        backgroundColor:
-                                                                            Colors
-                                                                                .red,
-                                                                        backgroundImage:
-                                                                            AssetImage(
-                                                                          "assets/no_image.jpeg",
-                                                                        ))
-                                                                    : CircleAvatar(
-                                                                        backgroundColor:
-                                                                            Colors.grey[
-                                                                                50],
-                                                                        maxRadius:
-                                                                            30,
-                                                                        backgroundImage:
-                                                                            NetworkImage(
-                                                                          e['icon']
-                                                                              .toString(),
-                                                                          // fit: BoxFit.cover,
-                                                                        ))),
+                                                                child:
+                                                                    ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              20),
+                                                                  child: Image.network(e[
+                                                                          'icon']
+                                                                      .toString()),
+                                                                )
+
+                                                                // e['icon'] ==
+                                                                //             null ||
+                                                                //         e['icon'] ==
+                                                                //             ""
+                                                                //     ? CircleAvatar(
+                                                                //         maxRadius:
+                                                                //             30,
+                                                                //         backgroundColor:
+                                                                //             Colors
+                                                                //                 .red,
+                                                                //         backgroundImage:
+                                                                //             AssetImage(
+                                                                //           "assets/no_image.jpeg",
+                                                                //         ))
+                                                                //     : CircleAvatar(
+                                                                //         backgroundColor:
+                                                                //             Colors.grey[
+                                                                //                 50],
+                                                                //         maxRadius:
+                                                                //             40,
+                                                                //         backgroundImage:
+                                                                //             NetworkImage(
+                                                                //           e['icon']
+                                                                //               .toString(),
+
+                                                                //           // fit: BoxFit.cover,
+                                                                //         ))
+                                                                ),
                                                             SizedBox(
                                                               height: 5,
                                                             ),
@@ -394,8 +408,11 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                                         .ellipsis,
                                                                 maxLines: 2,
                                                                 style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
+                                                                    fontWeight: e[
+                                                                            'selected']
+                                                                        ? FontWeight
+                                                                            .w600
+                                                                        : FontWeight
                                                                             .w400,
                                                                     fontSize:
                                                                         12),

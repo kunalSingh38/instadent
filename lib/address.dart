@@ -649,6 +649,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                   " set as default address."),
                               duration: Duration(seconds: 1)),
                         );
+                        Provider.of<UpdateCartData>(context, listen: false)
+                            .setDefaultAddress();
                         setState(() {
                           currentPincode = pincode.toString();
                         });
@@ -680,6 +682,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 ],
               ));
     } else {
+      Navigator.of(context).pop();
       pref.setString("pincode", pincode.toString());
       pref.setString("defaultAddress", address);
       pref.setString("address_type", address_type);
@@ -689,7 +692,10 @@ class _AddressListScreenState extends State<AddressListScreen> {
             content: Text(address_type.toString() + " set as default address."),
             duration: Duration(seconds: 1)),
       );
-      Navigator.of(context).pop();
+      Provider.of<UpdateCartData>(context, listen: false).setDefaultAddress();
+      setState(() {
+        currentPincode = pincode.toString();
+      });
     }
   }
 

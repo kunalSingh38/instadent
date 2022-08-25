@@ -21,6 +21,9 @@ class AllCategoriesScreen extends StatefulWidget {
 class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
   bool isLoading = true;
   List categoryList = [];
+  List categoryListCopy = [];
+  bool isSearching = false;
+  TextEditingController searching = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -29,6 +32,8 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
       setState(() {
         categoryList.clear();
         categoryList.addAll(value);
+        categoryListCopy.clear();
+        categoryListCopy.addAll(value);
         isLoading = false;
       });
     });
@@ -45,27 +50,103 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
               elevation: 0,
               backgroundColor: Colors.transparent,
               toolbarHeight: 60,
-              title: Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("All categories",
-                        style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.black)),
-                    SizedBox(
-                      height: 6,
+              actions: [
+                isSearching
+                    ? SizedBox()
+                    : InkWell(
+                        onTap: () {
+                          setState(() {
+                            isSearching = !isSearching;
+                            searching.clear();
+                          });
+                        },
+                        child: Image.asset(
+                          "assets/search.png",
+                          scale: 25,
+                        ))
+              ],
+              title: isSearching
+                  ? Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          side: BorderSide(color: Color(0xFFEEEEEE))),
+                      child: TextFormField(
+                        controller: searching,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            List dummyListData = [];
+
+                            categoryListCopy.forEach((item) {
+                              if (item['category_name']
+                                  .toString()
+                                  .toUpperCase()
+                                  .contains(value.toUpperCase())) {
+                                dummyListData.add(item);
+                              }
+                            });
+                            setState(() {
+                              categoryList.clear();
+                              categoryList
+                                  .addAll(dummyListData.toSet().toList());
+                            });
+                            return;
+                          } else {
+                            setState(() {
+                              categoryList.clear();
+                              categoryList.addAll(categoryListCopy);
+                            });
+                          }
+                        },
+                        autofocus: true,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            contentPadding: EdgeInsets.all(15),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.lightBlue),
+                                borderRadius: BorderRadius.circular(10)),
+                            hintText: "Search categories",
+                            hintStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w300),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  isSearching = !isSearching;
+                                  searching.clear();
+                                  categoryList.clear();
+                                  categoryList.addAll(categoryListCopy);
+                                });
+                              },
+                            )),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("All categories",
+                              style: GoogleFonts.montserrat(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.black)),
+                          SizedBox(
+                            height: 6,
+                          ),
+                          Text("Curated with the best range of products",
+                              style: GoogleFonts.montserrat(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: 12,
+                                  color: Colors.black)),
+                        ],
+                      ),
                     ),
-                    Text("Curated with the best range of products",
-                        style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w300,
-                            fontSize: 12,
-                            color: Colors.black)),
-                  ],
-                ),
-              ),
             ),
             // bottomNavigationBar:
             //     viewModel.counterShowCart ? bottomSheet() : null,

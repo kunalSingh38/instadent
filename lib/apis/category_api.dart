@@ -44,7 +44,8 @@ class CategoryAPI {
           'Authorization': 'Bearer ' + pref.getString("token").toString(),
           'Content-Type': 'application/json'
         },
-        body: jsonEncode({"category_id": id.toString(), "pincode": pincode}));
+        body: jsonEncode({"category_id": id.toString()}));
+    print(jsonEncode({"category_id": id.toString()}));
     // if (['ErrorCode'] == 0) {
     //   return jsonDecode(response.body)['ItemResponse']['category_products'];
     // }
@@ -91,8 +92,7 @@ class CategoryAPI {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "search": searchData.toString(),
-          // "pincode": pref.getString("pincode").toString()
-          "pincode": "201301"
+          "pincode": pref.getString("pincode").toString()
         }));
 
     if (jsonDecode(response.body)['ErrorCode'] == 0 &&
@@ -102,7 +102,7 @@ class CategoryAPI {
     return [];
   }
 
-  Future<List> brandCategory() async {
+  Future<List> brandCategorywithLogin() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     var response = await http.post(
@@ -119,7 +119,21 @@ class CategoryAPI {
     return [];
   }
 
-  Future<List> featuredProducts() async {
+  Future<List> brandCategorywithoutLogin() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    var response = await http.post(Uri.parse(URL + "brand/list-pincode"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({"pincode": pref.getString("pincode").toString()}));
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response'];
+    }
+    return [];
+  }
+
+  Future<List> featuredProductsWithLogin() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     var response = await http.post(
@@ -132,6 +146,21 @@ class CategoryAPI {
 
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['ItemResponse']['data'];
+    }
+    return [];
+  }
+
+  Future<List> featuredProductsWithoutLogin() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    var response = await http.post(Uri.parse(URL + "pincode-featured-product"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({"pincode": pref.getString("pincode").toString()}));
+    print(response.body);
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response']['data'];
     }
     return [];
   }

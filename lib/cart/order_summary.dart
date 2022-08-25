@@ -12,6 +12,7 @@ import 'package:instadent/constants.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrderSummaryScreen extends StatefulWidget {
   Map map = {};
@@ -97,6 +98,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       setState(() {
         isLoading = false;
       });
+
       if (value.isNotEmpty) {
         setState(() {
           orderMap = value;
@@ -484,7 +486,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                       duration: Duration(seconds: 1)),
                                 );
                               } else {
-                                print(trackLink);
+                                launchUrl(Uri.parse(trackLink.toString()));
                               }
                             },
                             child: Text(

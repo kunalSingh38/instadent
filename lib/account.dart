@@ -96,29 +96,36 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          toolbarHeight: 50,
+          title: Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("My Account",
+                    style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        color: Colors.black)),
+                Text("InstaDent\nv" + appVersion,
+                    style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: Colors.grey)),
+              ],
+            ),
+          ),
+        ),
         body: Padding(
-          padding: const EdgeInsets.fromLTRB(15, 30, 15, 10),
+          padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text("My Account",
-                        style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold, fontSize: 25)),
-                    Text("InstaDent\nv" + appVersion,
-                        style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.grey)),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
                 phoneNumber == "null"
                     ? Column(
                         children: [
@@ -383,9 +390,12 @@ class _AccountScreenState extends State<AccountScreen> {
                   child: Text(
                     "Copyright© 2022 InstaDent. Designed By TechStreet.in",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
                   ),
-                )
+                ),
+                SizedBox(
+                  height: 30,
+                ),
               ],
             ),
           ),

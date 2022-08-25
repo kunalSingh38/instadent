@@ -54,7 +54,7 @@ class _BrandProductsState extends State<BrandProducts> {
               InkWell(
                 onTap: () {
                   Provider.of<UpdateCartData>(context, listen: false)
-                      .changeSearchView();
+                      .changeSearchView(2);
                 },
                 child: Image.asset(
                   "assets/search.png",
@@ -67,9 +67,8 @@ class _BrandProductsState extends State<BrandProducts> {
           body: Stack(
             children: [
               isLoading
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
+                  ? loadingProducts(
+                      "Getting " + widget.m['name'].toString() + " products")
                   : productList.length == 0
                       ? Center(
                           child: Column(

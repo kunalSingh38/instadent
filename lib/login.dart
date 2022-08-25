@@ -8,6 +8,7 @@ import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/otp.dart';
+import 'package:instadent/policy_view.dart';
 import 'package:provider/provider.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
@@ -244,7 +245,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Policy_View(
+                                  policy: "Terms & Condition".toString(),
+                                  data: "term_condition.html".toString())));
+                    },
                     child: Text(
                       "Term of service",
                       style: TextStyle(color: Colors.grey),
@@ -254,7 +262,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 10,
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Policy_View(
+                                  policy: "Privacy Policy".toString(),
+                                  data: "privacy.html".toString())));
+                    },
                     child: Text(
                       "Privacy Policy",
                       style: TextStyle(color: Colors.grey),

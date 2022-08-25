@@ -7,7 +7,9 @@ import 'package:instadent/apis/category_api.dart';
 import 'package:instadent/brand/brand_products.dart';
 import 'package:instadent/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletons/skeletons.dart';
+import 'package:collection/collection.dart';
 
 class OffersScreen extends StatefulWidget {
   const OffersScreen({Key? key}) : super(key: key);
@@ -22,6 +24,34 @@ class _OffersScreenState extends State<OffersScreen> {
   List brandList = [];
   List brandListCopy = [];
   TextEditingController searching = TextEditingController();
+
+  getBrandList() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    if (pref.getBool("loggedIn") ?? false) {
+      print("with login");
+      CategoryAPI().brandCategorywithLogin().then((value) {
+        setState(() {
+          brandList.clear();
+          brandList.addAll(value);
+          brandListCopy.addAll(value);
+          brandList.sort((a, b) => a['name'].compareTo(b['name']));
+          brandListCopy.sort((a, b) => a['name'].compareTo(b['name']));
+          isLoading = false;
+        });
+      });
+    } else {
+      print("without login");
+      CategoryAPI().brandCategorywithoutLogin().then((value) {
+        setState(() {
+          brandList.clear();
+          brandList.addAll(value);
+          brandListCopy.addAll(value);
+          isLoading = false;
+        });
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -29,14 +59,7 @@ class _OffersScreenState extends State<OffersScreen> {
     setState(() {
       searching.clear();
     });
-    CategoryAPI().brandCategory().then((value) {
-      setState(() {
-        brandList.clear();
-        brandList.addAll(value);
-        brandListCopy.addAll(value);
-        isLoading = false;
-      });
-    });
+    getBrandList();
   }
 
   @override
@@ -109,7 +132,7 @@ class _OffersScreenState extends State<OffersScreen> {
                       ),
                     )
                   : Padding(
-                      padding: const EdgeInsets.only(top: 20),
+                      padding: const EdgeInsets.only(top: 18),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -142,7 +165,36 @@ class _OffersScreenState extends State<OffersScreen> {
                         child: Image.asset(
                           "assets/search.png",
                           scale: 25,
-                        ))
+                        )),
+                PopupMenuButton(
+                    onSelected: (value) {
+                      setState(() {
+                        if (value == "A-Z") {
+                          brandList
+                              .sort((a, b) => a['name'].compareTo(b['name']));
+                          brandListCopy
+                              .sort((a, b) => a['name'].compareTo(b['name']));
+                        } else if (value == "Z-A") {
+                          brandList
+                              .sort((a, b) => b['name'].compareTo(a['name']));
+                          brandListCopy
+                              .sort((a, b) => b['name'].compareTo(a['name']));
+                        }
+                      });
+                    },
+                    icon: Image.asset(
+                      "assets/filter.png",
+                      scale: 24,
+                    ),
+                    itemBuilder: ((context) => ["A-Z", "Z-A"]
+                        .map((e) => PopupMenuItem(
+                              child: Text(
+                                e,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              value: e,
+                            ))
+                        .toList()))
               ],
             ),
             // bottomNavigationBar:
@@ -150,7 +202,7 @@ class _OffersScreenState extends State<OffersScreen> {
             body: Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
+                  padding: EdgeInsets.fromLTRB(15, 25, 15, 0),
                   child: SingleChildScrollView(
                     child: isLoading
                         ? loadingProducts("Getting your InstaDent brands")
@@ -184,53 +236,58 @@ class _OffersScreenState extends State<OffersScreen> {
                                                               .size
                                                               .width,
                                                       decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color: Colors.grey,
+                                                            width: 0.5),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(10),
-                                                        color: Colors.teal[100],
+                                                        color:
+                                                            Colors.transparent,
                                                       ),
                                                       child:
-                                                          // e['icon'] == null
-                                                          //     ?
-                                                          ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        child: Image.asset(
-                                                          "assets/logo.png",
-                                                          // fit: BoxFit.,
-                                                        ),
-                                                      )
-                                                      // : ClipRRect(
-                                                      //     borderRadius:
-                                                      //         BorderRadius.circular(
-                                                      //             10),
-                                                      //     child: Image.network(
-                                                      //       e['icon'].toString(),
-                                                      //       fit: BoxFit.cover,
-                                                      //       loadingBuilder: (context,
-                                                      //           child,
-                                                      //           loadingProgress) {
-                                                      //         if (loadingProgress ==
-                                                      //             null)
-                                                      //           return child;
-                                                      //         return Center(
-                                                      //           child:
-                                                      //               CircularProgressIndicator(
-                                                      //             value: loadingProgress
-                                                      //                         .expectedTotalBytes !=
-                                                      //                     null
-                                                      //                 ? loadingProgress
-                                                      //                         .cumulativeBytesLoaded /
-                                                      //                     loadingProgress
-                                                      //                         .expectedTotalBytes!
-                                                      //                 : null,
-                                                      //           ),
-                                                      //         );
-                                                      //       },
-                                                      //     ),
-                                                      //   )
-                                                      )),
+                                                          e['product_image'] ==
+                                                                  null
+                                                              ? ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                  child: Image
+                                                                      .asset(
+                                                                    "assets/logo.png",
+                                                                    // fit: BoxFit.,
+                                                                  ),
+                                                                )
+                                                              : ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                  child: Image
+                                                                      .network(
+                                                                    e['product_image']
+                                                                        .toString(),
+                                                                    // fit: BoxFit
+                                                                    //     .cover,
+                                                                    loadingBuilder:
+                                                                        (context,
+                                                                            child,
+                                                                            loadingProgress) {
+                                                                      if (loadingProgress ==
+                                                                          null)
+                                                                        return child;
+                                                                      return Center(
+                                                                        child:
+                                                                            CircularProgressIndicator(
+                                                                          value: loadingProgress.expectedTotalBytes != null
+                                                                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                                              : null,
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                ))),
                                               SizedBox(
                                                 height: 10,
                                               ),

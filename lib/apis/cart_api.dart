@@ -155,6 +155,7 @@ class CartAPI {
 
   Future<Map> orderHistory(String url) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    print(pref.getString("token").toString());
     var response = await http.post(
       Uri.parse(URL + url),
       headers: {

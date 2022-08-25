@@ -55,10 +55,10 @@ class _CartViewState extends State<CartView> {
               totalPrice = value['total_price'].toString();
               totalItemPrice = value['total'].toString();
             });
-            print(cartData[0]);
           }
         } else {
-          Navigator.of(context).pop();
+          // Provider.of<UpdateCartData>(context, listen: false)
+          //     .changeSearchView(0);
           Navigator.of(context).pop();
         }
       });

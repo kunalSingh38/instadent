@@ -107,4 +107,34 @@ class OtherAPI {
     }
     return [];
   }
+
+  Future<List> carouselsWithLogin() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(
+      Uri.parse(URL + "store/carousels/list"),
+      headers: {
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Content-Type': 'application/json'
+      },
+    );
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response']['carousels_list'];
+    }
+    return [];
+  }
+
+  Future<List> carouselsWithoutLogin() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(
+      Uri.parse(URL + "carousels/list"),
+      headers: {
+        // 'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Content-Type': 'application/json'
+      },
+    );
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response']['carousels_list'];
+    }
+    return [];
+  }
 }

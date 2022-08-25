@@ -108,23 +108,19 @@ class DashboardState extends State<Dashboard> {
       child: Scaffold(
         // indexed stack shows only one child
         body: Consumer<UpdateCartData>(builder: (context, viewModel, child) {
-          return viewModel.counterShowSearch
-              ? SearchScreen()
-              : IndexedStack(
-                  index: currentTab,
-                  children: tabs.map((e) => e.page).toList(),
-                );
+          return IndexedStack(
+            index: currentTab,
+            children: tabs.map((e) => e.page).toList(),
+          );
         }),
         // Bottom navigation
 
         bottomNavigationBar:
             Consumer<UpdateCartData>(builder: (context, viewModel, child) {
-          return viewModel.counterShowSearch
-              ? SizedBox()
-              : BottomNavigation(
-                  onSelectTab: selectTab,
-                  tabs: tabs,
-                );
+          return BottomNavigation(
+            onSelectTab: selectTab,
+            tabs: tabs,
+          );
         }),
       ),
     );

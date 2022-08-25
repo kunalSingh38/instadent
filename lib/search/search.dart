@@ -110,20 +110,38 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  getFeaturedList() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    if (pref.getBool("loggedIn") ?? false) {
+      print("with feature");
+      CategoryAPI().featuredProductsWithLogin().then((value) {
+        if (value.length > 0) {
+          setState(() {
+            featureProducts.clear();
+            featureProducts.addAll(value);
+          });
+        }
+      });
+    } else {
+      CategoryAPI().featuredProductsWithoutLogin().then((value) {
+        print("without feature");
+        if (value.length > 0) {
+          setState(() {
+            featureProducts.clear();
+            featureProducts.addAll(value);
+          });
+        }
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     recentSearchItems();
     myFocusNode = FocusNode();
-    CategoryAPI().featuredProducts().then((value) {
-      if (value.length > 0) {
-        setState(() {
-          featureProducts.clear();
-          featureProducts.addAll(value);
-        });
-      }
-    });
+    getFeaturedList();
     var keyboardVisibilityController = KeyboardVisibilityController();
 
     keyboardSubscription =
@@ -140,330 +158,328 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    // This dialog will exit your app on saying yes
-
-    Provider.of<UpdateCartData>(context, listen: false).changeSearchView();
-    Provider.of<UpdateCartData>(context, listen: false).changeSearchView();
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<UpdateCartData>(builder: (context, viewModel, child) {
-      return WillPopScope(
-        onWillPop: _onWillPop,
-        child: Scaffold(
-          // bottomNavigationBar: viewModel.counterShowCart ? bottomSheet() : null,
-          // appBar: AppBar(
-          //   backgroundColor: Colors.transparent,
-          //   elevation: 0,
-          //   iconTheme: IconThemeData(color: Colors.black),
-          //   toolbarHeight: 50,
-          // ),
-          appBar: AppBar(
-              elevation: 0,
-              backgroundColor: Colors.transparent,
-              toolbarHeight: 80,
-              title: Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    side: BorderSide(color: Color(0xFFEEEEEE))),
-                child: TextFormField(
-                  focusNode: myFocusNode,
-                  controller: searchCont,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  onChanged: (val) async {
-                    searching();
-                  },
-                  onEditingComplete: () {
-                    // addRecentItems();
-                    searching();
-                    FocusScope.of(context).unfocus();
-                  },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      contentPadding: EdgeInsets.all(10),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.lightBlue),
-                          borderRadius: BorderRadius.circular(10)),
-                      hintText: searchHint,
-                      hintStyle: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300),
-                      prefixIcon: InkWell(
-                          onTap: () {
-                            Provider.of<UpdateCartData>(context, listen: false)
-                                .changeSearchView();
-                          },
-                          child: Icon(Icons.arrow_back)),
-                      suffixIcon: InkWell(
-                          onTap: () {
-                            setState(() {
-                              searchCont.clear();
-                              searchResult.clear();
-                              myFocusNode.requestFocus();
-                            });
-                          },
-                          child: Image.asset(
-                            "assets/clear.png",
-                            scale: 30,
-                          ))),
-                ),
-              )),
-          body: Stack(
-            children: [
-              SafeArea(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                        child: Column(
-                          children: [
-                            items.length == 0
-                                ? SizedBox()
-                                : Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(Icons.history),
-                                              SizedBox(
+      return Scaffold(
+        // bottomNavigationBar: viewModel.counterShowCart ? bottomSheet() : null,
+        // appBar: AppBar(
+        //   backgroundColor: Colors.transparent,
+        //   elevation: 0,
+        //   iconTheme: IconThemeData(color: Colors.black),
+        //   toolbarHeight: 50,
+        // ),
+        appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            toolbarHeight: 80,
+            title: Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: BorderSide(color: Color(0xFFEEEEEE))),
+              child: TextFormField(
+                focusNode: myFocusNode,
+                autofocus: true,
+                controller: searchCont,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                onChanged: (val) async {
+                  searching();
+                },
+                onEditingComplete: () {
+                  // addRecentItems();
+                  searching();
+                  FocusScope.of(context).unfocus();
+                },
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    contentPadding: EdgeInsets.all(10),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.lightBlue),
+                        borderRadius: BorderRadius.circular(10)),
+                    hintText: searchHint,
+                    hintStyle: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300),
+                    suffixIcon: InkWell(
+                        onTap: () {
+                          setState(() {
+                            searchCont.clear();
+                            searchResult.clear();
+                            myFocusNode.requestFocus();
+                          });
+                        },
+                        child: Image.asset(
+                          "assets/clear.png",
+                          scale: 30,
+                        ))),
+              ),
+            )),
+        body: Stack(
+          children: [
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Column(
+                        children: [
+                          items.length == 0
+                              ? SizedBox()
+                              : Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(Icons.history),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Text(
+                                              "Recent searches",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ],
+                                        ),
+                                        InkWell(
+                                          child: Text(
+                                            "Clear",
+                                            style: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          onTap: () async {
+                                            SharedPreferences prefs =
+                                                await SharedPreferences
+                                                    .getInstance();
+                                            setState(() {
+                                              items.clear();
+                                              prefs.remove("recentSearch");
+                                              searchResult.clear();
+                                              searchCont.text = "";
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    items.length == 0
+                                        ? SizedBox()
+                                        : SizedBox(
+                                            height: 35,
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            child: ListView.separated(
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: items.length,
+                                              separatorBuilder:
+                                                  (BuildContext context,
+                                                          int index) =>
+                                                      const SizedBox(
                                                 width: 10,
                                               ),
-                                              Text(
-                                                "Recent searches",
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            ],
-                                          ),
-                                          InkWell(
-                                            child: Text(
-                                              "Clear",
-                                              style: TextStyle(
-                                                  color: Colors.blue,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            onTap: () async {
-                                              SharedPreferences prefs =
-                                                  await SharedPreferences
-                                                      .getInstance();
-                                              setState(() {
-                                                items.clear();
-                                                prefs.remove("recentSearch");
-                                                searchResult.clear();
-                                                searchCont.text = "";
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      items.length == 0
-                                          ? SizedBox()
-                                          : SizedBox(
-                                              height: 35,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              child: ListView.separated(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                itemCount: items.length,
-                                                separatorBuilder:
-                                                    (BuildContext context,
-                                                            int index) =>
-                                                        const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                itemBuilder:
-                                                    (BuildContext context,
-                                                        int index) {
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        searchCont.clear();
-                                                        searchCont.text =
-                                                            items[index]
-                                                                .toString();
-                                                        myFocusNode
-                                                            .requestFocus();
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                        decoration: BoxDecoration(
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                return InkWell(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      searchCont.clear();
+                                                      searchCont.text =
+                                                          items[index]
+                                                              .toString();
+                                                      myFocusNode
+                                                          .requestFocus();
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                      decoration: BoxDecoration(
+                                                          border: Border.all(
+                                                              color:
+                                                                  Colors.grey),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10)),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Text(
+                                                          items[index]
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .grey[700]),
+                                                        ),
+                                                      )),
+                                                );
+                                              },
+                                            )),
+                                  ],
+                                ),
+                        ],
+                      ),
+                    ),
+                    searchResult.length == 0
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  "assets/feature.png",
+                                  scale: 20,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "Featured Products",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14),
+                                )
+                              ],
+                            ),
+                          )
+                        : SizedBox(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Consumer<UpdateCartData>(
+                        builder: (context, viewModel, child) {
+                      return isLoading
+                          ? Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : searchResult.length == 0
+                              ? Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GridView.count(
+                                    crossAxisCount: 4,
+                                    mainAxisSpacing: 10,
+                                    crossAxisSpacing: 10,
+                                    childAspectRatio: 0.6,
+                                    physics: ClampingScrollPhysics(),
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    children: featureProducts
+                                        .map((e) => InkWell(
+                                              onTap: () {
+                                                print(e);
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                                bool inStock =
+                                                    e['is_stock'] == 1
+                                                        ? false
+                                                        : true;
+                                                showProdcutDetails(
+                                                    context,
+                                                    e,
+                                                    inStock,
+                                                    controller,
+                                                    featureProducts);
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  Expanded(
+                                                      flex: 2,
+                                                      child: Container(
+                                                          width: MediaQuery.of(
+                                                                  context)
+                                                              .size
+                                                              .width,
+                                                          decoration:
+                                                              BoxDecoration(
                                                             border: Border.all(
-                                                                color: Colors
-                                                                    .grey),
+                                                                color:
+                                                                    Colors.grey,
+                                                                width: 0.9),
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .circular(
-                                                                        10)),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(8.0),
-                                                          child: Text(
-                                                            items[index]
-                                                                .toString(),
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .grey[700]),
+                                                                        10),
+                                                            color: Colors
+                                                                .tealAccent[50],
                                                           ),
-                                                        )),
-                                                  );
-                                                },
-                                              )),
-                                    ],
-                                  ),
-                          ],
-                        ),
-                      ),
-                      searchResult.length == 0
-                          ? Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    "assets/feature.png",
-                                    scale: 20,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "Featured Products",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14),
-                                  )
-                                ],
-                              ),
-                            )
-                          : SizedBox(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Consumer<UpdateCartData>(
-                          builder: (context, viewModel, child) {
-                        return isLoading
-                            ? Center(
-                                child: CircularProgressIndicator(),
-                              )
-                            : searchResult.length == 0
-                                ? Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: GridView.count(
-                                      crossAxisCount: 4,
-                                      mainAxisSpacing: 10,
-                                      crossAxisSpacing: 10,
-                                      childAspectRatio: 0.6,
-                                      physics: ClampingScrollPhysics(),
-                                      scrollDirection: Axis.vertical,
-                                      shrinkWrap: true,
-                                      children: featureProducts
-                                          .map((e) => InkWell(
-                                                onTap: () {},
-                                                child: Column(
-                                                  children: [
-                                                    Expanded(
-                                                        flex: 2,
-                                                        child: Container(
-                                                            width:
-                                                                MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              border: Border.all(
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  width: 0.9),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                              color: Colors
-                                                                  .tealAccent[50],
-                                                            ),
-                                                            child: ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                              child:
-                                                                  Image.network(
-                                                                e['product_image']
-                                                                    .toString(),
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                                errorBuilder:
-                                                                    (context,
-                                                                        error,
-                                                                        stackTrace) {
-                                                                  return Image
-                                                                      .asset(
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            child: e['product_image']
+                                                                        .toString() ==
+                                                                    "0"
+                                                                ? Image.asset(
                                                                     "assets/no_image.jpeg",
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ))),
-                                                    SizedBox(
-                                                      height: 10,
-                                                    ),
-                                                    Expanded(
-                                                        child: Text(
-                                                      e['product_name'] == ""
-                                                          ? "No Name"
-                                                          : e['product_name']
-                                                              .toString(),
-                                                      softWrap: true,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 12),
-                                                    ))
-                                                  ],
-                                                ),
-                                              ))
-                                          .toList(),
-                                    ),
-                                  )
-                                : allProductsList(
-                                    searchResult, context, controller, 0.8);
-                      }),
-                      viewModel.counterShowCart
-                          ? SizedBox(
-                              height: 60,
-                            )
-                          : SizedBox(),
-                    ],
-                  ),
+                                                                  )
+                                                                : Image.network(
+                                                                    e['product_image']
+                                                                        .toString(),
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    errorBuilder:
+                                                                        (context,
+                                                                            error,
+                                                                            stackTrace) {
+                                                                      return Image
+                                                                          .asset(
+                                                                        "assets/no_image.jpeg",
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                          ))),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Expanded(
+                                                      child: Text(
+                                                    e['product_name'] == ""
+                                                        ? "No Name"
+                                                        : e['product_name']
+                                                            .toString(),
+                                                    softWrap: true,
+                                                    textAlign: TextAlign.center,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 2,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 12),
+                                                  ))
+                                                ],
+                                              ),
+                                            ))
+                                        .toList(),
+                                  ),
+                                )
+                              : allProductsList(
+                                  searchResult, context, controller, 0.8);
+                    }),
+                    viewModel.counterShowCart
+                        ? SizedBox(
+                            height: 60,
+                          )
+                        : SizedBox(),
+                  ],
                 ),
               ),
-              Align(
-                  alignment: Alignment.bottomCenter,
-                  child: viewModel.counterShowCart ? bottomSheet() : SizedBox())
-            ],
-          ),
+            ),
+            Align(
+                alignment: Alignment.bottomCenter,
+                child: viewModel.counterShowCart ? bottomSheet() : SizedBox())
+          ],
         ),
       );
     });
