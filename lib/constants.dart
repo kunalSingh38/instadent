@@ -1,6 +1,9 @@
 // ignore_for_file: prefer_const_constructors, dead_code, prefer_interpolation_to_compose_strings
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -13,7 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const URL = "https://dev.techstreet.in/idc/public/api/v1/";
-const searchHint = "Search for product and more...";
+const searchHint = "Search for more...";
 showLaoding(context) {
   return showDialog(
       context: context,
@@ -119,6 +122,7 @@ TextStyle textStyle1 = TextStyle(color: Colors.white);
 Future<void> showProdcutDetails(BuildContext context, Map m, bool inStock,
     TextEditingController controller, List productItems) async {
   print(m);
+
   String group_Data = m['group_price']
       .toString()
       .replaceAll("&#8377;", "₹")
@@ -491,57 +495,51 @@ Future<void> showProdcutDetails(BuildContext context, Map m, bool inStock,
                                   ],
                                 ),
 
-                          m['warranty_duration'] == null ||
-                                  m['warranty_duration'].toString() == ""
-                              ? SizedBox()
-                              : Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Warranty Duration",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 17)),
-                                        Text(m['warranty_duration'].toString(),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 15,
-                                            )),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                          Column(
+                            children: [
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Warranty Duration",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 17)),
+                                  Text("24 Months",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                      )),
+                                ],
+                              ),
+                            ],
+                          ),
 
-                          m['expiry_date'] == null ||
-                                  m['expiry_date'].toString() == ""
-                              ? SizedBox()
-                              : Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Expiry Date",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 17)),
-                                        Text(m['expiry_date'].toString(),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 15,
-                                            )),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                          Column(
+                            children: [
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Expiry Date",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 17)),
+                                  Text("25-12-2024",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                      )),
+                                ],
+                              ),
+                            ],
+                          ),
 
                           SizedBox(
                             height: 10,
@@ -591,8 +589,8 @@ Widget backIcon(context) {
 Widget allCategoryGrid(List categoryList, BuildContext context) {
   return GridView.count(
     crossAxisCount: 4,
-    mainAxisSpacing: 10,
-    crossAxisSpacing: 10,
+    mainAxisSpacing: 0,
+    crossAxisSpacing: 12,
     childAspectRatio: 0.6,
     physics: ClampingScrollPhysics(),
     scrollDirection: Axis.vertical,
@@ -633,27 +631,37 @@ Widget allCategoryGrid(List categoryList, BuildContext context) {
                                 )
                               : ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    e['icon'].toString(),
+                                  child: CachedNetworkImage(
                                     fit: BoxFit.cover,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                              : null,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ))),
+
+                                    imageUrl: e['icon'].toString(),
+                                    // placeholder: (context, url) =>
+                                    //     CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset("assets/logo.png"),
+                                  )
+
+                                  //  Image.network(
+                                  //   e['icon'].toString(),
+                                  //   fit: BoxFit.cover,
+                                  //   loadingBuilder:
+                                  //       (context, child, loadingProgress) {
+                                  //     if (loadingProgress == null) return child;
+                                  //     return Center(
+                                  //       child: CircularProgressIndicator(
+                                  //         value: loadingProgress
+                                  //                     .expectedTotalBytes !=
+                                  //                 null
+                                  //             ? loadingProgress
+                                  //                     .cumulativeBytesLoaded /
+                                  //                 loadingProgress
+                                  //                     .expectedTotalBytes!
+                                  //             : null,
+                                  //       ),
+                                  //     );
+                                  //   },
+                                  // ),
+                                  ))),
                   SizedBox(
                     height: 10,
                   ),
@@ -664,9 +672,9 @@ Widget allCategoryGrid(List categoryList, BuildContext context) {
                         : e['category_name'].toString().toUpperCase(),
                     softWrap: true,
                     textAlign: TextAlign.center,
-                    overflow: TextOverflow.clip,
+                    overflow: TextOverflow.ellipsis,
                     maxLines: 2,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 8),
                   ))
                 ],
               ),

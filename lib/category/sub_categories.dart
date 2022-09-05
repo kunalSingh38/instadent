@@ -354,9 +354,19 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                                       BorderRadius
                                                                           .circular(
                                                                               20),
-                                                                  child: Image.network(e[
-                                                                          'icon']
-                                                                      .toString()),
+                                                                  child: Image
+                                                                      .network(
+                                                                    e['icon']
+                                                                        .toString(),
+                                                                    errorBuilder:
+                                                                        (context,
+                                                                            error,
+                                                                            stackTrace) {
+                                                                      return Image
+                                                                          .asset(
+                                                                              "assets/logo.png");
+                                                                    },
+                                                                  ),
                                                                 )
 
                                                                 // e['icon'] ==

@@ -41,15 +41,48 @@ class _HomeScreenState extends State<HomeScreen> {
   String defaultAddress = "Select Address";
   String addressType = "Other";
   // List addressList = [];
-  bool isLoading = true;
+  bool isLoadingAllCategory = true;
+  bool isLoadingCarosole = true;
   Future<void> getAddressList() async {
     _determinePosition().then((value) {
       _getAddress(value);
     });
   }
 
+  Widget onlySearch() => InkWell(
+        onTap: () {
+          Provider.of<UpdateCartData>(context, listen: false)
+              .changeSearchView(2);
+        },
+        child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            elevation: 3,
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                      child: Icon(
+                    Icons.search,
+                    color: Colors.black,
+                    size: 25,
+                  )),
+                  Expanded(
+                      flex: 10,
+                      child: Text(
+                        searchHint,
+                        style: TextStyle(fontSize: 15),
+                      ))
+                ],
+              ),
+            )),
+      );
   Widget searchCard() => Card(
-        elevation: 5,
+        elevation: 2,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
             side: BorderSide(
@@ -58,26 +91,28 @@ class _HomeScreenState extends State<HomeScreen> {
         child: TextFormField(
           controller: searchCont,
           readOnly: true,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+          // style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
           onTap: () {
             Provider.of<UpdateCartData>(context, listen: false)
                 .changeSearchView(2);
           },
           decoration: InputDecoration(
+            isDense: true,
+            isCollapsed: true,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: EdgeInsets.all(0),
+            contentPadding: EdgeInsets.all(5),
             focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.lightBlue),
                 borderRadius: BorderRadius.circular(10)),
             hintText: searchHint,
             hintStyle: TextStyle(
-                color: Colors.black, fontSize: 16, fontWeight: FontWeight.w300),
+                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
             prefixIcon: Padding(
                 padding: const EdgeInsets.all(5),
                 child: Icon(
                   Icons.search,
                   color: Colors.black,
-                  size: 35,
+                  size: 28,
                 )),
           ),
         ),
@@ -103,10 +138,10 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         carouselsList.clear();
         carouselsList.addAll(value);
+        isLoadingCarosole = false;
       });
     });
     // }
-    print(carouselsList.length);
   }
 
   @override
@@ -120,9 +155,17 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Provider.of<UpdateCartData>(context, listen: false).counterShowCart;
+
+    CategoryAPI().cartegoryList().then((value) {
+      setState(() {
+        categoryList.clear();
+        categoryList.addAll(value);
+        isLoadingAllCategory = false;
+      });
+    });
     getAddressList();
     getCarouselsListData();
+    Provider.of<UpdateCartData>(context, listen: false).counterShowCart;
   }
 
   bool showSearch = false;
@@ -180,159 +223,158 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? AppBar(
                       backgroundColor: Colors.white,
                       toolbarHeight: 60,
-                      title: searchCard())
+                      title: onlySearch())
                   : null,
-              // bottomNavigationBar:
-              //     viewModel.counterShowCart ? bottomSheet() : null,
-              body: isLoading
-                  ? loadingProducts("Getting your InstaDent products")
-                  : Stack(
+              body: Stack(
+                children: [
+                  SingleChildScrollView(
+                    controller: scrollController,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SingleChildScrollView(
-                          controller: scrollController,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                              child: Text("Delivery in 11 mintues",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 20)),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AddressListScreen()))
+                                      .then((value) async {
+                                    // SharedPreferences pref =
+                                    //     await SharedPreferences
+                                    //         .getInstance();
+
+                                    // setState(() {
+                                    //   addressType = pref
+                                    //       .getString("address_type")
+                                    //       .toString();
+                                    //   defaultAddress = pref
+                                    //       .getString("defaultAddress")
+                                    //       .toString();
+                                    // });
+                                  });
+                                },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 15,
+                                      child: Text(
+                                          viewModel.counterDefaultOffice
+                                                  .toString() +
+                                              ", " +
+                                              viewModel.counterDefaultAddress
+                                                  .toString(),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: GoogleFonts.montserrat(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 15)),
+                                    ),
+                                    Expanded(child: Icon(Icons.arrow_drop_down))
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: onlySearch(),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.grey[50]),
+                                child: ImageSlideshow(
+                                  width: double.infinity,
+                                  height: 160,
+                                  initialPage: 0,
+                                  indicatorColor: Colors.blue,
+                                  indicatorBackgroundColor: Colors.grey,
+                                  children: List.generate(
+                                      3,
+                                      (index) => ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            child: Image.asset(
+                                              'assets/banner' +
+                                                  (index + 1).toString() +
+                                                  '.jpeg',
+                                              fit: BoxFit.fill,
+                                            ),
+                                          )).toList(),
+                                  onPageChanged: (value) {},
+                                  autoPlayInterval: 3000,
+                                  isLoop: true,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Divider(
+                              color: Colors.grey[200],
+                              thickness: 15,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(15),
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        15, 15, 15, 0),
-                                    child: Text("Delivery in 11 mintues",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.montserrat(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 20)),
+                                  Text(
+                                    "All categories",
+                                    style: GoogleFonts.montserrat(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(
                                     height: 10,
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        AddressListScreen()))
-                                            .then((value) async {
-                                          // SharedPreferences pref =
-                                          //     await SharedPreferences
-                                          //         .getInstance();
-
-                                          // setState(() {
-                                          //   addressType = pref
-                                          //       .getString("address_type")
-                                          //       .toString();
-                                          //   defaultAddress = pref
-                                          //       .getString("defaultAddress")
-                                          //       .toString();
-                                          // });
-                                        });
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            flex: 15,
-                                            child: Text(
-                                                viewModel.counterDefaultOffice
-                                                        .toString() +
-                                                    ", " +
-                                                    viewModel
-                                                        .counterDefaultAddress
-                                                        .toString(),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                                style: GoogleFonts.montserrat(
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: 15)),
-                                          ),
-                                          Expanded(
-                                              child:
-                                                  Icon(Icons.arrow_drop_down))
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
-                                    child: searchCard(),
-                                  ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          color: Colors.grey[50]),
-                                      child: ImageSlideshow(
-                                        width: double.infinity,
-                                        height: 160,
-                                        initialPage: 0,
-                                        indicatorColor: Colors.blue,
-                                        indicatorBackgroundColor: Colors.grey,
-                                        children: List.generate(
-                                            3,
-                                            (index) => ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  child: Image.asset(
-                                                    'assets/banner' +
-                                                        (index + 1).toString() +
-                                                        '.jpeg',
-                                                    fit: BoxFit.fill,
-                                                  ),
-                                                )).toList(),
-                                        onPageChanged: (value) {},
-                                        autoPlayInterval: 3000,
-                                        isLoop: true,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  Divider(
-                                    color: Colors.grey[200],
-                                    thickness: 15,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(15),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "All categories",
-                                          style: GoogleFonts.montserrat(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        allCategoryGrid(categoryList, context),
-                                      ],
-                                    ),
-                                  ),
+                                  isLoadingAllCategory
+                                      ? Container(
+                                          height: 300,
+                                          child: loadingProducts(
+                                              "Getting your InstaDent products"),
+                                        )
+                                      : allCategoryGrid(categoryList, context),
                                 ],
                               ),
-                              Divider(
-                                color: Colors.grey[200],
-                                thickness: 15,
-                              ),
-                              Column(
+                            ),
+                          ],
+                        ),
+                        Divider(
+                          color: Colors.grey[200],
+                          thickness: 15,
+                        ),
+                        isLoadingCarosole
+                            ? loadingProducts(
+                                "Getting your InstaDent sepecial products")
+                            : Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: carouselsList.map((e) {
                                   List items = e['items'];
@@ -801,80 +843,75 @@ class _HomeScreenState extends State<HomeScreen> {
                                   );
                                 }).toList(),
                               ),
-                              Container(
-                                height: 300,
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    image: DecorationImage(
-                                        alignment: Alignment(0.6, -0.15),
-                                        scale: 10,
-                                        image: AssetImage(
-                                          "assets/emoji1.png",
-                                        ))),
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(18, 20, 20, 20),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          "didn't find\nwhat you were\nlooking for?",
-                                          textAlign: TextAlign.left,
-                                          style: GoogleFonts.montserrat(
-                                              fontSize: 35,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.grey[400])),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      Text(
-                                          "Suggest something & we'll look into it",
-                                          style: GoogleFonts.montserrat(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.grey[400])),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          suggestProductBottom();
-                                        },
-                                        child: Container(
-                                          child: Text("Suggest a Product",
-                                              style: GoogleFonts.montserrat(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.pink[700])),
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                              color: Colors.white70,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                  color: Colors.grey)),
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                        Container(
+                          height: 300,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              image: DecorationImage(
+                                  alignment: Alignment(0.6, -0.15),
+                                  scale: 10,
+                                  image: AssetImage(
+                                    "assets/emoji1.png",
+                                  ))),
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(18, 20, 20, 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("didn't find\nwhat you were\nlooking for?",
+                                    textAlign: TextAlign.left,
+                                    style: GoogleFonts.montserrat(
+                                        fontSize: 35,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey[400])),
+                                SizedBox(
+                                  height: 20,
                                 ),
-                              ),
-                              viewModel.counterShowCart
-                                  ? SizedBox(
-                                      height: 50,
-                                    )
-                                  : SizedBox(),
-                            ],
+                                Text("Suggest something & we'll look into it",
+                                    style: GoogleFonts.montserrat(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey[400])),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    suggestProductBottom();
+                                  },
+                                  child: Container(
+                                    child: Text("Suggest a Product",
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.pink[700])),
+                                    padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white70,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Colors.grey)),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
-                        Align(
-                            alignment: Alignment.bottomCenter,
-                            child: viewModel.counterShowCart
-                                ? bottomSheet()
-                                : SizedBox())
+                        viewModel.counterShowCart
+                            ? SizedBox(
+                                height: 50,
+                              )
+                            : SizedBox(),
                       ],
-                    ));
+                    ),
+                  ),
+                  Align(
+                      alignment: Alignment.bottomCenter,
+                      child: viewModel.counterShowCart
+                          ? bottomSheet()
+                          : SizedBox())
+                ],
+              ));
         }),
       ),
     );
@@ -950,13 +987,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ];
       pref.setString("recent_address_list", jsonEncode(temp));
       Provider.of<UpdateCartData>(context, listen: false).setDefaultAddress();
-    });
-    CategoryAPI().cartegoryList().then((value) {
-      setState(() {
-        categoryList.clear();
-        categoryList.addAll(value);
-        isLoading = false;
-      });
     });
   }
 

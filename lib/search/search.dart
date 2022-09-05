@@ -133,6 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
         }
       });
     }
+    print("Search 3");
   }
 
   @override

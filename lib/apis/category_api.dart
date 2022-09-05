@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CategoryAPI {
   Future<List> cartegoryList() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+
     var response = await http.post(
       Uri.parse(URL + "category"),
       headers: {

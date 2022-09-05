@@ -50,6 +50,7 @@ class _OffersScreenState extends State<OffersScreen> {
         });
       });
     }
+    print("Offer 4");
   }
 
   @override
@@ -210,7 +211,7 @@ class _OffersScreenState extends State<OffersScreen> {
                             children: [
                               GridView.count(
                                 crossAxisCount: 4,
-                                mainAxisSpacing: 10,
+                                mainAxisSpacing: 0,
                                 crossAxisSpacing: 10,
                                 childAspectRatio: 0.6,
                                 physics: ClampingScrollPhysics(),
