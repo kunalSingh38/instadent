@@ -115,7 +115,7 @@ Widget bottomSheet() =>
     });
 
 String removeNull(String data) {
-  return data == "null" ? "" : data.toString();
+  return data == "null" ? "" : double.parse(data.toString()).toStringAsFixed(0);
 }
 
 TextStyle textStyle1 = TextStyle(color: Colors.white);
@@ -191,67 +191,125 @@ Future<void> showProdcutDetails(BuildContext context, Map m, bool inStock,
                                       children: multipleImages
                                           .map((e) => Card(
                                               elevation: 8,
-                                              child: Image.network(
-                                                e['image'].toString(),
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Image.asset(
-                                                    "assets/no_image.jpeg",
-                                                  );
-                                                },
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20.0),
+                                              ),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                child: Image.network(
+                                                  e['image'].toString(),
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Image.asset(
+                                                      "assets/no_image.jpeg",
+                                                    );
+                                                  },
+                                                ),
                                               )))
                                           .toList(),
                                     )
                                   : Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20.0),
+                                      ),
                                       elevation: 8,
-                                      child: Image.network(
-                                        m['product_image'].toString(),
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Image.asset(
-                                            "assets/no_image.jpeg",
-                                          );
-                                        },
-                                      )),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Image.network(
+                                          m['product_image'].toString(),
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                              "assets/no_image.jpeg",
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
                             ),
                           ),
                           Divider(),
                           SizedBox(
                             height: 10,
                           ),
-                          Text(m['product_name'].toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 18)),
-                          SizedBox(
-                            height: 12,
-                          ),
-
                           Row(
                             children: [
                               Expanded(
-                                flex: 2,
-                                child: RichText(
-                                  text: TextSpan(
-                                    text: '',
-                                    style: DefaultTextStyle.of(context).style,
-                                    children: [
-                                      TextSpan(
-                                          text: "₹" +
-                                              removeNull(m['mrp'].toString()),
-                                          style: TextStyle(
-                                              decoration:
-                                                  TextDecoration.lineThrough,
-                                              fontWeight: FontWeight.w400,
-                                              color: Colors.grey,
-                                              fontSize: 16)),
-                                      TextSpan(
-                                          text: "  ₹" +
-                                              m['discount_price'].toString(),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 20)),
-                                    ],
+                                flex: 6,
+                                child: Text(m['product_name'].toString(),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18)),
+                              ),
+                              Expanded(
+                                  child: CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.grey,
+                                child: CircleAvatar(
+                                  radius: 19,
+                                  backgroundColor: Colors.white,
+                                  child: Image.asset(
+                                    "assets/share2.png",
+                                    scale: 2.5,
                                   ),
+                                ),
+                              ))
+                            ],
+                          ),
+                          SizedBox(
+                            height: 12,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                        "₹" +
+                                            double.parse(m['discount_price']
+                                                    .toString())
+                                                .toStringAsFixed(0),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text("₹" + removeNull(m['mrp'].toString()),
+                                        style: TextStyle(
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.grey,
+                                            fontSize: 14)),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Container(
+                                      width: 65,
+                                      decoration: BoxDecoration(
+                                          color: Colors.teal,
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Text(
+                                          double.parse(disccount.toString())
+                                                  .toStringAsFixed(0) +
+                                              "% OFF",
+                                          style: TextStyle(
+                                              fontSize: 12.5,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               Expanded(
@@ -435,15 +493,15 @@ Future<void> showProdcutDetails(BuildContext context, Map m, bool inStock,
                           SizedBox(
                             height: 10,
                           ),
-                          disccount == "0"
-                              ? SizedBox()
-                              : Text(
-                                  disccount.toString() + "% OFF",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.blue[800],
-                                      fontWeight: FontWeight.bold),
-                                ),
+                          // disccount == "0"
+                          //     ? SizedBox()
+                          //     : Text(
+                          //         disccount.toString() + "% OFF",
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             color: Colors.blue[800],
+                          //             fontWeight: FontWeight.bold),
+                          //       ),
                           SizedBox(
                             height: 10,
                           ),
