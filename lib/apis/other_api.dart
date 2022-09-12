@@ -137,4 +137,47 @@ class OtherAPI {
     }
     return [];
   }
+
+  Future<List> feedbackQuestionList(String orderId) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(
+      Uri.parse(URL + "feedbackquestion/" + orderId.toString()),
+      headers: {
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Content-Type': 'application/json'
+      },
+    );
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response'];
+    }
+    return [];
+  }
+
+  Future<Map> singleProductDetails(String productId) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(URL + "product-details"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"product_id": productId.toString()}));
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['ItemResponse'];
+    }
+    return {};
+  }
+
+  Future<List> homePageBanner(String imageFor) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(URL + "banners"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"banner_location": imageFor.toString()}));
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response']['home_banner'];
+    }
+    return [];
+  }
 }

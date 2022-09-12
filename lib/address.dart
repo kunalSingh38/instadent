@@ -608,79 +608,92 @@ class _AddressListScreenState extends State<AddressListScreen> {
       String pincode, String address, String address_type, String count) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (int.parse(count.toString()) > 0) {
-      showDialog(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-                title: Text("Remove cart items?"),
-                content: Text(
-                  "Your cart contains items from " +
-                      pref.getString("address_type").toString() +
-                      " (" +
-                      pref.getString("defaultAddress").toString() +
-                      "). Do you want to discard the selection and use this address " +
-                      address_type +
-                      " (" +
-                      address +
-                      ")?",
-                  style: TextStyle(
-                    fontSize: 14,
-                    wordSpacing: 1,
+      print(pref.getString("pincode"));
+      print(pincode);
+      if (pref.getString("pincode").toString() != pincode) {
+        showDialog(
+            context: context,
+            builder: (dialogContext) => AlertDialog(
+                  title: Text("Remove cart items?"),
+                  content: Text(
+                    "Your cart contains items from " +
+                        pref.getString("address_type").toString() +
+                        " (" +
+                        pref.getString("defaultAddress").toString() +
+                        "). Do you want to discard the selection and use this address " +
+                        address_type +
+                        " (" +
+                        address +
+                        ")?",
+                    style: TextStyle(
+                      fontSize: 14,
+                      wordSpacing: 1,
+                    ),
                   ),
-                ),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop();
-                      },
-                      child: Text(
-                        "NO",
-                        style: TextStyle(color: Colors.amber[700]),
-                      )),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop();
-                        pref.setString("pincode", pincode.toString());
-                        pref.setString("defaultAddress", address);
-                        pref.setString("address_type", address_type);
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                        },
+                        child: Text(
+                          "NO",
+                          style: TextStyle(color: Colors.amber[700]),
+                        )),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          pref.setString("pincode", pincode.toString());
+                          pref.setString("defaultAddress", address);
+                          pref.setString("address_type", address_type);
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(address_type.toString() +
-                                  " set as default address."),
-                              duration: Duration(seconds: 1)),
-                        );
-                        Provider.of<UpdateCartData>(context, listen: false)
-                            .setDefaultAddress();
-                        setState(() {
-                          currentPincode = pincode.toString();
-                        });
-                        CartAPI().emptyCart().then((value) {
-                          if (value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text("All items removed from cart."
-                                      .toString()),
-                                  duration: Duration(seconds: 1)),
-                            );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(address_type.toString() +
+                                    " set as default address."),
+                                duration: Duration(seconds: 1)),
+                          );
+                          Provider.of<UpdateCartData>(context, listen: false)
+                              .setDefaultAddress();
+                          setState(() {
+                            currentPincode = pincode.toString();
+                          });
+                          CartAPI().emptyCart().then((value) {
+                            if (value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text("All items removed from cart."
+                                        .toString()),
+                                    duration: Duration(seconds: 1)),
+                              );
 
-                            Provider.of<UpdateCartData>(context, listen: false)
-                                .incrementCounter();
-                            Provider.of<UpdateCartData>(context, listen: false)
-                                .showCartorNot();
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text("Cart removal failed".toString()),
-                                  duration: Duration(seconds: 1)),
-                            );
-                          }
-                        });
-                      },
-                      child: Text("YES",
-                          style: TextStyle(color: Colors.amber[700])))
-                ],
-              ));
+                              Provider.of<UpdateCartData>(context,
+                                      listen: false)
+                                  .incrementCounter();
+                              Provider.of<UpdateCartData>(context,
+                                      listen: false)
+                                  .showCartorNot();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content:
+                                        Text("Cart removal failed".toString()),
+                                    duration: Duration(seconds: 1)),
+                              );
+                            }
+                          });
+                        },
+                        child: Text("YES",
+                            style: TextStyle(color: Colors.amber[700])))
+                  ],
+                ));
+      } else {
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //       content: Text("You have selected same address"),
+        //       duration: Duration(seconds: 1)),
+        // );
+        Navigator.of(context).pop();
+      }
     } else {
       Navigator.of(context).pop();
       pref.setString("pincode", pincode.toString());

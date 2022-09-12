@@ -12,7 +12,7 @@ class UpdateCartData extends ChangeNotifier {
   String _defaultOffice = "";
   String _defaultPincode = "";
   String _defaultAddress = "";
-  bool _refreshList = false;
+  bool _listUpdate = false;
 
   String get counter => _totalItemCount;
   String get counterPrice => _totalItemCost;
@@ -20,7 +20,7 @@ class UpdateCartData extends ChangeNotifier {
   String get counterDefaultOffice => _defaultOffice;
   String get counterDefaultPinCode => _defaultPincode;
   String get counterDefaultAddress => _defaultAddress;
-  bool get counterRefreshList => _refreshList;
+  bool get counterListUpdate => _listUpdate;
 
   Future<void> incrementCounter() async {
     SharedPreferences pref = await SharedPreferences.getInstance();

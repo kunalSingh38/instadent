@@ -1,3 +1,4 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/apis/other_api.dart';
@@ -16,6 +17,8 @@ class BrandProducts extends StatefulWidget {
 class _BrandProductsState extends State<BrandProducts> {
   List productList = [];
   bool isLoading = true;
+  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+
   TextEditingController controller = TextEditingController();
   @override
   void initState() {
@@ -86,8 +89,8 @@ class _BrandProductsState extends State<BrandProducts> {
                       : SingleChildScrollView(
                           child: Column(
                             children: [
-                              allProductsList(
-                                  productList, context, controller, 0.8),
+                              allProductsList(productList, context, controller,
+                                  0.8, dynamicLinks),
                               viewModel.counterShowCart
                                   ? SizedBox(
                                       height: 60,

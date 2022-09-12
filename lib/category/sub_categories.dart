@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
@@ -14,6 +15,7 @@ import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/product_model.dart';
 import 'package:instadent/search/search.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -32,6 +34,8 @@ class SubCategoriesScreen extends StatefulWidget {
 
 class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   TextStyle textStyle1 = TextStyle(color: Colors.white);
+  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+
   TextEditingController controller = TextEditingController();
   bool isLoadingLeft = true;
   bool isLoadingRight = false;
@@ -59,7 +63,9 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
           subCategoryList.addAll(value);
           selectedSubCategory = subCategoryList[0]['category_name'].toString();
           isLoadingLeft = false;
+          currentSelection = subCategoryList[0]['id'].toString();
         });
+
         await getSubCategoryProducts(subCategoryList[0]['id'].toString());
       } else {
         setState(() {
@@ -76,6 +82,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   }
 
   Future getSubCategoryProducts(String id) async {
+    print(id);
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
@@ -141,6 +148,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
     }
   }
 
+  String currentSelection = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -200,289 +208,277 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
               )
             ],
           ),
-          body: Stack(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                      child: Container(
-                          height: MediaQuery.of(context).size.height,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border(
-                                right: BorderSide(
-                                    color: Color(0xFFD6D6D6), width: 0.3)),
-                          ),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                isLoadingLeft
-                                    ? GridView.count(
-                                        crossAxisCount: 1,
-                                        mainAxisSpacing: 0,
-                                        crossAxisSpacing: 0,
-                                        childAspectRatio: 0.7,
-                                        physics: ClampingScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        shrinkWrap: true,
-                                        children: List.generate(
-                                            10,
-                                            (index) => Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  decoration: BoxDecoration(
-                                                      border: Border(
-                                                          bottom: BorderSide(
-                                                              width: 0.5,
-                                                              color: Colors
-                                                                  .grey))),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Expanded(
-                                                          flex: 2,
-                                                          child: SkeletonItem(
-                                                            child: CircleAvatar(
-                                                                maxRadius: 30,
-                                                                backgroundColor:
-                                                                    Colors.red,
-                                                                backgroundImage:
-                                                                    AssetImage(
-                                                                  "assets/no_image.jpeg",
-                                                                )),
-                                                          )),
-                                                      SizedBox(
-                                                        height: 5,
-                                                      ),
-                                                      Expanded(
-                                                          child: SkeletonItem(
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      2),
-                                                          child: Text(
-                                                            "",
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            maxLines: 2,
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                                fontSize: 12),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      // Divider(thickness: 0.5)
-                                                    ],
-                                                  ),
-                                                )).toList(),
-                                      )
-                                    : GridView.count(
-                                        crossAxisCount: 1,
-                                        mainAxisSpacing: 0,
-                                        crossAxisSpacing: 0,
-                                        childAspectRatio: 0.6,
-                                        physics: ClampingScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        shrinkWrap: true,
-                                        children: subCategoryList
-                                            .map((e) => InkWell(
-                                                  onTap: () async {
-                                                    Scrollable.ensureVisible(
-                                                        e['key'].currentContext,
-                                                        duration: Duration(
-                                                            milliseconds:
-                                                                1300));
-                                                    subCategoryList
-                                                        .forEach((element) {
-                                                      setState(() {
-                                                        element['selected'] =
-                                                            false;
-                                                      });
-                                                    });
-                                                    setState(() {
-                                                      e['selected'] = true;
-                                                      productItems.clear();
-                                                      // isLoading = true;
-                                                      selectedSubCategory = "";
-                                                      selectedSubCategory =
-                                                          e['category_name']
-                                                              .toString();
-                                                    });
-
-                                                    await getSubCategoryProducts(
-                                                        e['id'].toString());
-                                                  },
-                                                  child: Stack(
-                                                    key: e['key'],
-                                                    alignment:
-                                                        Alignment.bottomCenter,
-                                                    children: [
-                                                      Container(
-                                                        width: MediaQuery.of(
-                                                                context)
-                                                            .size
-                                                            .width,
-                                                        decoration: BoxDecoration(
-                                                            border: Border(
-                                                                bottom: BorderSide(
-                                                                    width: 0.5,
-                                                                    color: Colors
-                                                                        .grey))),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            SizedBox(
-                                                              height: 10,
-                                                            ),
-                                                            Expanded(
-                                                                flex: 2,
-                                                                child:
-                                                                    ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              20),
-                                                                  child: Image
-                                                                      .network(
-                                                                    e['icon']
-                                                                        .toString(),
-                                                                    errorBuilder:
-                                                                        (context,
-                                                                            error,
-                                                                            stackTrace) {
-                                                                      return Image
-                                                                          .asset(
-                                                                              "assets/logo.png");
-                                                                    },
-                                                                  ),
-                                                                )
-
-                                                                // e['icon'] ==
-                                                                //             null ||
-                                                                //         e['icon'] ==
-                                                                //             ""
-                                                                //     ? CircleAvatar(
-                                                                //         maxRadius:
-                                                                //             30,
-                                                                //         backgroundColor:
-                                                                //             Colors
-                                                                //                 .red,
-                                                                //         backgroundImage:
-                                                                //             AssetImage(
-                                                                //           "assets/no_image.jpeg",
-                                                                //         ))
-                                                                //     : CircleAvatar(
-                                                                //         backgroundColor:
-                                                                //             Colors.grey[
-                                                                //                 50],
-                                                                //         maxRadius:
-                                                                //             40,
-                                                                //         backgroundImage:
-                                                                //             NetworkImage(
-                                                                //           e['icon']
-                                                                //               .toString(),
-
-                                                                //           // fit: BoxFit.cover,
-                                                                //         ))
-                                                                ),
-                                                            SizedBox(
-                                                              height: 5,
-                                                            ),
-                                                            Expanded(
-                                                                child: Padding(
-                                                              padding: const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      2),
-                                                              child: Text(
-                                                                capitalize(e[
-                                                                        'category_name']
-                                                                    .toString()),
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                maxLines: 2,
-                                                                style: TextStyle(
-                                                                    fontWeight: e[
-                                                                            'selected']
-                                                                        ? FontWeight
-                                                                            .w600
-                                                                        : FontWeight
-                                                                            .w400,
-                                                                    fontSize:
-                                                                        12),
-                                                              ),
-                                                            )),
-                                                            SizedBox(
-                                                              height: 10,
-                                                            )
-                                                            // Divider(thickness: 0.5)
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      e['selected']
-                                                          ? Align(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: Container(
-                                                                height: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .height,
-                                                                width: 3,
-                                                                decoration: BoxDecoration(
-                                                                    color: Colors
-                                                                        .red,
-                                                                    borderRadius: BorderRadius.only(
-                                                                        topLeft:
-                                                                            Radius.circular(
-                                                                                10),
-                                                                        bottomLeft:
-                                                                            Radius.circular(10))),
-                                                              ),
-                                                            )
-                                                          : SizedBox()
-                                                    ],
-                                                  ),
-                                                ))
-                                            .toList(),
-                                      ),
-                                viewModel.counterShowCart
-                                    ? SizedBox(
-                                        height: 70,
-                                      )
-                                    : SizedBox(),
-                              ],
-                            ),
-                          ))),
-                  Expanded(
-                    child: isLoadingRight
-                        ? loadingProducts("Getting " +
-                            selectedSubCategory.toString() +
-                            " products")
-                        : Container(
+          body: Consumer<UpdateCartData>(builder: (context, viewModel, child) {
+            return Stack(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                        child: Container(
                             height: MediaQuery.of(context).size.height,
-                            color: Color.fromRGBO(255, 255, 255, 1),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border(
+                                  right: BorderSide(
+                                      color: Color(0xFFD6D6D6), width: 0.3)),
+                            ),
                             child: SingleChildScrollView(
                               child: Column(
                                 children: [
-                                  allProductsList(
-                                      productItems, context, controller, 0.56),
+                                  isLoadingLeft
+                                      ? GridView.count(
+                                          crossAxisCount: 1,
+                                          mainAxisSpacing: 0,
+                                          crossAxisSpacing: 0,
+                                          childAspectRatio: 0.7,
+                                          physics: ClampingScrollPhysics(),
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          children: List.generate(
+                                              10,
+                                              (index) => Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    decoration: BoxDecoration(
+                                                        border: Border(
+                                                            bottom: BorderSide(
+                                                                width: 0.5,
+                                                                color: Colors
+                                                                    .grey))),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Expanded(
+                                                            flex: 2,
+                                                            child: SkeletonItem(
+                                                              child:
+                                                                  CircleAvatar(
+                                                                      maxRadius:
+                                                                          30,
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .red,
+                                                                      backgroundImage:
+                                                                          AssetImage(
+                                                                        "assets/no_image.jpeg",
+                                                                      )),
+                                                            )),
+                                                        SizedBox(
+                                                          height: 5,
+                                                        ),
+                                                        Expanded(
+                                                            child: SkeletonItem(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .symmetric(
+                                                                    horizontal:
+                                                                        2),
+                                                            child: Text(
+                                                              "",
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 2,
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400,
+                                                                  fontSize: 12),
+                                                            ),
+                                                          ),
+                                                        )),
+                                                        // Divider(thickness: 0.5)
+                                                      ],
+                                                    ),
+                                                  )).toList(),
+                                        )
+                                      : GridView.count(
+                                          crossAxisCount: 1,
+                                          mainAxisSpacing: 0,
+                                          crossAxisSpacing: 0,
+                                          childAspectRatio: 0.6,
+                                          physics: ClampingScrollPhysics(),
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          children: subCategoryList
+                                              .map((e) => InkWell(
+                                                    onTap: () async {
+                                                      Scrollable.ensureVisible(
+                                                          e['key']
+                                                              .currentContext,
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  1300));
+                                                      subCategoryList
+                                                          .forEach((element) {
+                                                        setState(() {
+                                                          element['selected'] =
+                                                              false;
+                                                        });
+                                                      });
+                                                      setState(() {
+                                                        e['selected'] = true;
+                                                        productItems.clear();
+                                                        // isLoading = true;
+                                                        selectedSubCategory =
+                                                            "";
+                                                        selectedSubCategory =
+                                                            e['category_name']
+                                                                .toString();
+                                                        currentSelection =
+                                                            e['id'].toString();
+                                                      });
+
+                                                      await getSubCategoryProducts(
+                                                          e['id'].toString());
+                                                    },
+                                                    child: Stack(
+                                                      key: e['key'],
+                                                      alignment: Alignment
+                                                          .bottomCenter,
+                                                      children: [
+                                                        Container(
+                                                          width: MediaQuery.of(
+                                                                  context)
+                                                              .size
+                                                              .width,
+                                                          decoration: BoxDecoration(
+                                                              border: Border(
+                                                                  bottom: BorderSide(
+                                                                      width:
+                                                                          0.5,
+                                                                      color: Colors
+                                                                          .grey))),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              SizedBox(
+                                                                height: 10,
+                                                              ),
+                                                              Expanded(
+                                                                  flex: 2,
+                                                                  child:
+                                                                      ClipRRect(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            20),
+                                                                    child: Image
+                                                                        .network(
+                                                                      e['icon']
+                                                                          .toString(),
+                                                                      errorBuilder: (context,
+                                                                          error,
+                                                                          stackTrace) {
+                                                                        return Image.asset(
+                                                                            "assets/logo.png");
+                                                                      },
+                                                                    ),
+                                                                  )
+
+                                                                  // e['icon'] ==
+                                                                  //             null ||
+                                                                  //         e['icon'] ==
+                                                                  //             ""
+                                                                  //     ? CircleAvatar(
+                                                                  //         maxRadius:
+                                                                  //             30,
+                                                                  //         backgroundColor:
+                                                                  //             Colors
+                                                                  //                 .red,
+                                                                  //         backgroundImage:
+                                                                  //             AssetImage(
+                                                                  //           "assets/no_image.jpeg",
+                                                                  //         ))
+                                                                  //     : CircleAvatar(
+                                                                  //         backgroundColor:
+                                                                  //             Colors.grey[
+                                                                  //                 50],
+                                                                  //         maxRadius:
+                                                                  //             40,
+                                                                  //         backgroundImage:
+                                                                  //             NetworkImage(
+                                                                  //           e['icon']
+                                                                  //               .toString(),
+
+                                                                  //           // fit: BoxFit.cover,
+                                                                  //         ))
+                                                                  ),
+                                                              SizedBox(
+                                                                height: 5,
+                                                              ),
+                                                              Expanded(
+                                                                  child:
+                                                                      Padding(
+                                                                padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                    horizontal:
+                                                                        2),
+                                                                child: Text(
+                                                                  capitalize(e[
+                                                                          'category_name']
+                                                                      .toString()),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  maxLines: 2,
+                                                                  style: TextStyle(
+                                                                      fontWeight: e[
+                                                                              'selected']
+                                                                          ? FontWeight
+                                                                              .w600
+                                                                          : FontWeight
+                                                                              .w400,
+                                                                      fontSize:
+                                                                          12),
+                                                                ),
+                                                              )),
+                                                              SizedBox(
+                                                                height: 10,
+                                                              )
+                                                              // Divider(thickness: 0.5)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        e['selected']
+                                                            ? Align(
+                                                                alignment: Alignment
+                                                                    .centerRight,
+                                                                child:
+                                                                    Container(
+                                                                  height: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height,
+                                                                  width: 3,
+                                                                  decoration: BoxDecoration(
+                                                                      color: Colors
+                                                                          .red,
+                                                                      borderRadius: BorderRadius.only(
+                                                                          topLeft: Radius.circular(
+                                                                              10),
+                                                                          bottomLeft:
+                                                                              Radius.circular(10))),
+                                                                ),
+                                                              )
+                                                            : SizedBox()
+                                                      ],
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                        ),
                                   viewModel.counterShowCart
                                       ? SizedBox(
                                           height: 70,
@@ -490,16 +486,56 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                       : SizedBox(),
                                 ],
                               ),
-                            )),
-                    flex: 4,
-                  ),
-                ],
-              ),
-              Align(
-                  alignment: Alignment.bottomCenter,
-                  child: viewModel.counterShowCart ? bottomSheet() : SizedBox())
-            ],
-          ));
+                            ))),
+                    Expanded(
+                      child: isLoadingRight
+                          ? loadingProducts("Getting " +
+                              selectedSubCategory.toString() +
+                              " products")
+                          : LiquidPullToRefresh(
+                              animSpeedFactor: 5,
+                              springAnimationDurationInMilliseconds: 800,
+                              onRefresh: () async {
+                                // print(currentSelection);
+                                await getSubCategoryProducts(currentSelection);
+                              },
+                              child: Container(
+                                  height: MediaQuery.of(context).size.height,
+                                  color: Color.fromRGBO(255, 255, 255, 1),
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                            height: 140,
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            child: Image.asset(
+                                              "assets/demo.jpeg",
+                                              fit: BoxFit.fill,
+                                            )),
+                                        allProductsList(productItems, context,
+                                            controller, 0.56, dynamicLinks),
+                                        viewModel.counterShowCart
+                                            ? SizedBox(
+                                                height: 70,
+                                              )
+                                            : SizedBox(),
+                                      ],
+                                    ),
+                                  )),
+                            ),
+                      flex: 4,
+                    ),
+                  ],
+                ),
+                Align(
+                    alignment: Alignment.bottomCenter,
+                    child:
+                        viewModel.counterShowCart ? bottomSheet() : SizedBox())
+              ],
+            );
+          }));
     });
   }
 }

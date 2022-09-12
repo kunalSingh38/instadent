@@ -1,7 +1,11 @@
-// ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_interpolation_to_compose_strings, use_build_context_synchronously
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_interpolation_to_compose_strings, use_build_context_synchronously, prefer_const_literals_to_create_immutables
 
+import 'dart:async';
+
+import 'package:animate_icons/animate_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
@@ -86,10 +90,12 @@ class _AccountScreenState extends State<AccountScreen> {
     print("Account 5");
   }
 
+  bool tap = false;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     getUserDetails();
   }
 
@@ -123,282 +129,359 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
         body: Padding(
           padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                phoneNumber == "null"
-                    ? Column(
-                        children: [
-                          Text(
-                              "Log in or sign up to view your complete profile",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w500, fontSize: 15)),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width / 1.25,
-                              height: 45,
-                              child: ElevatedButton(
-                                  style: ButtonStyle(
-                                      shape: MaterialStateProperty.all(
-                                          RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              side: BorderSide(
-                                                  color: Color(0xFF1B5E20)))),
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Colors.white)),
-                                  onPressed: () async {
-                                    SharedPreferences prefs =
-                                        await SharedPreferences.getInstance();
-                                    setState(() {
-                                      DashboardState.currentTab = 0;
-                                    });
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              phoneNumber == "null"
+                  ? Column(
+                      children: [
+                        Text("Log in or sign up to view your complete profile",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w500, fontSize: 15)),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width / 1.25,
+                            height: 45,
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                    shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            side: BorderSide(
+                                                color: Color(0xFF1B5E20)))),
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.white)),
+                                onPressed: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  setState(() {
+                                    DashboardState.currentTab = 0;
+                                  });
 
-                                    await prefs.clear().then((value) {
-                                      Navigator.of(context, rootNavigator: true)
-                                          .pushAndRemoveUntil(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      SplashScreen()),
-                                              (route) => false);
-                                    });
-                                    Provider.of<UpdateCartData>(context,
-                                            listen: false)
-                                        .showCartorNot();
-                                  },
-                                  child: Text(
-                                    "Continue",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.green[900],
-                                        fontSize: 16),
-                                  ))),
-                        ],
-                      )
-                    : Text(phoneNumber,
-                        style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w400, fontSize: 18)),
-                SizedBox(
-                  height: 20,
-                ),
-                phoneNumber == "null"
-                    ? SizedBox()
-                    : Column(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.teal[50],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: list
-                                      .map(
-                                        (e) => Column(
-                                          children: [
-                                            Image.asset(
-                                              "assets/" + e['icon'].toString(),
-                                              scale: 18,
-                                            ),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Text(e['title']),
-                                          ],
-                                        ),
-                                      )
-                                      .toList()),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 30,
-                          ),
-                        ],
-                      ),
-                Text("YOUR INFORMATION",
-                    style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        color: Colors.grey)),
-                SizedBox(
-                  height: 10,
-                ),
-                Column(
-                  children: yourInfo
-                      .map((e) => phoneNumber == "null" && e['id'] == "4" ||
-                              phoneNumber == "null" && e['id'] == "1"
-                          ? SizedBox()
-                          : ListTile(
-                              dense: true,
-                              minLeadingWidth: 2,
-                              leading: Image.asset(
-                                "assets/" + e['icon'].toString(),
-                                scale: 25,
+                                  await prefs.clear().then((value) {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pushAndRemoveUntil(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SplashScreen()),
+                                            (route) => false);
+                                  });
+                                  Provider.of<UpdateCartData>(context,
+                                          listen: false)
+                                      .showCartorNot();
+                                },
+                                child: Text(
+                                  "Continue",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.green[900],
+                                      fontSize: 16),
+                                ))),
+                        SizedBox(
+                          height: 20,
+                        )
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(phoneNumber,
+                            style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w400, fontSize: 18)),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.teal[50],
                               ),
-                              title: Text(
-                                e['title'],
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              onTap: () async {
-                                switch (e['id'].toString()) {
-                                  case "4":
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: ((context) =>
-                                                UserProfileViewUpdate())));
-                                    break;
-                                  case "1":
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: ((context) =>
-                                                OrderHistoryScreen())));
-                                    break;
-                                  case "2":
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: ((context) =>
-                                                AddressListScreen())));
-                                    break;
-                                  case "3":
-                                    await FlutterShare.share(
-                                      title: 'InstaDent App',
-                                      linkUrl:
-                                          'https://play.google.com/store/apps/details?id=com.tayal.tayalFintech',
-                                    );
-                                    break;
-                                }
-                              },
-                            ))
-                      .toList(),
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                Text("OTHER INFORMATION",
-                    style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        color: Colors.grey)),
-                SizedBox(
-                  height: 10,
-                ),
-                Column(
-                  children: otherInfo.map((e) {
-                    int index = otherInfo.indexOf(e);
-                    return phoneNumber == "null" && e['id'] == "3"
-                        ? SizedBox()
-                        : ListTile(
-                            onTap: () async {
-                              switch (e['id']) {
-                                case "1":
-                                case "5":
-                                case "6":
-                                case "7":
-                                case "8":
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Policy_View(
-                                              policy: e['title'].toString(),
-                                              data: e['data'].toString())));
-                                  break;
-
-                                case "3":
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                            title: Text(
-                                              "Do you want to logout?",
-                                              style: TextStyle(fontSize: 15),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: Text("Cancel")),
-                                              TextButton(
-                                                  onPressed: () async {
-                                                    Navigator.of(context).pop();
-                                                    SharedPreferences prefs =
-                                                        await SharedPreferences
-                                                            .getInstance();
-                                                    setState(() {
-                                                      DashboardState
-                                                          .currentTab = 0;
-                                                    });
-
-                                                    await prefs
-                                                        .clear()
-                                                        .then((value) {
-                                                      Navigator.of(context,
-                                                              rootNavigator:
-                                                                  true)
-                                                          .pushAndRemoveUntil(
-                                                              MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          SplashScreen()),
-                                                              (route) => false);
-                                                    });
-                                                    Provider.of<UpdateCartData>(
-                                                            context,
-                                                            listen: false)
-                                                        .showCartorNot();
-                                                  },
-                                                  child: Text("Logout"))
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: list
+                                        .map(
+                                          (e) => Column(
+                                            children: [
+                                              Image.asset(
+                                                "assets/" +
+                                                    e['icon'].toString(),
+                                                scale: 18,
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(e['title']),
                                             ],
-                                          ));
+                                          ),
+                                        )
+                                        .toList()),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+              // SizedBox(
+              //   height: 5,
+              // ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("YOUR INFORMATION",
+                          style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                              color: Colors.grey)),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Column(
+                        children: yourInfo
+                            .map((e) =>
+                                phoneNumber == "null" && e['id'] == "4" ||
+                                        phoneNumber == "null" && e['id'] == "1"
+                                    ? SizedBox()
+                                    : ListTile(
+                                        dense: true,
+                                        minLeadingWidth: 2,
+                                        leading: Image.asset(
+                                          "assets/" + e['icon'].toString(),
+                                          scale: 25,
+                                        ),
+                                        title: Text(
+                                          e['title'],
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        onTap: () async {
+                                          switch (e['id'].toString()) {
+                                            case "4":
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          UserProfileViewUpdate())));
+                                              break;
+                                            case "1":
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          OrderHistoryScreen())));
+                                              break;
+                                            case "2":
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: ((context) =>
+                                                          AddressListScreen())));
+                                              break;
+                                            case "3":
+                                              await FlutterShare.share(
+                                                title: 'InstaDent App',
+                                                linkUrl:
+                                                    'https://play.google.com/store/apps/details?id=com.tayal.tayalFintech',
+                                              );
+                                              break;
+                                          }
+                                        },
+                                      ))
+                            .toList(),
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Text("OTHER INFORMATION",
+                          style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                              color: Colors.grey)),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Column(
+                        children: otherInfo.map((e) {
+                          int index = otherInfo.indexOf(e);
+                          return phoneNumber == "null" && e['id'] == "3"
+                              ? SizedBox()
+                              : ListTile(
+                                  onTap: () async {
+                                    switch (e['id']) {
+                                      case "1":
+                                      case "5":
+                                      case "6":
+                                      case "7":
+                                      case "8":
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    Policy_View(
+                                                        policy: e['title']
+                                                            .toString(),
+                                                        data: e['data']
+                                                            .toString())));
+                                        break;
 
-                                  break;
-                                case "4":
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              ContactUsScreen()));
-                                  break;
-                              }
-                            },
-                            dense: true,
-                            minLeadingWidth: 2,
-                            leading: Image.asset(
-                              "assets/" + e['icon'].toString(),
-                              scale: 25,
-                            ),
-                            title: Text(
-                              e['title'],
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          );
-                  }).toList(),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Center(
-                  child: Text(
-                    "Copyright© 2022 InstaDent. Designed By TechStreet.in",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                                      case "3":
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) => Dialog(
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  2.0))),
+                                                  child: SizedBox(
+                                                    height: 130,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 15),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            "LOG OUT",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                          Text(
+                                                            "Are you sure you want to logout?",
+                                                            style: TextStyle(
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8.0),
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                TextButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    },
+                                                                    child: Text(
+                                                                      "Cancel",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.green[800]),
+                                                                    )),
+                                                                TextButton(
+                                                                    onPressed:
+                                                                        () async {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                      SharedPreferences
+                                                                          prefs =
+                                                                          await SharedPreferences
+                                                                              .getInstance();
+                                                                      setState(
+                                                                          () {
+                                                                        DashboardState
+                                                                            .currentTab = 0;
+                                                                      });
+
+                                                                      await prefs
+                                                                          .clear()
+                                                                          .then(
+                                                                              (value) {
+                                                                        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                                                                            MaterialPageRoute(builder: (context) => SplashScreen()),
+                                                                            (route) => false);
+                                                                      });
+                                                                      Provider.of<UpdateCartData>(
+                                                                              context,
+                                                                              listen: false)
+                                                                          .showCartorNot();
+                                                                    },
+                                                                    child: Text(
+                                                                      "Logout",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.green[800]),
+                                                                    ))
+                                                              ],
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ));
+
+                                        break;
+                                      case "4":
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ContactUsScreen()));
+                                        break;
+                                    }
+                                  },
+                                  dense: true,
+                                  minLeadingWidth: 2,
+                                  leading: Image.asset(
+                                    "assets/" + e['icon'].toString(),
+                                    scale: 25,
+                                  ),
+                                  title: Text(
+                                    e['title'],
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                );
+                        }).toList(),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Center(
+                        child: Text(
+                          "Copyright© 2022 InstaDent.\nDesigned By TechStreet.in",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 13, color: Colors.grey),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(
-                  height: 30,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

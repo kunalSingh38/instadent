@@ -9,6 +9,7 @@ class TabItem {
   final GlobalKey<NavigatorState> key = GlobalKey<NavigatorState>();
   int _index = 0;
   late Widget _page;
+
   TabItem({
     required this.tabName,
     required this.icon,

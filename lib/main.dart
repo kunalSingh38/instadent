@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   // await Firebase.initializeApp(
   //     options: FirebaseOptions(
   //         apiKey: "AIzaSyDdPB0XxKo6AmLRMglCp7KqHg1P7Sbs3uA",
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
       create: (BuildContext context) => UpdateCartData(),
       child: MaterialApp(
         title: 'Instadent',
+        // theme: ThemeData(fontFamily: 'Montserrat'),
         home: SplashScreen(),
         // navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,
@@ -75,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
 
-    Timer(Duration(milliseconds: 2450), () {
+    Timer(Duration(milliseconds: 2500), () {
       checkLoggedIn().then((value) {
         if (value) {
           Provider.of<UpdateCartData>(context, listen: false)
@@ -96,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: Colors.white),
-      child: Image.asset("assets/splash.gif"),
+      child: Image.asset("assets/singleSplash.gif"),
     );
   }
 }

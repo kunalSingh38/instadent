@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -13,6 +14,7 @@ import 'package:instadent/dashboard.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -21,6 +23,8 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   bool isLoading = false;
+  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+
   late FocusNode myFocusNode;
   TextStyle textStyle1 = TextStyle(color: Colors.white);
   List items = [];
@@ -136,10 +140,51 @@ class _SearchScreenState extends State<SearchScreen> {
     print("Search 3");
   }
 
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  String _text = 'Press the button and start speaking';
+  double _confidence = 1.0;
+  String listing = "";
+  void _listen() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize(
+        onStatus: (val) {
+          setState(() {
+            listing = val;
+          });
+        },
+        onError: (val) => print('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (val) => setState(() {
+            _text = val.recognizedWords;
+            if (val.hasConfidenceRating && val.confidence > 0) {
+              _confidence = val.confidence;
+              if (_text.isNotEmpty) {
+                setState(() {
+                  _isListening = false;
+                  searchCont.text = _text;
+                  searching();
+                  FocusScope.of(context).unfocus();
+                });
+              }
+            }
+          }),
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _speech = stt.SpeechToText();
     recentSearchItems();
     myFocusNode = FocusNode();
     getFeaturedList();
@@ -181,7 +226,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   side: BorderSide(color: Color(0xFFEEEEEE))),
               child: TextFormField(
                 focusNode: myFocusNode,
-                autofocus: true,
+                // autofocus: true,
                 controller: searchCont,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 onChanged: (val) async {
@@ -193,9 +238,11 @@ class _SearchScreenState extends State<SearchScreen> {
                   FocusScope.of(context).unfocus();
                 },
                 decoration: InputDecoration(
+                    // isCollapsed: true,
+                    isDense: true,
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
-                    contentPadding: EdgeInsets.all(10),
+                    contentPadding: EdgeInsets.all(5),
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.lightBlue),
                         borderRadius: BorderRadius.circular(10)),
@@ -204,17 +251,27 @@ class _SearchScreenState extends State<SearchScreen> {
                         color: Colors.black,
                         fontSize: 16,
                         fontWeight: FontWeight.w300),
+                    prefixIcon: InkWell(
+                      onTap: () {
+                        _listen();
+                      },
+                      child: Image.asset(
+                        "assets/mic.png",
+                        scale: 25,
+                      ),
+                    ),
                     suffixIcon: InkWell(
                         onTap: () {
                           setState(() {
                             searchCont.clear();
                             searchResult.clear();
                             myFocusNode.requestFocus();
+                            _isListening = false;
                           });
                         },
                         child: Image.asset(
                           "assets/clear.png",
-                          scale: 30,
+                          scale: 35,
                         ))),
               ),
             )),
@@ -232,6 +289,9 @@ class _SearchScreenState extends State<SearchScreen> {
                               ? SizedBox()
                               : Column(
                                   children: [
+                                    _isListening
+                                        ? LinearProgressIndicator()
+                                        : SizedBox(),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -389,7 +449,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                                     e,
                                                     inStock,
                                                     controller,
-                                                    featureProducts);
+                                                    featureProducts,
+                                                    dynamicLinks,
+                                                    false);
                                               },
                                               child: Column(
                                                 children: [
@@ -465,8 +527,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                         .toList(),
                                   ),
                                 )
-                              : allProductsList(
-                                  searchResult, context, controller, 0.8);
+                              : allProductsList(searchResult, context,
+                                  controller, 0.8, dynamicLinks);
                     }),
                     viewModel.counterShowCart
                         ? SizedBox(
@@ -479,7 +541,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             Align(
                 alignment: Alignment.bottomCenter,
-                child: viewModel.counterShowCart ? bottomSheet() : SizedBox())
+                child: viewModel.counterShowCart ? bottomSheet() : SizedBox()),
           ],
         ),
       );

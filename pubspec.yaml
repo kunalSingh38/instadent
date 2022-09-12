@@ -72,6 +72,13 @@ dependencies:
   cached_network_image: ^3.2.1
   collection: ^1.16.0
   dio: ^4.0.6
+  animate_icons: ^2.0.0
+  speech_to_text: ^5.6.1
+  liquid_pull_to_refresh: ^3.0.1
+  # open_file: ^3.1.0
+  flutter_rating_bar: ^4.0.1
+  firebase_dynamic_links: ^4.3.6
+  flutter_gif: ^0.0.4
 
 dev_dependencies:
   flutter_test:
@@ -107,6 +114,7 @@ flutter:
   assets:
     - assets/
     - assets/policy/
+    - assets/animation/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -120,9 +128,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   # fonts:
-  #   - family: Schyler
+  #   - family: Montserrat
   #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: assets/Poppins-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
