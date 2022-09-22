@@ -46,7 +46,8 @@ class _Policy_ViewState extends State<Policy_View> {
         ),
       ),
       body: SafeArea(
-          child: SingleChildScrollView(
+          child: Scrollbar(
+        isAlwaysShown: true,
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Html(data: htmlData.toString()),

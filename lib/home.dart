@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 // import 'package:carousel_slider/carousel_slider.dart';
+import 'package:expandable/expandable.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/address.dart';
+import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/apis/category_api.dart';
 import 'package:instadent/apis/other_api.dart';
 import 'package:instadent/constants.dart';
@@ -49,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
+              borderRadius: BorderRadius.circular(10.0),
             ),
             elevation: 3,
             margin: EdgeInsets.zero,
@@ -69,47 +71,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text(
                         searchHint,
                         maxLines: 1,
-                        style: TextStyle(fontSize: 15),
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w400),
                       ))
                 ],
               ),
             )),
-      );
-  Widget searchCard() => Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            side: BorderSide(
-              color: Color(0xFFEEEEEE),
-            )),
-        child: TextFormField(
-          controller: searchCont,
-          readOnly: true,
-          // style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-          onTap: () {
-            Provider.of<UpdateCartData>(context, listen: false)
-                .changeSearchView(2);
-          },
-          decoration: InputDecoration(
-            isDense: true,
-            isCollapsed: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: EdgeInsets.all(5),
-            focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.lightBlue),
-                borderRadius: BorderRadius.circular(10)),
-            hintText: searchHint,
-            hintStyle: TextStyle(
-                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
-            prefixIcon: Padding(
-                padding: const EdgeInsets.all(5),
-                child: Icon(
-                  Icons.search,
-                  color: Colors.black,
-                  size: 28,
-                )),
-          ),
-        ),
       );
 
   ScrollController scrollController = ScrollController();
@@ -120,46 +89,44 @@ class _HomeScreenState extends State<HomeScreen> {
   List carouselsList = [];
   Future<void> getCarouselsListData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    // if (pref.getBool("loggedIn") ?? false) {
-    //   OtherAPI().carouselsWithLogin().then((value) {
+    if (pref.getBool("loggedIn") ?? false) {
+      OtherAPI().carouselsWithLogin().then((value) {
+        setState(() {
+          carouselsList.clear();
+          carouselsList.addAll(value);
+          isLoadingCarosole = false;
+          print(carouselsList.length.toString() + "test");
+        });
+      });
+    }
+    // else {
+    //   OtherAPI().carouselsWithoutLogin().then((value) {
     //     setState(() {
     //       carouselsList.clear();
     //       carouselsList.addAll(value);
+    //       isLoadingCarosole = false;
     //     });
     //   });
-    // } else {
-    OtherAPI().carouselsWithoutLogin().then((value) {
-      setState(() {
-        carouselsList.clear();
-        carouselsList.addAll(value);
-        isLoadingCarosole = false;
-      });
-    });
     // }
   }
 
   double currentIndexPage = 0;
   List bannerImagesList = [];
   String announcment = "";
-  @override
-  void dispose() {
-    scrollController.dispose();
-    scrollController.removeListener(() {});
-    super.dispose();
-  }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  List recentOrderItems = [];
 
+  void reloadApis() async {
     OtherAPI().homePageBanner("content").then((value) {
+      print(value);
       setState(() {
+        announcment = "";
         announcment = value[0]['mobile_banner'].toString();
       });
     });
     OtherAPI().homePageBanner("header").then((value) {
       setState(() {
+        bannerImagesList.clear();
         bannerImagesList.addAll(value);
       });
     });
@@ -173,6 +140,26 @@ class _HomeScreenState extends State<HomeScreen> {
     getAddressList();
     getCarouselsListData();
     Provider.of<UpdateCartData>(context, listen: false).counterShowCart;
+    CartAPI().recentOrderItems().then((value) {
+      setState(() {
+        recentOrderItems.clear();
+        recentOrderItems.addAll(value);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    scrollController.removeListener(() {});
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    reloadApis();
   }
 
   bool showSearch = false;
@@ -228,472 +215,676 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: LiquidPullToRefresh(
         animSpeedFactor: 5,
+        showChildOpacityTransition: true,
         springAnimationDurationInMilliseconds: 800,
         onRefresh: () async {
-          OtherAPI().homePageBanner("content").then((value) {
-            setState(() {
-              announcment = value[0]['mobile_banner'].toString();
-            });
-          });
-          OtherAPI().homePageBanner("header").then((value) {
-            setState(() {
-              bannerImagesList.addAll(value);
-            });
-          });
-          CategoryAPI().cartegoryList().then((value) {
-            setState(() {
-              categoryList.clear();
-              categoryList.addAll(value);
-              isLoadingAllCategory = false;
-            });
-          });
-          getAddressList();
-          getCarouselsListData();
-          Provider.of<UpdateCartData>(context, listen: false).counterShowCart;
+          reloadApis();
         },
         child: SafeArea(
           child: Consumer<UpdateCartData>(builder: (context, viewModel, child) {
             return Scaffold(
                 extendBodyBehindAppBar: true,
-                body: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      controller: scrollController,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                body: isLoadingAllCategory
+                    ? Center(
+                        child: loadingProducts("We are getting your products"),
+                      )
+                    : Stack(
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                                child: Text("Delivery in 11 mintues",
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.montserrat(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 20)),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 15),
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    AddressListScreen()))
-                                        .then((value) async {
-                                      // SharedPreferences pref =
-                                      //     await SharedPreferences
-                                      //         .getInstance();
-
-                                      // setState(() {
-                                      //   addressType = pref
-                                      //       .getString("address_type")
-                                      //       .toString();
-                                      //   defaultAddress = pref
-                                      //       .getString("defaultAddress")
-                                      //       .toString();
-                                      // });
-                                    });
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 20,
-                                        child: Text(
-                                            viewModel.counterDefaultOffice
-                                                    .toString()
-                                                    .toUpperCase() +
-                                                ", " +
-                                                viewModel.counterDefaultAddress
-                                                    .toString()
-                                                    .replaceAll(" ,", ", "),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: GoogleFonts.montserrat(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 14)),
-                                      ),
-                                      Expanded(
-                                          child: Icon(Icons.arrow_drop_down))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 15),
-                                child: onlySearch(),
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              announcment == "" || announcment == null
-                                  ? SizedBox()
-                                  : Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Container(
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              color: Colors.grey[50]),
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 22),
-                                            child: SizedBox(
-                                              height: 90,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  0.5,
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                child: Image.network(
-                                                  announcment,
-                                                  fit: BoxFit.fill,
-                                                ),
-                                              ),
-                                            ),
-                                          )),
-                                    ),
-                              // SizedBox(
-                              //   height: 5,
-                              // ),
-                              bannerImagesList.length == 0
-                                  ? SizedBox()
-                                  : Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: Colors.grey[50]),
-                                        child: ImageSlideshow(
-                                          width: double.infinity,
-                                          height: 180,
-                                          initialPage: 0,
-                                          indicatorColor: Colors.blue,
-                                          indicatorBackgroundColor: Colors.grey,
-                                          children: bannerImagesList
-                                              .map((e) => Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 22),
-                                                    child: SizedBox(
-                                                      height: 140,
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              0.5,
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        child: Image.network(
-                                                          e['mobile_banner']
-                                                              .toString(),
-                                                          fit: BoxFit.fill,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ))
-                                              .toList(),
-                                          onPageChanged: (value) {},
-                                          autoPlayInterval: 3000,
-                                          isLoop: true,
-                                        ),
-                                      ),
-                                    ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Divider(
-                                color: Colors.grey[200],
-                                thickness: 15,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(15),
-                                child: Column(
+                          SingleChildScrollView(
+                            controller: scrollController,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "All categories",
-                                      style: GoogleFonts.montserrat(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          15, 15, 15, 0),
+                                      child: Text("Delivery in 11 mintues",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.montserrat(
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 20)),
                                     ),
                                     SizedBox(
                                       height: 10,
                                     ),
-                                    isLoadingAllCategory
-                                        ? Container(
-                                            height: 300,
-                                            child: loadingProducts(
-                                                "Getting your InstaDent products"),
-                                          )
-                                        : seeMore
-                                            ? allCategoryGrid(
-                                                categoryList.sublist(0, 8),
-                                                context,
-                                                unitHeightValue)
-                                            : allCategoryGrid(categoryList,
-                                                context, unitHeightValue),
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          seeMore = !seeMore;
-                                        });
-                                      },
-                                      child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.teal[100],
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                    seeMore
-                                                        ? "See more categories"
-                                                        : "See less categories",
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                seeMore
-                                                    ? Icon(
-                                                        Icons
-                                                            .keyboard_arrow_down,
-                                                        size: 15,
-                                                      )
-                                                    : Icon(
-                                                        Icons.keyboard_arrow_up,
-                                                        size: 15,
-                                                      )
-                                              ],
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          AddressListScreen()))
+                                              .then((value) async {
+                                            // SharedPreferences pref =
+                                            //     await SharedPreferences
+                                            //         .getInstance();
+
+                                            // setState(() {
+                                            //   addressType = pref
+                                            //       .getString("address_type")
+                                            //       .toString();
+                                            //   defaultAddress = pref
+                                            //       .getString("defaultAddress")
+                                            //       .toString();
+                                            // });
+                                          });
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 20,
+                                              child: Text(
+                                                  viewModel.counterDefaultOffice
+                                                          .toString()
+                                                          .toUpperCase() +
+                                                      ", " +
+                                                      viewModel
+                                                          .counterDefaultAddress
+                                                          .toString()
+                                                          .replaceAll(
+                                                              " ,", ", "),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: GoogleFonts.montserrat(
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 14)),
                                             ),
-                                          )),
-                                    )
+                                            Expanded(
+                                                child:
+                                                    Icon(Icons.arrow_drop_down))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15),
+                                      child: onlySearch(),
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    announcment == "" || announcment == null
+                                        ? SizedBox()
+                                        : Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 15),
+                                            child: Container(
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    color: Colors.grey[50]),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 15),
+                                                  child: SizedBox(
+                                                    height: 90,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            0.5,
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      child: Image.network(
+                                                        announcment,
+                                                        fit: BoxFit.fill,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )),
+                                          ),
+                                    // SizedBox(
+                                    //   height: 5,
+                                    // ),
+                                    bannerImagesList.length == 0
+                                        ? SizedBox()
+                                        : Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 15),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  color: Colors.grey[50]),
+                                              child: ImageSlideshow(
+                                                width: double.infinity,
+                                                height: 180,
+                                                initialPage: 0,
+                                                indicatorColor: Colors.black,
+                                                indicatorBackgroundColor:
+                                                    Colors.grey,
+                                                children: bannerImagesList
+                                                    .map((e) => Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  bottom: 22),
+                                                          child: SizedBox(
+                                                            height: 140,
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width /
+                                                                0.5,
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              child:
+                                                                  Image.network(
+                                                                e['mobile_banner']
+                                                                    .toString(),
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                onPageChanged: (value) {},
+                                                autoPlayInterval: 4000,
+                                                isLoop: true,
+                                              ),
+                                            ),
+                                          ),
+                                    // SizedBox(
+                                    //   height: 20,
+                                    // ),
+                                    Divider(
+                                      color: Colors.grey[200],
+                                      thickness: 10,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Shop by category",
+                                            style: GoogleFonts.montserrat(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w800),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          categoryList.length == 0
+                                              ? Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                      "No products category available"),
+                                                )
+                                              : seeMore
+                                                  ? categoryList.length > 8
+                                                      ? allCategoryGrid(
+                                                          categoryList.sublist(
+                                                              0, 8),
+                                                          context,
+                                                          unitHeightValue)
+                                                      : allCategoryGrid(
+                                                          categoryList.sublist(
+                                                              0,
+                                                              categoryList
+                                                                  .length),
+                                                          context,
+                                                          unitHeightValue)
+                                                  : allCategoryGrid(
+                                                      categoryList,
+                                                      context,
+                                                      unitHeightValue),
+                                          categoryList.length == 0
+                                              ? SizedBox()
+                                              : categoryList.length <= 8
+                                                  ? SizedBox()
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          seeMore = !seeMore;
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                          decoration: BoxDecoration(
+                                                              color: Colors
+                                                                  .teal[100],
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10)),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(12),
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Text(
+                                                                    seeMore
+                                                                        ? "See more categories"
+                                                                        : "See less categories",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)),
+                                                                seeMore
+                                                                    ? Icon(
+                                                                        Icons
+                                                                            .keyboard_arrow_down,
+                                                                        size:
+                                                                            15,
+                                                                      )
+                                                                    : Icon(
+                                                                        Icons
+                                                                            .keyboard_arrow_up,
+                                                                        size:
+                                                                            15,
+                                                                      )
+                                                              ],
+                                                            ),
+                                                          )),
+                                                    )
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          Divider(
-                            color: Colors.grey[200],
-                            thickness: 15,
-                          ),
-                          isLoadingCarosole
-                              ? loadingProducts(
-                                  "Getting your InstaDent sepecial products")
-                              : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: carouselsList.map((e) {
-                                    List items = e['items'];
+                                Divider(
+                                  color: Colors.grey[200],
+                                  thickness: 10,
+                                ),
+                                recentOrderItems.length == 0
+                                    ? SizedBox()
+                                    : Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(15),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Recent Orders".toString(),
+                                                    style:
+                                                        GoogleFonts.montserrat(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                  ),
+                                                  Text(
+                                                    recentOrderItems.length
+                                                            .toString() +
+                                                        " products",
+                                                    style:
+                                                        GoogleFonts.montserrat(
+                                                            decoration:
+                                                                TextDecoration
+                                                                    .underline,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w400),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        15, 0, 15, 10),
+                                                child: SingleChildScrollView(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  child: Row(
+                                                      children: recentOrderItems
+                                                          .map((e) {
+                                                    bool inStock =
+                                                        e['is_stock'] == 1
+                                                            ? false
+                                                            : true;
 
-                                    return Column(
+                                                    String disccount = "";
+                                                    String temp =
+                                                        e['item_discount']
+                                                            .toString()
+                                                            .split("%")[0];
+
+                                                    if (temp
+                                                                .split(".")[0]
+                                                                .toString() ==
+                                                            "0" &&
+                                                        temp
+                                                                .split(".")[1]
+                                                                .toString() ==
+                                                            "00") {
+                                                      disccount = "0";
+                                                    } else if (temp
+                                                            .split(".")[1]
+                                                            .toString() ==
+                                                        "00") {
+                                                      disccount = temp
+                                                          .split(".")[0]
+                                                          .toString();
+                                                    } else {
+                                                      disccount = temp;
+                                                    }
+                                                    return singleProductDesign(
+                                                        context,
+                                                        e,
+                                                        inStock,
+                                                        controller,
+                                                        recentOrderItems,
+                                                        dynamicLinks,
+                                                        disccount,
+                                                        true);
+                                                  }).toList()),
+                                                )),
+                                            Divider(
+                                              color: Colors.grey[200],
+                                              thickness: 10,
+                                            ),
+                                          ]),
+                                carouselsList.length == 0
+                                    ? SizedBox()
+                                    : Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: carouselsList.map((e) {
+                                          if (e['type'].toString() ==
+                                              "banner_carousel") {
+                                            List items = e['items'];
+
+                                            return items.length == 0
+                                                ? SizedBox()
+                                                : Column(
+                                                    children: [
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 15),
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              color: Colors
+                                                                  .grey[50]),
+                                                          child: ImageSlideshow(
+                                                              width: double
+                                                                  .infinity,
+                                                              height: 180,
+                                                              initialPage: 0,
+                                                              indicatorColor:
+                                                                  items.length ==
+                                                                          1
+                                                                      ? Colors
+                                                                          .white
+                                                                      : Colors
+                                                                          .black,
+                                                              indicatorBackgroundColor:
+                                                                  Colors.grey,
+                                                              children: items
+                                                                  .map((e) =>
+                                                                      Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.only(bottom: 22),
+                                                                        child:
+                                                                            SizedBox(
+                                                                          height:
+                                                                              140,
+                                                                          width:
+                                                                              MediaQuery.of(context).size.width / 0.5,
+                                                                          child:
+                                                                              ClipRRect(
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(10),
+                                                                            child:
+                                                                                Image.network(
+                                                                              e['mobile_banner'].toString(),
+                                                                              fit: BoxFit.fill,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ))
+                                                                  .toList(),
+                                                              onPageChanged:
+                                                                  (value) {},
+                                                              autoPlayInterval:
+                                                                  4000,
+                                                              isLoop:
+                                                                  items.length ==
+                                                                          1
+                                                                      ? false
+                                                                      : true),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                          } else {
+                                            List items = e['items'];
+
+                                            return Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(15),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        e['carousel_name']
+                                                            .toString(),
+                                                        style: GoogleFonts
+                                                            .montserrat(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w800),
+                                                      ),
+                                                      Text(
+                                                        items.length
+                                                                .toString() +
+                                                            " products",
+                                                        style: GoogleFonts
+                                                            .montserrat(
+                                                                decoration:
+                                                                    TextDecoration
+                                                                        .underline,
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          15, 0, 15, 10),
+                                                  child: SingleChildScrollView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    child: Row(
+                                                        children:
+                                                            items.map((e) {
+                                                      bool inStock =
+                                                          e['is_stock'] == 1
+                                                              ? false
+                                                              : true;
+
+                                                      String disccount = "";
+                                                      String temp =
+                                                          e['item_discount']
+                                                              .toString()
+                                                              .split("%")[0];
+
+                                                      if (temp
+                                                                  .split(".")[0]
+                                                                  .toString() ==
+                                                              "0" &&
+                                                          temp
+                                                                  .split(".")[1]
+                                                                  .toString() ==
+                                                              "00") {
+                                                        disccount = "0";
+                                                      } else if (temp
+                                                              .split(".")[1]
+                                                              .toString() ==
+                                                          "00") {
+                                                        disccount = temp
+                                                            .split(".")[0]
+                                                            .toString();
+                                                      } else {
+                                                        disccount = temp;
+                                                      }
+                                                      return singleProductDesign(
+                                                          context,
+                                                          e,
+                                                          inStock,
+                                                          controller,
+                                                          items,
+                                                          dynamicLinks,
+                                                          disccount,
+                                                          true);
+                                                    }).toList()),
+                                                  ),
+                                                ),
+                                                items.indexOf(e) ==
+                                                        items.length - 2
+                                                    ? SizedBox()
+                                                    : Divider(
+                                                        color: Colors.grey[200],
+                                                        thickness: 10,
+                                                      ),
+                                              ],
+                                            );
+                                          }
+                                        }).toList(),
+                                      ),
+                                Container(
+                                  height: 300,
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    // image: DecorationImage(
+                                    //     alignment: Alignment(0.6, -0.15),
+                                    //     scale: 10,
+                                    //     image: AssetImage(
+                                    //       "assets/emoji1.png",
+                                    //     ))
+                                  ),
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(18, 20, 20, 20),
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(15),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                e['carousel_name'].toString(),
+                                        Text("didn't find\nwhat you were",
+                                            textAlign: TextAlign.left,
+                                            style: GoogleFonts.montserrat(
+                                                fontSize: unitHeightValue * 2.3,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.grey[400])),
+                                        Row(
+                                          children: [
+                                            Text("looking for?",
+                                                textAlign: TextAlign.left,
                                                 style: GoogleFonts.montserrat(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Text(
-                                                items.length.toString() +
-                                                    " products",
+                                                    fontSize:
+                                                        unitHeightValue * 2.3,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Colors.grey[400])),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Image.asset("assets/emoji1.png",
+                                                scale: unitHeightValue * 0.7)
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        Text(
+                                            "Suggest something & we'll look into it",
+                                            style: GoogleFonts.montserrat(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey[400])),
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            suggestProductBottom();
+                                          },
+                                          child: Container(
+                                            child: Text("Suggest a Product",
                                                 style: GoogleFonts.montserrat(
-                                                    decoration: TextDecoration
-                                                        .underline,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              ),
-                                            ],
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.pink[700])),
+                                            padding: EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                                color: Colors.white70,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                border: Border.all(
+                                                    color: Colors.grey)),
                                           ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              15, 0, 15, 10),
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            child: Row(
-                                                children: items.map((e) {
-                                              bool inStock = e['is_stock'] == 1
-                                                  ? false
-                                                  : true;
-
-                                              String disccount = "";
-                                              String temp = e['item_discount']
-                                                  .toString()
-                                                  .split("%")[0];
-
-                                              if (temp
-                                                          .split(".")[0]
-                                                          .toString() ==
-                                                      "0" &&
-                                                  temp
-                                                          .split(".")[1]
-                                                          .toString() ==
-                                                      "00") {
-                                                disccount = "0";
-                                              } else if (temp
-                                                      .split(".")[1]
-                                                      .toString() ==
-                                                  "00") {
-                                                disccount = temp
-                                                    .split(".")[0]
-                                                    .toString();
-                                              } else {
-                                                disccount = temp;
-                                              }
-                                              return singleProductDesign(
-                                                  context,
-                                                  e,
-                                                  inStock,
-                                                  controller,
-                                                  items,
-                                                  dynamicLinks,
-                                                  disccount,
-                                                  true);
-                                            }).toList()),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              15, 0, 15, 10),
-                                          child: SizedBox(
-                                              height: 120,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              child: Image.asset(
-                                                "assets/demo.jpeg",
-                                                fit: BoxFit.fill,
-                                              )),
-                                        ),
-                                        items.indexOf(e) == items.length - 2
-                                            ? SizedBox()
-                                            : Divider(
-                                                color: Colors.grey[200],
-                                                thickness: 15,
-                                              ),
+                                        )
                                       ],
-                                    );
-                                  }).toList(),
-                                ),
-                          Container(
-                            height: 300,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              // image: DecorationImage(
-                              //     alignment: Alignment(0.6, -0.15),
-                              //     scale: 10,
-                              //     image: AssetImage(
-                              //       "assets/emoji1.png",
-                              //     ))
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(18, 20, 20, 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("didn't find\nwhat you were",
-                                      textAlign: TextAlign.left,
-                                      style: GoogleFonts.montserrat(
-                                          fontSize: unitHeightValue * 2.3,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.grey[400])),
-                                  Row(
-                                    children: [
-                                      Text("looking for?",
-                                          textAlign: TextAlign.left,
-                                          style: GoogleFonts.montserrat(
-                                              fontSize: unitHeightValue * 2.3,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.grey[400])),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Image.asset("assets/emoji1.png",
-                                          scale: unitHeightValue * 0.7)
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  Text("Suggest something & we'll look into it",
-                                      style: GoogleFonts.montserrat(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[400])),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      suggestProductBottom();
-                                    },
-                                    child: Container(
-                                      child: Text("Suggest a Product",
-                                          style: GoogleFonts.montserrat(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.pink[700])),
-                                      padding: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                          color: Colors.white70,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border:
-                                              Border.all(color: Colors.grey)),
                                     ),
-                                  )
-                                ],
-                              ),
+                                  ),
+                                ),
+                                viewModel.counterShowCart
+                                    ? SizedBox(
+                                        height: 50,
+                                      )
+                                    : SizedBox(),
+                              ],
                             ),
                           ),
-                          viewModel.counterShowCart
-                              ? SizedBox(
-                                  height: 50,
-                                )
-                              : SizedBox(),
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: viewModel.counterShowCart
+                                  ? bottomSheet()
+                                  : SizedBox())
                         ],
-                      ),
-                    ),
-                    Align(
-                        alignment: Alignment.bottomCenter,
-                        child: viewModel.counterShowCart
-                            ? bottomSheet()
-                            : SizedBox())
-                  ],
-                ));
+                      ));
           }),
         ),
       ),

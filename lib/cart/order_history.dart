@@ -142,6 +142,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       children: openOrder
                           .map((e) => InkWell(
                                 onTap: () {
+                                  print(e['current_status'].toString());
+                                  // if (e['current_status'].toString() !=
+                                  //     "Returned") {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -151,6 +154,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                               ))).then((value) {
                                     getOrderDetails("orders/open");
                                   });
+                                  // }
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -223,7 +227,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                               height: 3,
                                                             ),
                                                             Text(
-                                                              "Total Amount - ₹" +
+                                                              "Total Amount : ₹" +
                                                                   e['amount']
                                                                       .toString(),
                                                               style: TextStyle(
@@ -353,15 +357,18 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       children: completedOrder
                           .map((e) => InkWell(
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              OrderSummaryScreen(
-                                                map: e,
-                                              ))).then((value) {
-                                    getOrderDetails("orders/completed");
-                                  });
+                                  if (e['current_status'].toString() !=
+                                      "Returned") {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                OrderSummaryScreen(
+                                                  map: e,
+                                                ))).then((value) {
+                                      getOrderDetails("orders/completed");
+                                    });
+                                  }
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -434,7 +441,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                               height: 3,
                                                             ),
                                                             Text(
-                                                              "Total Amount - ₹" +
+                                                              "Total Amount : ₹" +
                                                                   e['amount']
                                                                       .toString(),
                                                               style: TextStyle(
@@ -635,7 +642,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                               height: 3,
                                                             ),
                                                             Text(
-                                                              "Total Amount - ₹" +
+                                                              "Total Amount : ₹" +
                                                                   e['total']
                                                                       .toString(),
                                                               style: TextStyle(
@@ -859,7 +866,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                               height: 3,
                                                             ),
                                                             Text(
-                                                              "Total Amount - ₹" +
+                                                              "Total Amount : ₹" +
                                                                   e['total']
                                                                       .toString(),
                                                               style: TextStyle(

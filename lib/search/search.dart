@@ -215,7 +215,14 @@ class _SearchScreenState extends State<SearchScreen> {
         //   iconTheme: IconThemeData(color: Colors.black),
         //   toolbarHeight: 50,
         // ),
+
         appBar: AppBar(
+            bottom: _isListening
+                ? PreferredSize(
+                    preferredSize: Size(double.infinity, 1.0),
+                    child: LinearProgressIndicator(),
+                  )
+                : null,
             elevation: 0,
             backgroundColor: Colors.transparent,
             toolbarHeight: 80,
@@ -289,9 +296,6 @@ class _SearchScreenState extends State<SearchScreen> {
                               ? SizedBox()
                               : Column(
                                   children: [
-                                    _isListening
-                                        ? LinearProgressIndicator()
-                                        : SizedBox(),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,

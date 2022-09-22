@@ -42,14 +42,19 @@ class _CartViewState extends State<CartView> {
   int productCount = 0;
   double originalRateTotal = 0;
   bool isLoading2 = false;
+  bool isNumeric(String s) {
+    if (s == null) {
+      return false;
+    }
+    return int.tryParse(s) != null;
+  }
+
+  List taxes = [];
   getData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-
     if (pref.getBool("loggedIn") ?? false) {
       CartAPI().cartData().then((value) {
-        value.forEach((key, value) {
-          print(key.toString() + " ----  " + value.toString());
-        });
+        print(value);
         setState(() {
           isLoading = false;
         });
@@ -58,7 +63,7 @@ class _CartViewState extends State<CartView> {
             setState(() {
               cartData.clear();
               cartData.addAll(value['items']);
-              productCount = cartData.length;
+              // productCount = cartData.length;
               deliveryCarges = value['delivery_fee'].toString();
               totalPrice = value['total_price'].toString();
               totalItemPrice = value['total'].toString();
@@ -71,6 +76,27 @@ class _CartViewState extends State<CartView> {
 
             setState(() {
               originalRateTotal = temp - double.parse(totalPrice.toString());
+            });
+
+            setState(() {
+              productCount = 0;
+              for (var element in cartData) {
+                productCount =
+                    productCount + int.parse(element['quantity'].toString());
+              }
+            });
+            Map temp2 = value['tax'];
+            List taxSlab = [];
+            temp2.forEach((key, value) {
+              if (isNumeric(key.toString())) {
+                taxSlab.add(key.toString());
+              }
+            });
+
+            setState(() {
+              taxSlab.forEach((element) {
+                taxes.add(temp2[element]);
+              });
             });
           }
         } else {
@@ -257,7 +283,9 @@ class _CartViewState extends State<CartView> {
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             PaymentMenthosScreen(
-                                                totalPayment: totalPrice)));
+                                                totalPayment:
+                                                    double.parse(totalItemPrice)
+                                                        .toStringAsFixed(2))));
                               },
                               child: Text(
                                 "Select Payment Options",
@@ -376,25 +404,27 @@ class _CartViewState extends State<CartView> {
                                 children: [
                                   InkWell(
                                     onTap: () async {
-                                      setState(() {
-                                        isLoading2 = true;
-                                      });
-                                      OtherAPI()
-                                          .singleProductDetails(
-                                              e['id'].toString())
-                                          .then((value) async {
+                                      if (isLoading2 == false) {
                                         setState(() {
-                                          isLoading2 = false;
+                                          isLoading2 = true;
                                         });
-                                        await showProdcutDetails(
-                                            context,
-                                            value,
-                                            false,
-                                            controller,
-                                            [],
-                                            dynamicLinks,
-                                            true);
-                                      });
+                                        OtherAPI()
+                                            .singleProductDetails(
+                                                e['id'].toString())
+                                            .then((value) async {
+                                          setState(() {
+                                            isLoading2 = false;
+                                          });
+                                          await showProdcutDetails(
+                                              context,
+                                              value,
+                                              false,
+                                              controller,
+                                              [],
+                                              dynamicLinks,
+                                              true);
+                                        });
+                                      }
                                     },
                                     child: Row(
                                       crossAxisAlignment:
@@ -404,112 +434,29 @@ class _CartViewState extends State<CartView> {
                                             child: Padding(
                                           padding: const EdgeInsets.fromLTRB(
                                               0, 2, 5, 2),
-                                          child: Stack(
-                                            children: [
-                                              Container(
-                                                height: 80,
-                                                width: 80,
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    border: Border.all(
-                                                        color: Colors.grey,
-                                                        width: 0.5)),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  child: Image.network(
-                                                    e['image'].toString(),
-                                                    scale: 10,
-                                                    errorBuilder: (context,
-                                                        error, stackTrace) {
-                                                      return Image.asset(
-                                                        "assets/no_image.jpeg",
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
+                                          child: Container(
+                                            height: 80,
+                                            width: 80,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                border: Border.all(
+                                                    color: Colors.grey,
+                                                    width: 0.5)),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Image.network(
+                                                e['image'].toString(),
+                                                scale: 10,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Image.asset(
+                                                    "assets/no_image.jpeg",
+                                                  );
+                                                },
                                               ),
-                                              // InkWell(
-                                              //   onTap: () {
-                                              //     ScaffoldMessenger.of(
-                                              //             context)
-                                              //         .showSnackBar(
-                                              //       SnackBar(
-                                              //           content: Text(
-                                              //               "Remove item?"
-                                              //                   .toString()),
-                                              //           action:
-                                              //               SnackBarAction(
-                                              //                   label:
-                                              //                       "Remove",
-                                              //                   onPressed:
-                                              //                       () {
-                                              //                     ScaffoldMessenger.of(
-                                              //                             context)
-                                              //                         .showSnackBar(
-                                              //                       SnackBar(
-                                              //                           content: Text("Removing item..."
-                                              //                               .toString()),
-                                              //                           duration:
-                                              //                               Duration(seconds: 1)),
-                                              //                     );
-                                              //                     CartAPI()
-                                              //                         .emptyCartItemWise(e['cart_id']
-                                              //                             .toString())
-                                              //                         .then(
-                                              //                             (value) {
-                                              //                       if (value) {
-                                              //                         ScaffoldMessenger.of(context)
-                                              //                             .showSnackBar(
-                                              //                           SnackBar(
-                                              //                               content: Text("Items removed.".toString()),
-                                              //                               duration: Duration(seconds: 1)),
-                                              //                         );
-                                              //                         Provider.of<UpdateCartData>(context,
-                                              //                                 listen: false)
-                                              //                             .incrementCounter();
-                                              //                         Provider.of<UpdateCartData>(context,
-                                              //                                 listen: false)
-                                              //                             .showCartorNot();
-                                              //                         Navigator.of(context)
-                                              //                             .pop();
-                                              //                       } else {
-                                              //                         ScaffoldMessenger.of(context)
-                                              //                             .showSnackBar(
-                                              //                           SnackBar(
-                                              //                               content: Text("Item removal failed".toString()),
-                                              //                               duration: Duration(seconds: 1)),
-                                              //                         );
-                                              //                       }
-                                              //                     });
-                                              //                   })),
-                                              //     );
-                                              //   },
-                                              //   child: Container(
-                                              //     decoration: BoxDecoration(
-                                              //         color: Colors.grey[200],
-                                              //         borderRadius:
-                                              //             BorderRadius.all(
-                                              //                 Radius.circular(
-                                              //                     5)),
-                                              //         border: Border.all(
-                                              //             color: Colors.grey,
-                                              //             width: 0.5)),
-                                              //     child: Padding(
-                                              //       padding:
-                                              //           const EdgeInsets.all(
-                                              //               2.0),
-                                              //       child: Icon(
-                                              //         Icons.clear,
-                                              //         size: 15,
-                                              //         color: Colors.red,
-                                              //       ),
-                                              //     ),
-                                              //   ),
-                                              // )
-                                            ],
+                                            ),
                                           ),
                                         )),
                                         Expanded(
@@ -755,7 +702,7 @@ class _CartViewState extends State<CartView> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "Item total (incl. taxes)",
+                                  "Sub Total (incl. taxes)",
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500),
@@ -774,7 +721,10 @@ class _CartViewState extends State<CartView> {
                                       //         color: Colors.grey,
                                       //         fontSize: 14)),
                                       TextSpan(
-                                          text: " ₹" + totalItemPrice,
+                                          text: " ₹" +
+                                              double.parse(
+                                                      totalPrice.toString())
+                                                  .toStringAsFixed(2),
                                           style: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               fontSize: 14)),
@@ -782,6 +732,38 @@ class _CartViewState extends State<CartView> {
                                   ),
                                 )
                               ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Column(
+                              children: taxes
+                                  .map((e) => Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            e['title'].toString() +
+                                                " (" +
+                                                e['rate'].toString() +
+                                                "%)",
+                                            textAlign: TextAlign.left,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                                fontSize: 14),
+                                          ),
+                                          Text(
+                                            "₹" +
+                                                double.parse(e['tax_amount']
+                                                        .toString())
+                                                    .toStringAsFixed(2),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500),
+                                          )
+                                        ],
+                                      ))
+                                  .toList(),
                             ),
                             SizedBox(
                               height: 10,
@@ -809,8 +791,10 @@ class _CartViewState extends State<CartView> {
                                               color: Colors.grey,
                                               fontSize: 14)),
                                       TextSpan(
-                                          text:
-                                              " ₹" + deliveryCarges.toString(),
+                                          text: " ₹" +
+                                              double.parse(
+                                                      deliveryCarges.toString())
+                                                  .toStringAsFixed(2),
                                           style: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               fontSize: 14)),
@@ -833,7 +817,9 @@ class _CartViewState extends State<CartView> {
                                         fontWeight: FontWeight.w600),
                                   ),
                                   Text(
-                                    "₹" + totalPrice,
+                                    "₹" +
+                                        double.parse(totalItemPrice)
+                                            .toStringAsFixed(2),
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600),
@@ -928,6 +914,12 @@ class _CartViewState extends State<CartView> {
         });
       });
     }
+    // setState(() {
+    //   productCount = 0;
+    //   cartData.forEach((element) {
+    //     productCount = productCount + int.parse(element['quantity'].toString());
+    //   });
+    // });
   }
 
   Future<void> manuallyUpdateQuantity(int index) async {

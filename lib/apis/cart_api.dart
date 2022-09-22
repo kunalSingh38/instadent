@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CartAPI {
   Future<Map> cartData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    print(pref.getString("token").toString());
     var response = await http.post(
       Uri.parse(URL + "cart"),
       headers: {
@@ -166,15 +167,20 @@ class CartAPI {
 
     return jsonDecode(response.body);
   }
-  // Future<Map> orderHistoryCompleted() async {
-  //   SharedPreferences pref = await SharedPreferences.getInstance();
-  //   var response = await http.post(
-  //     Uri.parse(URL + "orders/completed"),
-  //     headers: {
-  //       'Authorization': 'Bearer ' + pref.getString("token").toString(),
-  //       'Content-Type': 'application/json'
-  //     },
-  //   );
-  //   return jsonDecode(response.body);
-  // }
+
+  Future<List> recentOrderItems() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(
+      Uri.parse(URL + "recent-order-items"),
+      headers: {
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Content-Type': 'application/json'
+      },
+    );
+
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response'];
+    }
+    return [];
+  }
 }

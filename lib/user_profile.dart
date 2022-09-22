@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/constants.dart';
@@ -21,10 +23,11 @@ class _UserProfileViewUpdateState extends State<UserProfileViewUpdate> {
     // TODO: implement initState
     super.initState();
     LoginAPI().userProfile().then((value) {
+      print(jsonEncode(value));
       setState(() {
         doctorName.text = value['username'].toString();
         clinicName.text = value['clinic_name'].toString();
-        gstin.text = value['gstin'].toString();
+        gstin.text = value['gstin'] == null ? "" : value['gstin'].toString();
         emailId.text = value['email'].toString();
         loading = false;
       });

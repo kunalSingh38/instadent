@@ -1,11 +1,13 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
@@ -71,12 +73,143 @@ class _SplashScreenState extends State<SplashScreen> {
   //   print(result);
   //   return result;
   // }
+  // Future<Position> _determinePosition() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
+
+  //   // Test if location services are enabled.
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     // Location services are not enabled don't continue
+  //     // accessing the position and request users of the
+  //     // App to enable the location services.
+  //     return Future.error('Location services are disabled.');
+  //   }
+
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       // Permissions are denied, next time you could try
+  //       // requesting permissions again (this is also where
+  //       // Android's shouldShowRequestPermissionRationale
+  //       // returned true. According to Android guidelines
+  //       // your App should show an explanatory UI now.
+  //       return Future.error('Location permissions are denied');
+  //     }
+  //   }
+
+  //   if (permission == LocationPermission.deniedForever) {
+  //     // Permissions are denied forever, handle appropriately.
+  //     await Geolocator.requestPermission();
+  //     return Future.error(
+  //         'Location permissions are permanently denied, we cannot request permissions.');
+  //   }
+
+  //   // When we reach here, permissions are granted and we can
+  //   // continue accessing the position of the device.
+  //   return await Geolocator.getCurrentPosition();
+  // }
+
+  // void showlocationPermission() async {
+  //   LocationPermission permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.always) {
+  //     Timer(Duration(milliseconds: 2500), () {
+  //       checkLoggedIn().then((value) {
+  //         if (value) {
+  //           Provider.of<UpdateCartData>(context, listen: false)
+  //               .incrementCounter();
+  //           Navigator.pushReplacement(
+  //             context,
+  //             MaterialPageRoute(builder: (context) => Dashboard()),
+  //           );
+  //         } else {
+  //           Navigator.of(context).pushReplacement(MaterialPageRoute(
+  //               builder: (BuildContext context) => LoginScreen()));
+  //         }
+  //       });
+  //     });
+  //   } else {
+  //     showDialog(
+  //         context: context,
+  //         barrierDismissible: false,
+  //         builder: (context) => AlertDialog(
+  //               shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.all(Radius.circular(20))),
+  //               title: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.center,
+  //                 children: [
+  //                   Image.asset(
+  //                     "assets/map2.png",
+  //                     scale: 10,
+  //                   ),
+  //                   SizedBox(
+  //                     height: 20,
+  //                   ),
+  //                   Text(
+  //                     "Use your location",
+  //                     style:
+  //                         TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+  //                   ),
+  //                 ],
+  //               ),
+  //               actionsAlignment: MainAxisAlignment.spaceBetween,
+  //               actions: [
+  //                 TextButton(
+  //                     onPressed: () {
+  //                       Navigator.of(context).pop();
+  //                       showlocationPermission();
+  //                     },
+  //                     child: Text(
+  //                       "NO THANKS",
+  //                       style: TextStyle(color: Colors.green[800]),
+  //                     )),
+  //                 TextButton(
+  //                     onPressed: () async {
+  //                       _determinePosition().then((value) {
+  //                         Timer(Duration(milliseconds: 2500), () {
+  //                           checkLoggedIn().then((value) {
+  //                             if (value) {
+  //                               Provider.of<UpdateCartData>(context,
+  //                                       listen: false)
+  //                                   .incrementCounter();
+  //                               Navigator.pushReplacement(
+  //                                 context,
+  //                                 MaterialPageRoute(
+  //                                     builder: (context) => Dashboard()),
+  //                               );
+  //                             } else {
+  //                               Navigator.of(context).pushReplacement(
+  //                                   MaterialPageRoute(
+  //                                       builder: (BuildContext context) =>
+  //                                           LoginScreen()));
+  //                             }
+  //                           });
+  //                         });
+  //                       });
+  //                     },
+  //                     child: Text(
+  //                       "TURN ON",
+  //                       style: TextStyle(color: Colors.green[800]),
+  //                     ))
+  //               ],
+  //               content: Text(
+  //                 "This application collects location data to show near by store. We don't collect your location data.",
+  //                 textAlign: TextAlign.center,
+  //                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+  //               ),
+  //             ));
+  //   }
+  // }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    // if (Platform.isAndroid) {
+    //   WidgetsBinding.instance
+    //       .addPostFrameCallback((_) => showlocationPermission());
+    // } else {
     Timer(Duration(milliseconds: 2500), () {
       checkLoggedIn().then((value) {
         if (value) {
@@ -92,6 +225,7 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       });
     });
+    // }
   }
 
   @override

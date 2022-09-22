@@ -270,18 +270,24 @@ class _OffersScreenState extends State<OffersScreen> {
                                 flex: 10,
                                 child: brandList.length == 0
                                     ? Center(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset("assets/noData.jpg"),
-                                            Text(
-                                              "No data found",
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
-                                            )
-                                          ],
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                "assets/noData.jpg",
+                                                // scale: 0,
+                                              ),
+                                              Text(
+                                                "No data found",
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ],
+                                          ),
                                         ),
                                       )
                                     : Padding(

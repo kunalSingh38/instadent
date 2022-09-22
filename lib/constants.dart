@@ -15,11 +15,12 @@ import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/cart/cart_view.dart';
 import 'package:instadent/category/sub_categories.dart';
 import 'package:instadent/main.dart';
+import 'package:instadent/zoom_image.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const URL = "https://dev.techstreet.in/idc/public/api/v1/";
-const searchHint = "Search for Airotor, Rotary files, EDTA & More..";
+const searchHint = "Search for rotary files, airotor & more";
 const whatsAppNo = "919899339093";
 showLaoding(context) {
   return showDialog(
@@ -156,11 +157,12 @@ Future<void> showProdcutDetails(
   } else {
     disccount = temp;
   }
-  print("disccount" + disccount.toString());
 
   List multipleImages = [];
+  multipleImages.add({"image": m['product_image'].toString()});
+
   if (m.containsKey("multiple_images")) {
-    multipleImages = m['multiple_images'];
+    multipleImages.addAll(m['multiple_images']);
   }
 
   await showModalBottomSheet(
@@ -180,67 +182,69 @@ Future<void> showProdcutDetails(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              if (height == 500) {
-                                setState(() {
-                                  height = 200;
-                                  heightMain = 1.7;
-                                });
-                              } else {
-                                setState(() {
-                                  height = 500;
-                                  heightMain = 1.2;
-                                });
-                              }
-                            },
-                            child: SizedBox(
-                              height: height,
-                              child: multipleImages.length > 0
-                                  ? ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: multipleImages
-                                          .map((e) => Card(
-                                              elevation: 8,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20.0),
-                                              ),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                child: Image.network(
-                                                  e['image'].toString(),
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Image.asset(
-                                                      "assets/no_image.jpeg",
-                                                    );
-                                                  },
-                                                ),
-                                              )))
-                                          .toList(),
-                                    )
-                                  : Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                      ),
-                                      elevation: 8,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: Image.network(
-                                          m['product_image'].toString(),
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Image.asset(
-                                              "assets/no_image.jpeg",
-                                            );
-                                          },
-                                        ),
+                          SizedBox(
+                            height: height,
+                            child: multipleImages.length > 0
+                                ? ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    children: multipleImages
+                                        .map((e) => InkWell(
+                                              onTap: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ZoomImages(
+                                                              images:
+                                                                  multipleImages,
+                                                              selectedIndex:
+                                                                  multipleImages
+                                                                      .indexOf(
+                                                                          e),
+                                                            )));
+                                              },
+                                              child: Card(
+                                                  elevation: 8,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20.0),
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    child: Image.network(
+                                                      e['image'].toString(),
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
+                                                        return Image.asset(
+                                                          "assets/no_image.jpeg",
+                                                        );
+                                                      },
+                                                    ),
+                                                  )),
+                                            ))
+                                        .toList(),
+                                  )
+                                : Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                    elevation: 8,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.network(
+                                        m['product_image'].toString(),
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Image.asset(
+                                            "assets/no_image.jpeg",
+                                          );
+                                        },
                                       ),
                                     ),
-                            ),
+                                  ),
                           ),
                           Divider(),
                           SizedBox(
@@ -628,7 +632,7 @@ Future<void> showProdcutDetails(
                                 )
                               : SizedBox(),
 
-                          m['expiry_date'] == null
+                          m['expiry_date'] == null || m['expiry_date'] == ""
                               ? SizedBox()
                               : Column(
                                   children: [
@@ -718,6 +722,7 @@ Widget allCategoryGrid(
                         builder: (context) => SubCategoriesScreen(
                               catName: e['category_name'].toString(),
                               catId: e['id'].toString(),
+                              bannerImage: e['category_banner'].toString(),
                             ))).then((value) {
                   Provider.of<UpdateCartData>(context, listen: false)
                       .incrementCounter();

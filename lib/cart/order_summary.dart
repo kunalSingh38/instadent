@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
@@ -11,8 +12,10 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:group_radio_button/group_radio_button.dart';
+import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/apis/other_api.dart';
+import 'package:instadent/cart/cart_view.dart';
 import 'package:instadent/cart/return_order_details.dart';
 import 'package:instadent/cart/review_rating.dart';
 import 'package:instadent/constants.dart';
@@ -21,6 +24,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 // import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OrderSummaryScreen extends StatefulWidget {
@@ -41,6 +45,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   String orderPlaced = "";
   String trackLink = "";
   String total = "";
+  String deliverTo = "";
+  String deliveryChanges = "";
+  String subTotal = "";
   bool isDelivered = false;
   TextStyle style1 = TextStyle(
       fontWeight: FontWeight.w400, fontSize: 16, color: Colors.grey[600]);
@@ -97,19 +104,42 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   //     );
   //   }
   // }
-
+  List taxes = [];
   bool isLoading2 = false;
+  bool isNumeric(String s) {
+    if (s == null) {
+      return false;
+    }
+    return int.tryParse(s) != null;
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     print(widget.map['orderId'].toString());
     CartAPI().orderDetails(widget.map['orderId'].toString()).then((value) {
+      print(value);
       setState(() {
         isLoading = false;
       });
 
       if (value.isNotEmpty) {
+        Map temp = value['tax'];
+        List taxSlab = [];
+        temp.forEach((key, value) {
+          if (isNumeric(key.toString())) {
+            taxSlab.add(key.toString());
+          }
+        });
+
+        setState(() {
+          taxSlab.forEach((element) {
+            taxes.add(temp[element]);
+          });
+        });
+
+        print(taxes);
         setState(() {
           orderMap = value;
           items.addAll(value['items']);
@@ -119,6 +149,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           trackLink = widget.map['liveTrackLink'].toString();
           total = value['total'].toString();
           isDelivered = value['order_status'] == "Delivered" ? true : false;
+          deliverTo = capitalize(value['deliver_to'].toString());
+          deliveryChanges = value['deliver_charge'].toString();
+          subTotal = value['sub_total'].toString();
         });
       }
     });
@@ -301,13 +334,26 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         Divider(
                           thickness: 0.9,
                         ),
-                        Text(
-                          items.length.toString() + " items in this order",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                              fontSize: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              items.length.toString() + " items in this order",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                  fontSize: 20),
+                            ),
+                            Text(
+                              "(incl. all taxes)",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey,
+                                  fontSize: 12),
+                            ),
+                          ],
                         ),
                         SizedBox(
                           height: 10,
@@ -316,25 +362,27 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                           children: items
                               .map((e) => InkWell(
                                     onTap: () {
-                                      setState(() {
-                                        isLoading2 = true;
-                                      });
-                                      OtherAPI()
-                                          .singleProductDetails(
-                                              e['id'].toString())
-                                          .then((value) async {
+                                      if (isLoading2 == false) {
                                         setState(() {
-                                          isLoading2 = false;
+                                          isLoading2 = true;
                                         });
-                                        await showProdcutDetails(
-                                            context,
-                                            value,
-                                            false,
-                                            controller,
-                                            [],
-                                            dynamicLinks,
-                                            true);
-                                      });
+                                        OtherAPI()
+                                            .singleProductDetails(
+                                                e['id'].toString())
+                                            .then((value) async {
+                                          setState(() {
+                                            isLoading2 = false;
+                                          });
+                                          await showProdcutDetails(
+                                              context,
+                                              value,
+                                              false,
+                                              controller,
+                                              [],
+                                              dynamicLinks,
+                                              true);
+                                        });
+                                      }
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -405,7 +453,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                                             .spaceBetween,
                                                     children: [
                                                       Text(
-                                                        "qty - " +
+                                                        "qty : " +
                                                             e['quantity']
                                                                 .toString(),
                                                         style: TextStyle(
@@ -416,8 +464,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                                       ),
                                                       Text(
                                                         "₹" +
-                                                            e['offer_price']
-                                                                .toString(),
+                                                            double.parse(e[
+                                                                        'offer_price']
+                                                                    .toString())
+                                                                .toStringAsFixed(
+                                                                    2),
                                                         style: TextStyle(
                                                             fontWeight:
                                                                 FontWeight
@@ -460,7 +511,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "MRP",
+                              "Sub Total",
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                   fontWeight: FontWeight.w500,
@@ -468,7 +519,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                   fontSize: 14),
                             ),
                             Text(
-                              "₹171",
+                              "₹" +
+                                  double.parse(subTotal.toString())
+                                      .toStringAsFixed(2),
                               style: TextStyle(fontWeight: FontWeight.w500),
                             )
                           ],
@@ -476,23 +529,55 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         SizedBox(
                           height: 5,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Product Discount",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                  fontSize: 14),
-                            ),
-                            Text(
-                              "-₹35",
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            )
-                          ],
+                        Column(
+                          children: taxes
+                              .map((e) => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        e['title'].toString() +
+                                            " (" +
+                                            e['rate'].toString() +
+                                            "%)",
+                                        textAlign: TextAlign.left,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black,
+                                            fontSize: 14),
+                                      ),
+                                      Text(
+                                        "₹" +
+                                            double.parse(
+                                                    e['tax_amount'].toString())
+                                                .toStringAsFixed(2),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500),
+                                      )
+                                    ],
+                                  ))
+                              .toList(),
                         ),
+                        // SizedBox(
+                        //   height: 5,
+                        // ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     Text(
+                        //       "Product Discount",
+                        //       textAlign: TextAlign.left,
+                        //       style: TextStyle(
+                        //           fontWeight: FontWeight.w500,
+                        //           color: Colors.black,
+                        //           fontSize: 14),
+                        //     ),
+                        //     Text(
+                        //       "-₹35",
+                        //       style: TextStyle(fontWeight: FontWeight.w500),
+                        //     )
+                        //   ],
+                        // ),
                         SizedBox(
                           height: 5,
                         ),
@@ -508,7 +593,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                   fontSize: 14),
                             ),
                             Text(
-                              "+₹15",
+                              "₹" +
+                                  double.parse(deliveryChanges.toString())
+                                      .toStringAsFixed(2),
                               style: TextStyle(fontWeight: FontWeight.w500),
                             )
                           ],
@@ -528,7 +615,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                   fontSize: 18),
                             ),
                             Text(
-                              "₹" + total.toString(),
+                              "₹" +
+                                  double.parse(total.toString())
+                                      .toStringAsFixed(2),
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
@@ -581,7 +670,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         SizedBox(
                           height: 10,
                         ),
-                        Text("-"),
+                        Text(deliverTo.toString()),
                         SizedBox(
                           height: 20,
                         ),
@@ -600,7 +689,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     height: 30,
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 5, 5, 80),
+                    padding: isDelivered
+                        ? const EdgeInsets.fromLTRB(10, 5, 5, 150)
+                        : const EdgeInsets.fromLTRB(10, 5, 5, 70),
                     child: InkWell(
                       onTap: () async {
                         await launch("https://wa.me/" + whatsAppNo);
@@ -653,7 +744,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             ),
       bottomSheet: isDelivered
           ? Container(
-              height: 70,
+              height: 60,
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 boxShadow: [
@@ -669,33 +760,122 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: 45,
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            )),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.teal[700])),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ReviewAndRating(
-                                        orderId: orderId,
-                                      )));
-                          // reviewAndRating(orderId);
-                        },
-                        child: Text(
-                          "Review and Rating",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                              color: Colors.white),
-                        ))),
+                child: Row(
+                  children: [
+                    Expanded(
+                        // width: MediaQuery.of(context).size.width,
+                        // height: 45,
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                )),
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.teal[700])),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ReviewAndRating(
+                                            orderId: orderId,
+                                          )));
+                              // reviewAndRating(orderId);
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Review & Rating",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                      color: Colors.white),
+                                ),
+                              ],
+                            ))),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                        // width: MediaQuery.of(context).size.width,
+                        // height: 45,
+                        child: Consumer<UpdateCartData>(
+                            builder: (context, viewModel, child) {
+                      return ElevatedButton(
+                          style: ButtonStyle(
+                              shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              )),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.teal[700])),
+                          onPressed: () {
+                            if (int.parse(viewModel.counter.toString()) > 0) {
+                              showDialog(
+                                  context: context,
+                                  builder: (dialogContext) => StatefulBuilder(
+                                          builder: (BuildContext context,
+                                              StateSetter setState) {
+                                        return AlertDialog(
+                                          title: Text("Remove cart items?"),
+                                          content: Text(
+                                            "Your cart contains items. All items will be removed from the cart when choose to reorder.",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              wordSpacing: 1,
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(dialogContext)
+                                                      .pop();
+                                                },
+                                                child: Text(
+                                                  "NO",
+                                                  style: TextStyle(
+                                                      color: Colors.amber[700]),
+                                                )),
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(dialogContext)
+                                                      .pop();
+                                                  reorder(orderId);
+                                                },
+                                                child: Text("YES",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.amber[700])))
+                                          ],
+                                        );
+                                      }));
+                            } else {
+                              reorder(orderId);
+                            }
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Reorder",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 16,
+                                    color: Colors.white),
+                              ),
+                              Text(
+                                "View cart on next step",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 11,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ));
+                    })),
+                  ],
+                ),
               ),
             )
           : trackLink.isEmpty
@@ -743,6 +923,35 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   ),
                 ),
     );
+  }
+
+  void reorder(String orderId) async {
+    setState(() {
+      isLoading2 = true;
+    });
+    OtherAPI().reorderAPI(orderId).then((value) {
+      setState(() {
+        isLoading2 = false;
+      });
+      if (value) {
+        Provider.of<UpdateCartData>(context, listen: false)
+            .incrementCounter()
+            .then((value) {
+          Provider.of<UpdateCartData>(context, listen: false)
+              .showCartorNot()
+              .then((value) {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CartView()));
+          });
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text("Re-Ordered".toString()),
+              duration: Duration(seconds: 1)),
+        );
+      }
+    });
   }
 
   TextEditingController cancelReason = TextEditingController();

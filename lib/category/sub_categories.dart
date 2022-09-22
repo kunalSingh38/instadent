@@ -25,8 +25,10 @@ import 'package:skeletons/skeletons.dart';
 class SubCategoriesScreen extends StatefulWidget {
   String catName;
   String catId;
+  String bannerImage;
 
-  SubCategoriesScreen({required this.catName, required this.catId});
+  SubCategoriesScreen(
+      {required this.catName, required this.catId, required this.bannerImage});
 
   @override
   _SubCategoriesScreenState createState() => _SubCategoriesScreenState();
@@ -46,6 +48,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   // final dbHelper = DatabaseHelper.instance;
   Future getSubCategoryList() async {
     CategoryAPI().subCartegoryList(widget.catId.toString()).then((value) async {
+      print(value);
       if (value.length > 0) {
         setState(() {
           subCategoryList.clear();
@@ -153,7 +156,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    print("banner image " + widget.bannerImage);
     getSubCategoryList();
     Provider.of<UpdateCartData>(context, listen: false).incrementCounter();
     Provider.of<UpdateCartData>(context, listen: false).showCartorNot();
@@ -367,22 +370,46 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                               ),
                                                               Expanded(
                                                                   flex: 2,
-                                                                  child:
-                                                                      ClipRRect(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            20),
-                                                                    child: Image
-                                                                        .network(
-                                                                      e['icon']
-                                                                          .toString(),
-                                                                      errorBuilder: (context,
-                                                                          error,
-                                                                          stackTrace) {
-                                                                        return Image.asset(
-                                                                            "assets/logo.png");
-                                                                      },
-                                                                    ),
+                                                                  child: Stack(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .bottomCenter,
+                                                                    children: [
+                                                                      CircleAvatar(
+                                                                        backgroundColor: e['selected']
+                                                                            ? Colors.greenAccent[100]
+                                                                            : Colors.grey[200],
+                                                                        radius:
+                                                                            30,
+                                                                      ),
+                                                                      AnimatedAlign(
+                                                                        alignment: e['selected']
+                                                                            ? Alignment.center
+                                                                            : Alignment.bottomCenter,
+                                                                        duration:
+                                                                            const Duration(milliseconds: 500),
+                                                                        curve: Curves
+                                                                            .fastOutSlowIn,
+                                                                        child:
+                                                                            ClipRRect(
+                                                                          borderRadius: BorderRadius.only(
+                                                                              bottomLeft: Radius.circular(10),
+                                                                              bottomRight: Radius.circular(10)),
+                                                                          child:
+                                                                              Image.network(
+                                                                            e['icon'].toString(),
+                                                                            scale: e['selected']
+                                                                                ? 1
+                                                                                : 2,
+                                                                            errorBuilder: (context,
+                                                                                error,
+                                                                                stackTrace) {
+                                                                              return Align(alignment: Alignment.center, child: Image.asset("assets/logo.png"));
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
                                                                   )
 
                                                                   // e['icon'] ==
@@ -489,9 +516,11 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                             ))),
                     Expanded(
                       child: isLoadingRight
-                          ? loadingProducts("Getting " +
-                              selectedSubCategory.toString() +
-                              " products")
+                          ? Center(
+                              child: loadingProducts("Getting " +
+                                  selectedSubCategory.toString() +
+                                  " products"),
+                            )
                           : LiquidPullToRefresh(
                               animSpeedFactor: 5,
                               springAnimationDurationInMilliseconds: 800,
@@ -510,10 +539,18 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                             width: MediaQuery.of(context)
                                                 .size
                                                 .width,
-                                            child: Image.asset(
-                                              "assets/demo.jpeg",
-                                              fit: BoxFit.fill,
-                                            )),
+                                            child:
+                                                widget.bannerImage.toString() ==
+                                                        ""
+                                                    ? Image.asset(
+                                                        "assets/logo.png",
+                                                        fit: BoxFit.contain,
+                                                      )
+                                                    : Image.network(
+                                                        widget.bannerImage
+                                                            .toString(),
+                                                        fit: BoxFit.fill,
+                                                      )),
                                         allProductsList(productItems, context,
                                             controller, 0.56, dynamicLinks),
                                         viewModel.counterShowCart

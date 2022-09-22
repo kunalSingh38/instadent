@@ -143,6 +143,7 @@ class LoginAPI {
 
   Future<Map> userProfile() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    print(pref.getString("token").toString());
     var response = await http.post(
       Uri.parse(URL + "profile"),
       headers: {

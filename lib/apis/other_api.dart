@@ -110,13 +110,12 @@ class OtherAPI {
 
   Future<List> carouselsWithLogin() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response = await http.post(
-      Uri.parse(URL + "store/carousels/list"),
-      headers: {
-        'Authorization': 'Bearer ' + pref.getString("token").toString(),
-        'Content-Type': 'application/json'
-      },
-    );
+    var response = await http.post(Uri.parse(URL + "store/carousels/list"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"type": "all"}));
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['carousels_list'];
     }
@@ -140,6 +139,7 @@ class OtherAPI {
 
   Future<List> feedbackQuestionList(String orderId) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+
     var response = await http.post(
       Uri.parse(URL + "feedbackquestion/" + orderId.toString()),
       headers: {
@@ -179,5 +179,66 @@ class OtherAPI {
       return jsonDecode(response.body)['Response']['home_banner'];
     }
     return [];
+  }
+
+  Future<bool> saveUserFeedback(Map m) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(URL + "userfeedback/add"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode(m));
+    print(response.body);
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> addUserRating(Map m) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(URL + "userrating/add"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode(m));
+    print(response.body);
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<List> ratingListResponseImages() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(
+      Uri.parse(URL + "rating/list"),
+      headers: {
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Content-Type': 'application/json'
+      },
+    );
+    print(response.body);
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response'];
+    }
+    return [];
+  }
+
+  Future<bool> reorderAPI(String orderId) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(URL + "cart-add-recent-order"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"order_number": orderId.toString()}));
+
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return true;
+    }
+    return false;
   }
 }
