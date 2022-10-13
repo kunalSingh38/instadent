@@ -40,7 +40,7 @@ dependencies:
   pin_code_fields: ^7.4.0
   shared_preferences: ^2.0.15
   flutter_launcher_icons: ^0.9.3
-  package_info_plus: ^1.4.2
+  package_info_plus: ^1.4.3+1
   group_radio_button: ^1.2.0
   expandable: ^5.0.1
   provider: ^6.0.3
@@ -75,13 +75,14 @@ dependencies:
   animate_icons: ^2.0.0
   speech_to_text: ^5.6.1
   liquid_pull_to_refresh: ^3.0.1
-  # open_file: ^3.1.0
+  open_filex: ^4.1.1
   flutter_rating_bar: ^4.0.1
   firebase_dynamic_links: ^4.3.6
   flutter_gif: ^0.0.4
   introduction_screen: ^3.0.2
   carousel_slider: ^4.1.1
-  
+  google_maps_flutter: ^2.2.1
+  sticky_headers: ^0.3.0+2
 
 dev_dependencies:
   flutter_test:
@@ -130,10 +131,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Montserrat
-  #     fonts:
-  #       - asset: assets/Poppins-Regular.ttf
+  fonts:
+    - family: Roboto-Regular
+      fonts:
+        - asset: assets/Roboto-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

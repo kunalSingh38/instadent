@@ -83,7 +83,7 @@ class LoginAPI {
     return [];
   }
 
-  Future<bool> setDefaultAddress(String id) async {
+  Future<bool> setDefaultAddressAPI(String id) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var response = await http.post(Uri.parse(URL + "address/default"),
         headers: {
@@ -105,7 +105,7 @@ class LoginAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode(m));
-
+    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return true;
     }

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ import 'package:instadent/cart/review_rating.dart';
 import 'package:instadent/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:open_filex/open_filex.dart';
 // import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -117,7 +119,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print(widget.map['orderId'].toString());
+
     CartAPI().orderDetails(widget.map['orderId'].toString()).then((value) {
       print(value);
       setState(() {
@@ -247,29 +249,19 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                           path = baseStorage.path;
                                         }
 
-                                        print(path);
-                                        print(filePath);
-                                        // Dio dio = Dio();
-                                        // var response = await dio.download(filePath,
-                                        //     path + '/' + filePath.split(".com/")[1]);
-                                        // print(response.statusMessage);
-                                        // print(response.statusCode);
+                                        Dio dio = Dio();
+                                        var response = await dio.download(
+                                            filePath,
+                                            path +
+                                                '/' +
+                                                filePath.split("/").last +
+                                                ".pdf");
 
-                                        // if (response.statusCode == 200) {
-                                        //   ScaffoldMessenger.of(context)
-                                        //       .hideCurrentSnackBar();
-                                        //   ScaffoldMessenger.of(context).showSnackBar(
-                                        //     SnackBar(
-                                        //       content: Text(
-                                        //           "Download at ".toString() +
-                                        //               filePath.toString()),
-                                        //     ),
-                                        //   );
-                                        // }
-                                        // if (Platform.isIOS) {
-                                        //   OpenFile.open(
-                                        //       '$path/' + filePath.split(".com/")[1]);
-                                        // }
+                                        if (response.statusCode == 200) {
+                                          OpenFilex.open('$path/' +
+                                              filePath.split("/").last +
+                                              ".pdf");
+                                        }
                                       }
                                     },
                                     child: Row(
@@ -394,43 +386,18 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                             child: Padding(
                                               padding: const EdgeInsets.all(5),
                                               child: Container(
-                                                height: 80,
-                                                width: 80,
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                    border: Border.all(
-                                                        color: Colors.grey,
-                                                        width: 0.5)),
-                                                child: Image.network(
-                                                  e['product_image'].toString(),
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Image.asset(
-                                                      "assets/no_image.jpeg",
-                                                    );
-                                                  },
-                                                  loadingBuilder: (context,
-                                                      child, loadingProgress) {
-                                                    if (loadingProgress == null)
-                                                      return child;
-                                                    return Center(
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        value: loadingProgress
-                                                                    .expectedTotalBytes !=
-                                                                null
-                                                            ? loadingProgress
-                                                                    .cumulativeBytesLoaded /
-                                                                loadingProgress
-                                                                    .expectedTotalBytes!
-                                                            : null,
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
+                                                  height: 80,
+                                                  width: 80,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5),
+                                                      border: Border.all(
+                                                          color: Colors.grey,
+                                                          width: 0.5)),
+                                                  child: cacheImage(
+                                                      e['product_image']
+                                                          .toString())),
                                             ),
                                           ),
                                           Expanded(

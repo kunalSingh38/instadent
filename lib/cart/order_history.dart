@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, unnecessary_null_comparison
 
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +41,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           case "orders/completed":
             setState(() {
               completedOrder.clear();
+
               completedOrder.addAll(value['Response']);
               len = completedOrder.length;
             });
@@ -99,11 +100,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                 style:
                     TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
               ),
-              Text(
-                'Replacement',
-                style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-              ),
+              // Text(
+              //   'Replacement',
+              //   style:
+              //       TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              // ),
             ],
             initialIndex: 0,
             onChange: (index) {
@@ -116,18 +117,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                   getOrderDetails("orders/completed");
                   break;
                 case 2:
+                  setState(() {
+                    returnItems.clear();
+                  });
                   OtherAPI().returnReplacementRequestList("1").then((value) {
                     setState(() {
-                      returnItems.clear();
                       returnItems.addAll(value);
                     });
-                  });
-                  break;
-                case 3:
-                  OtherAPI().returnReplacementRequestList("2").then((value) {
-                    setState(() {
-                      replacementItems.clear();
-                      replacementItems.addAll(value);
+                    OtherAPI().returnReplacementRequestList("2").then((value) {
+                      setState(() {
+                        returnItems.addAll(value);
+                      });
                     });
                   });
                   break;
@@ -354,8 +354,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       child: Text("No data available"),
                     )
                   : ListView(
-                      children: completedOrder
-                          .map((e) => InkWell(
+                      children: completedOrder.map((e) {
+                        return e['current_status'].toString() == "Returned"
+                            ? SizedBox()
+                            : InkWell(
                                 onTap: () {
                                   if (e['current_status'].toString() !=
                                       "Returned") {
@@ -560,8 +562,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                     ),
                                   ),
                                 ),
-                              ))
-                          .toList(),
+                              );
+                      }).toList(),
                     ),
               returnItems.length == 0
                   ? Center(
@@ -570,7 +572,16 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                   : ListView(
                       children: returnItems
                           .map((e) => InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  // print(e);
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) =>
+                                  //             OrderSummaryScreen(
+                                  //               map: e,
+                                  //             ))).then((value) {});
+                                },
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Container(
@@ -608,10 +619,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                           backgroundColor:
                                                               Colors.white,
                                                           radius: 24.5,
-                                                          child: Image.asset(
-                                                            "assets/return.png",
-                                                            scale: 15,
-                                                          )),
+                                                          child: e['return_type']
+                                                                      .toString() ==
+                                                                  "1"
+                                                              ? Image.asset(
+                                                                  "assets/return.png",
+                                                                  scale: 15,
+                                                                )
+                                                              : Image.asset(
+                                                                  "assets/replacement.png",
+                                                                  scale: 18,
+                                                                )),
                                                     ),
                                                   )),
                                                   Expanded(
@@ -642,9 +660,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                               height: 3,
                                                             ),
                                                             Text(
-                                                              "Total Amount : ₹" +
-                                                                  e['total']
-                                                                      .toString(),
+                                                              e['total'].toString() ==
+                                                                      "null"
+                                                                  ? "Total Amount :"
+                                                                  : "Total Amount : ₹" +
+                                                                      e['total']
+                                                                          .toString(),
                                                               style: TextStyle(
                                                                   fontSize: 12,
                                                                   fontWeight:
@@ -698,7 +719,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                         const EdgeInsets.all(
                                                             5.0),
                                                     child: Text(
-                                                      "Returned",
+                                                      e['return_type']
+                                                                  .toString() ==
+                                                              "1"
+                                                          ? "Returned"
+                                                          : "Replacement",
                                                       style: TextStyle(
                                                           fontSize: 12,
                                                           color:
@@ -787,230 +812,230 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                               ))
                           .toList(),
                     ),
-              replacementItems.length == 0
-                  ? Center(
-                      child: Text("No data available"),
-                    )
-                  : ListView(
-                      children: replacementItems
-                          .map((e) => InkWell(
-                                onTap: () {},
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Color(0xFFE0E0E0)),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Stack(
-                                          children: [
-                                            Container(
-                                              height: 90,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(10),
-                                                    topRight:
-                                                        Radius.circular(10)),
-                                                color: Colors.grey[200],
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                      child: Padding(
-                                                    padding: EdgeInsets.all(5),
-                                                    child: CircleAvatar(
-                                                      backgroundColor:
-                                                          Color(0xFFE0E0E0),
-                                                      radius: 25,
-                                                      child: CircleAvatar(
-                                                          backgroundColor:
-                                                              Colors.white,
-                                                          radius: 24.5,
-                                                          child: Image.asset(
-                                                            "assets/replacement.png",
-                                                            scale: 18,
-                                                          )),
-                                                    ),
-                                                  )),
-                                                  Expanded(
-                                                      flex: 4,
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(10.0),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              e['request_no']
-                                                                  .toString()
-                                                                  .toUpperCase(),
-                                                              style: TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  fontSize: 17),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 3,
-                                                            ),
-                                                            Text(
-                                                              "Total Amount : ₹" +
-                                                                  e['total']
-                                                                      .toString(),
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      600]),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 3,
-                                                            ),
-                                                            Expanded(
-                                                              child: Text(
-                                                                e["item_name"]
-                                                                    .toString(),
-                                                                maxLines: 2,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        600]),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      )),
-                                                ],
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.topRight,
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 8, right: 8),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.grey[300],
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            5.0),
-                                                    child: Text(
-                                                      "Replacement",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              Colors.grey[600]),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              8, 8, 8, 1),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Reason : ",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.w400,
-                                                    color: Colors.grey[600]),
-                                              ),
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Expanded(
-                                                child: Text(
-                                                  e['reason'].toString(),
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Colors.grey[600]),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Divider(
-                                          thickness: 0.8,
-                                          indent: 10,
-                                          endIndent: 10,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              8, 1, 8, 5),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                  "Return on " +
-                                                      e['created_at']
-                                                          .toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Colors.grey[700])),
-                                              // Row(
-                                              //   mainAxisAlignment:
-                                              //       MainAxisAlignment.end,
-                                              //   children: [
-                                              //     Text(
-                                              //       "View details",
-                                              //       style: TextStyle(
-                                              //           color: Colors.green[900],
-                                              //           fontSize: 12,
-                                              //           fontWeight: FontWeight.w700),
-                                              //     ),
-                                              //     Icon(
-                                              //       Icons.arrow_right,
-                                              //       size: 18,
-                                              //       color: Colors.green[900],
-                                              //     )
-                                              //   ],
-                                              // )
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                    ),
+              // replacementItems.length == 0
+              //     ? Center(
+              //         child: Text("No data available"),
+              //       )
+              //     : ListView(
+              //         children: replacementItems
+              //             .map((e) => InkWell(
+              //                   onTap: () {},
+              //                   child: Padding(
+              //                     padding: const EdgeInsets.all(8.0),
+              //                     child: Container(
+              //                       decoration: BoxDecoration(
+              //                           border: Border.all(
+              //                               color: Color(0xFFE0E0E0)),
+              //                           borderRadius:
+              //                               BorderRadius.circular(10)),
+              //                       child: Column(
+              //                         crossAxisAlignment:
+              //                             CrossAxisAlignment.start,
+              //                         children: [
+              //                           Stack(
+              //                             children: [
+              //                               Container(
+              //                                 height: 90,
+              //                                 decoration: BoxDecoration(
+              //                                   borderRadius: BorderRadius.only(
+              //                                       topLeft:
+              //                                           Radius.circular(10),
+              //                                       topRight:
+              //                                           Radius.circular(10)),
+              //                                   color: Colors.grey[200],
+              //                                 ),
+              //                                 child: Row(
+              //                                   children: [
+              //                                     Expanded(
+              //                                         child: Padding(
+              //                                       padding: EdgeInsets.all(5),
+              //                                       child: CircleAvatar(
+              //                                         backgroundColor:
+              //                                             Color(0xFFE0E0E0),
+              //                                         radius: 25,
+              //                                         child: CircleAvatar(
+              //                                             backgroundColor:
+              //                                                 Colors.white,
+              //                                             radius: 24.5,
+              //                                             child: Image.asset(
+              //                                               "assets/replacement.png",
+              //                                               scale: 18,
+              //                                             )),
+              //                                       ),
+              //                                     )),
+              //                                     Expanded(
+              //                                         flex: 4,
+              //                                         child: Padding(
+              //                                           padding:
+              //                                               const EdgeInsets
+              //                                                   .all(10.0),
+              //                                           child: Column(
+              //                                             crossAxisAlignment:
+              //                                                 CrossAxisAlignment
+              //                                                     .start,
+              //                                             mainAxisAlignment:
+              //                                                 MainAxisAlignment
+              //                                                     .start,
+              //                                             children: [
+              //                                               Text(
+              //                                                 e['request_no']
+              //                                                     .toString()
+              //                                                     .toUpperCase(),
+              //                                                 style: TextStyle(
+              //                                                     fontWeight:
+              //                                                         FontWeight
+              //                                                             .w500,
+              //                                                     fontSize: 17),
+              //                                               ),
+              //                                               SizedBox(
+              //                                                 height: 3,
+              //                                               ),
+              //                                               Text(
+              //                                                 "Total Amount : ₹" +
+              //                                                     e['total']
+              //                                                         .toString(),
+              //                                                 style: TextStyle(
+              //                                                     fontSize: 12,
+              //                                                     fontWeight:
+              //                                                         FontWeight
+              //                                                             .w400,
+              //                                                     color: Colors
+              //                                                             .grey[
+              //                                                         600]),
+              //                                               ),
+              //                                               SizedBox(
+              //                                                 height: 3,
+              //                                               ),
+              //                                               Expanded(
+              //                                                 child: Text(
+              //                                                   e["item_name"]
+              //                                                       .toString(),
+              //                                                   maxLines: 2,
+              //                                                   overflow:
+              //                                                       TextOverflow
+              //                                                           .ellipsis,
+              //                                                   style: TextStyle(
+              //                                                       fontSize:
+              //                                                           12,
+              //                                                       fontWeight:
+              //                                                           FontWeight
+              //                                                               .w400,
+              //                                                       color: Colors
+              //                                                               .grey[
+              //                                                           600]),
+              //                                                 ),
+              //                                               ),
+              //                                             ],
+              //                                           ),
+              //                                         )),
+              //                                   ],
+              //                                 ),
+              //                               ),
+              //                               Align(
+              //                                 alignment: Alignment.topRight,
+              //                                 child: Padding(
+              //                                   padding: const EdgeInsets.only(
+              //                                       top: 8, right: 8),
+              //                                   child: Container(
+              //                                     decoration: BoxDecoration(
+              //                                         color: Colors.grey[300],
+              //                                         borderRadius:
+              //                                             BorderRadius.circular(
+              //                                                 5)),
+              //                                     child: Padding(
+              //                                       padding:
+              //                                           const EdgeInsets.all(
+              //                                               5.0),
+              //                                       child: Text(
+              //                                         "Replacement",
+              //                                         style: TextStyle(
+              //                                             fontSize: 12,
+              //                                             color:
+              //                                                 Colors.grey[600]),
+              //                                       ),
+              //                                     ),
+              //                                   ),
+              //                                 ),
+              //                               ),
+              //                             ],
+              //                           ),
+              //                           Padding(
+              //                             padding: const EdgeInsets.fromLTRB(
+              //                                 8, 8, 8, 1),
+              //                             child: Row(
+              //                               mainAxisAlignment:
+              //                                   MainAxisAlignment.start,
+              //                               children: [
+              //                                 Text(
+              //                                   "Reason : ",
+              //                                   style: TextStyle(
+              //                                       fontWeight: FontWeight.w400,
+              //                                       color: Colors.grey[600]),
+              //                                 ),
+              //                                 SizedBox(
+              //                                   width: 10,
+              //                                 ),
+              //                                 Expanded(
+              //                                   child: Text(
+              //                                     e['reason'].toString(),
+              //                                     style: TextStyle(
+              //                                         fontWeight:
+              //                                             FontWeight.w400,
+              //                                         color: Colors.grey[600]),
+              //                                   ),
+              //                                 ),
+              //                               ],
+              //                             ),
+              //                           ),
+              //                           Divider(
+              //                             thickness: 0.8,
+              //                             indent: 10,
+              //                             endIndent: 10,
+              //                           ),
+              //                           Padding(
+              //                             padding: const EdgeInsets.fromLTRB(
+              //                                 8, 1, 8, 5),
+              //                             child: Row(
+              //                               mainAxisAlignment:
+              //                                   MainAxisAlignment.spaceBetween,
+              //                               children: [
+              //                                 Text(
+              //                                     "Return on " +
+              //                                         e['created_at']
+              //                                             .toString(),
+              //                                     style: TextStyle(
+              //                                         fontSize: 12,
+              //                                         fontWeight:
+              //                                             FontWeight.w400,
+              //                                         color: Colors.grey[700])),
+              //                                 // Row(
+              //                                 //   mainAxisAlignment:
+              //                                 //       MainAxisAlignment.end,
+              //                                 //   children: [
+              //                                 //     Text(
+              //                                 //       "View details",
+              //                                 //       style: TextStyle(
+              //                                 //           color: Colors.green[900],
+              //                                 //           fontSize: 12,
+              //                                 //           fontWeight: FontWeight.w700),
+              //                                 //     ),
+              //                                 //     Icon(
+              //                                 //       Icons.arrow_right,
+              //                                 //       size: 18,
+              //                                 //       color: Colors.green[900],
+              //                                 //     )
+              //                                 //   ],
+              //                                 // )
+              //                               ],
+              //                             ),
+              //                           )
+              //                         ],
+              //                       ),
+              //                     ),
+              //                   ),
+              //                 ))
+              //             .toList(),
+              //       ),
             ]),
       ),
     );

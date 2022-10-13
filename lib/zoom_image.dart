@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:instadent/constants.dart';
 import 'package:photo_view/photo_view.dart';
 
 class ZoomImages extends StatefulWidget {
@@ -71,17 +73,8 @@ class _ZoomImagesState extends State<ZoomImages> {
                               : Border.all(color: Colors.grey, width: 1),
                           borderRadius: BorderRadius.circular(20)),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.network(
-                          e['image'].toString(),
-                          fit: BoxFit.fill,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              "assets/no_image.jpeg",
-                            );
-                          },
-                        ),
-                      ),
+                          borderRadius: BorderRadius.circular(20),
+                          child: cacheImage(e['image'].toString())),
                     ),
                   ),
                 );

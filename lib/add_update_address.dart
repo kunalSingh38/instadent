@@ -36,6 +36,20 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
         pincode.text = widget.map['pincode'].toString();
         doctorName.text = widget.map['name'].toString();
       });
+    } else {
+      if (widget.map.isNotEmpty) {
+        print(widget.map);
+        setState(() {
+          addressType.text = widget.map['address_type'].toString();
+          deliveryAddress.text = widget.map['address'].toString();
+          landmark.text = widget.map['landmark'] == null
+              ? ""
+              : widget.map['landmark'].toString();
+          pincode.text = widget.map['pincode'].toString();
+          doctorName.text =
+              widget.map['name'] == null ? "" : widget.map['name'].toString();
+        });
+      }
     }
   }
 
@@ -126,6 +140,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                     else
                       return null;
                   },
+                  maxLines: 3,
                   controller: deliveryAddress,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   textCapitalization: TextCapitalization.words,
@@ -230,6 +245,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                                 m['address'] = deliveryAddress.text.toString();
                                 m['landmark'] = landmark.text.toString();
                                 m['address_type'] = addressType.text.toString();
+
                                 print(m);
                                 showLaoding(context);
 
@@ -263,9 +279,9 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                                 m['pincode'] = pincode.text.toString();
                                 m['address'] = deliveryAddress.text.toString();
                                 m['landmark'] = landmark.text.toString();
-
                                 m['address_type'] = addressType.text.toString();
-
+                                m['is_default'] = "1";
+                                print(m);
                                 showLaoding(context);
 
                                 LoginAPI().addAddress(m).then((value) async {
@@ -276,6 +292,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                                               Text("Address Add Successfully"),
                                           duration: Duration(seconds: 2)),
                                     );
+
                                     Navigator.of(context, rootNavigator: true)
                                         .pop();
                                     Navigator.of(context).pop();

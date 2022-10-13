@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
       create: (BuildContext context) => UpdateCartData(),
       child: MaterialApp(
         title: 'Instadent',
-        // theme: ThemeData(fontFamily: 'Montserrat'),
+        theme: ThemeData(fontFamily: 'Roboto-Regular'),
         home: SplashScreen(),
         // navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,
@@ -210,7 +210,7 @@ class _SplashScreenState extends State<SplashScreen> {
     //   WidgetsBinding.instance
     //       .addPostFrameCallback((_) => showlocationPermission());
     // } else {
-    Timer(Duration(milliseconds: 2500), () {
+    Timer(Duration(seconds: 4), () {
       checkLoggedIn().then((value) {
         if (value) {
           Provider.of<UpdateCartData>(context, listen: false)

@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:instadent/constants.dart';
@@ -69,7 +70,7 @@ class OtherAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode(m));
-
+    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'].toString() == "102" ||
         jsonDecode(response.body)['ErrorCode'].toString() == "103") {
       return jsonDecode(response.body)['ErrorMessage'].toString() +
@@ -240,5 +241,22 @@ class OtherAPI {
       return true;
     }
     return false;
+  }
+
+  Future<bool> profilePhotoUpload(String path) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var request =
+        http.MultipartRequest('POST', Uri.parse(URL + "profile_update"));
+    request.files.add(http.MultipartFile('profile_image',
+        File(path).readAsBytes().asStream(), File(path).lengthSync(),
+        filename: path.split("/").last));
+    request.headers.addAll({
+      'Authorization': 'Bearer ' + pref.getString("token").toString(),
+      'Content-Type': 'application/json'
+    });
+    var res = await request.send();
+    var respStr = await res.stream.bytesToString();
+    print(respStr);
+    return true;
   }
 }

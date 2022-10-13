@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, sort_child_properties_last
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -219,185 +220,166 @@ class _OffersScreenState extends State<OffersScreen> {
                               SizedBox(
                                 height: 10,
                               ),
-                              brandImageList.length == 0
-                                  ? SizedBox()
-                                  : Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 5),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: Colors.grey[50]),
-                                        child: ImageSlideshow(
-                                          width: double.infinity,
-                                          height: 180,
-                                          initialPage: 0,
-                                          indicatorColor: Colors.blue,
-                                          indicatorBackgroundColor: Colors.grey,
-                                          children: brandImageList
-                                              .map((e) => Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 22),
-                                                    child: SizedBox(
-                                                      height: 140,
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              0.5,
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        child: Image.network(
-                                                          e['mobile_banner']
-                                                              .toString(),
-                                                          fit: BoxFit.fill,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ))
-                                              .toList(),
-                                          onPageChanged: (value) {},
-                                          autoPlayInterval: 3000,
-                                          isLoop: true,
-                                        ),
-                                      ),
-                                    ),
                               Expanded(
                                 flex: 10,
-                                child: brandList.length == 0
-                                    ? Center(
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Image.asset(
-                                                "assets/noData.jpg",
-                                                // scale: 0,
-                                              ),
-                                              Text(
-                                                "No data found",
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    : Padding(
-                                        padding: const EdgeInsets.only(top: 10),
-                                        child: GridView.count(
-                                          crossAxisCount: 4,
-                                          mainAxisSpacing: 0,
-                                          crossAxisSpacing: 10,
-                                          childAspectRatio: 0.6,
-                                          physics: ClampingScrollPhysics(),
-                                          scrollDirection: Axis.vertical,
-                                          shrinkWrap: true,
-                                          children: brandList
-                                              .map((e) => InkWell(
-                                                    onTap: () {
-                                                      FocusScope.of(context)
-                                                          .unfocus();
-                                                      Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  BrandProducts(
-                                                                      m: e)));
-                                                    },
-                                                    child: Column(
-                                                      children: [
-                                                        Expanded(
-                                                            flex: 2,
-                                                            child: Container(
-                                                                width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  border: Border.all(
-                                                                      color: Colors
-                                                                          .grey,
-                                                                      width:
-                                                                          0.5),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      brandImageList.length == 0
+                                          ? SizedBox()
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 5),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    color: Colors.grey[50]),
+                                                child: ImageSlideshow(
+                                                  width: double.infinity,
+                                                  height: 180,
+                                                  initialPage: 0,
+                                                  indicatorColor: Colors.blue,
+                                                  indicatorBackgroundColor:
+                                                      Colors.grey,
+                                                  children: brandImageList
+                                                      .map((e) => Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    bottom: 22),
+                                                            child: SizedBox(
+                                                              height: 140,
+                                                              width: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width /
+                                                                  0.5,
+                                                              child: ClipRRect(
                                                                   borderRadius:
                                                                       BorderRadius
                                                                           .circular(
-                                                                              10),
-                                                                  color: Colors
-                                                                      .transparent,
-                                                                ),
-                                                                child: e['product_image'] ==
-                                                                        null
-                                                                    ? ClipRRect(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                        child: Image
-                                                                            .asset(
-                                                                          "assets/logo.png",
-                                                                          // fit: BoxFit.,
-                                                                        ),
-                                                                      )
-                                                                    : ClipRRect(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                        child: Image
-                                                                            .network(
-                                                                          e['product_image']
-                                                                              .toString(),
-                                                                          // fit: BoxFit
-                                                                          //     .cover,
-                                                                          loadingBuilder: (context,
-                                                                              child,
-                                                                              loadingProgress) {
-                                                                            if (loadingProgress ==
-                                                                                null)
-                                                                              return child;
-                                                                            return Center(
-                                                                              child: CircularProgressIndicator(
-                                                                                value: loadingProgress.expectedTotalBytes != null ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! : null,
-                                                                              ),
-                                                                            );
-                                                                          },
-                                                                        ),
-                                                                      ))),
-                                                        SizedBox(
-                                                          height: 10,
-                                                        ),
-                                                        Expanded(
-                                                            child: Text(
-                                                          e['name'] == ""
-                                                              ? "No Name"
-                                                              : e['name']
-                                                                  .toString(),
-                                                          softWrap: true,
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          maxLines: 2,
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize:
-                                                                  unitHeightValue *
-                                                                      0.7),
-                                                        ))
-                                                      ],
+                                                                              20),
+                                                                  child: cacheImage(
+                                                                      e['mobile_banner']
+                                                                          .toString())),
+                                                            ),
+                                                          ))
+                                                      .toList(),
+                                                  onPageChanged: (value) {},
+                                                  autoPlayInterval: 3000,
+                                                  isLoop: true,
+                                                ),
+                                              ),
+                                            ),
+                                      brandList.length == 0
+                                          ? Center(
+                                              child: SingleChildScrollView(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/noData.jpg",
+                                                      // scale: 0,
                                                     ),
-                                                  ))
-                                              .toList(),
-                                        ),
-                                      ),
+                                                    Text(
+                                                      "No data found",
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          : Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10),
+                                              child: GridView.count(
+                                                crossAxisCount: 4,
+                                                mainAxisSpacing: 0,
+                                                crossAxisSpacing: 10,
+                                                childAspectRatio: 0.6,
+                                                physics:
+                                                    ClampingScrollPhysics(),
+                                                scrollDirection: Axis.vertical,
+                                                shrinkWrap: true,
+                                                children: brandList
+                                                    .map((e) => InkWell(
+                                                          onTap: () {
+                                                            FocusScope.of(
+                                                                    context)
+                                                                .unfocus();
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder: (context) =>
+                                                                        BrandProducts(
+                                                                            m: e)));
+                                                          },
+                                                          child: Column(
+                                                            children: [
+                                                              Expanded(
+                                                                  flex: 2,
+                                                                  child: Container(
+                                                                      width: MediaQuery.of(context).size.width,
+                                                                      decoration: BoxDecoration(
+                                                                        border: Border.all(
+                                                                            color:
+                                                                                Colors.grey,
+                                                                            width: 0.5),
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10),
+                                                                        color: Colors
+                                                                            .transparent,
+                                                                      ),
+                                                                      child: e['product_image'] == null
+                                                                          ? ClipRRect(
+                                                                              borderRadius: BorderRadius.circular(10),
+                                                                              child: Image.asset(
+                                                                                "assets/logo.png",
+                                                                                // fit: BoxFit.,
+                                                                              ),
+                                                                            )
+                                                                          : ClipRRect(borderRadius: BorderRadius.circular(10), child: cacheImage(e['product_image'].toString())))),
+                                                              SizedBox(
+                                                                height: 10,
+                                                              ),
+                                                              Expanded(
+                                                                  child: Text(
+                                                                e['name'] == ""
+                                                                    ? "No Name"
+                                                                    : e['name']
+                                                                        .toString(),
+                                                                softWrap: true,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                maxLines: 2,
+                                                                style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        unitHeightValue *
+                                                                            0.7),
+                                                              ))
+                                                            ],
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                ),
                               ),
                               viewModel.counterShowCart
                                   ? SizedBox(

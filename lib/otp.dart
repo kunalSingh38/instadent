@@ -81,6 +81,7 @@ class _OTPScreenState extends State<OTPScreen> {
             MaterialPageRoute(
                 builder: (context) => SignUpScreen(
                       phoneNumber: widget.phoneNumber.toString(),
+                      signupNew: true,
                     )));
       }
     });

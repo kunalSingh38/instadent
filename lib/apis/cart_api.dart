@@ -177,7 +177,6 @@ class CartAPI {
         'Content-Type': 'application/json'
       },
     );
-
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response'];
     }

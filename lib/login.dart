@@ -155,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.circular(10)),
-                      hintText: "Enter mobile number",
+                      hintText: "Enter mobile number*",
                       hintStyle: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 16,

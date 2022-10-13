@@ -1,5 +1,8 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings
 
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,7 +57,7 @@ class _CartViewState extends State<CartView> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.getBool("loggedIn") ?? false) {
       CartAPI().cartData().then((value) {
-        print(value);
+        print(jsonEncode(value));
         setState(() {
           isLoading = false;
         });
@@ -65,7 +68,7 @@ class _CartViewState extends State<CartView> {
               cartData.addAll(value['items']);
               // productCount = cartData.length;
               deliveryCarges = value['delivery_fee'].toString();
-              totalPrice = value['total_price'].toString();
+              totalPrice = value['sub_total'].toString();
               totalItemPrice = value['total'].toString();
             });
 
@@ -85,7 +88,7 @@ class _CartViewState extends State<CartView> {
                     productCount + int.parse(element['quantity'].toString());
               }
             });
-            Map temp2 = value['tax'];
+            Map temp2 = value['total_tax'];
             List taxSlab = [];
             temp2.forEach((key, value) {
               if (isNumeric(key.toString())) {
@@ -94,10 +97,12 @@ class _CartViewState extends State<CartView> {
             });
 
             setState(() {
+              taxes.clear();
               taxSlab.forEach((element) {
                 taxes.add(temp2[element]);
               });
             });
+            print(taxes);
           }
         } else {
           Navigator.of(context).pop();
@@ -255,8 +260,9 @@ class _CartViewState extends State<CartView> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          AddressListScreen())).then((value) {
+                                      builder: (context) => AddressListScreen(
+                                            m: {},
+                                          ))).then((value) {
                                 getData();
                               });
                             },
@@ -385,9 +391,25 @@ class _CartViewState extends State<CartView> {
                                             style: GoogleFonts.montserrat(
                                                 fontWeight: FontWeight.w800,
                                                 fontSize: 18)),
-                                        Text(
-                                          productCount.toString() + " items",
-                                          style: TextStyle(color: Colors.grey),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              productCount.toString() +
+                                                  " items",
+                                              style:
+                                                  TextStyle(color: Colors.grey),
+                                            ),
+                                            Text(
+                                              "(incl. all taxes)",
+                                              textAlign: TextAlign.left,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.grey,
+                                                  fontSize: 12),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -444,19 +466,10 @@ class _CartViewState extends State<CartView> {
                                                     color: Colors.grey,
                                                     width: 0.5)),
                                             child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              child: Image.network(
-                                                e['image'].toString(),
-                                                scale: 10,
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Image.asset(
-                                                    "assets/no_image.jpeg",
-                                                  );
-                                                },
-                                              ),
-                                            ),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                child: cacheImage(
+                                                    e['image'].toString())),
                                           ),
                                         )),
                                         Expanded(
@@ -765,17 +778,42 @@ class _CartViewState extends State<CartView> {
                                       ))
                                   .toList(),
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
+                            // SizedBox(
+                            //   height: 10,
+                            // ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  "Delivery charge",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Delivery charge",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    PopupMenuButton(
+                                      position: PopupMenuPosition.under,
+                                      padding: EdgeInsets.zero,
+                                      icon: Image.asset(
+                                        "assets/information.png",
+                                        scale: 35,
+                                        color: Colors.green,
+                                      ),
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem(
+                                            child: Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text("Testing information"),
+                                          ),
+                                        ))
+                                      ],
+                                    ),
+                                  ],
                                 ),
                                 RichText(
                                   text: TextSpan(
@@ -803,9 +841,9 @@ class _CartViewState extends State<CartView> {
                                 ),
                               ],
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
+                            // SizedBox(
+                            //   height: 10,
+                            // ),
                             Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,

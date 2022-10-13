@@ -2,13 +2,16 @@
 
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/apis/category_api.dart';
+import 'package:instadent/apis/other_api.dart';
 import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -54,6 +57,7 @@ class _SearchScreenState extends State<SearchScreen> {
       if (searchCont.text.isNotEmpty) {
         setState(() {
           isLoading = true;
+          searchFound = "";
         });
 
         if (prefs.getBool("loggedIn") ?? false) {
@@ -67,14 +71,18 @@ class _SearchScreenState extends State<SearchScreen> {
               setState(() {
                 searchResult.clear();
                 searchResult.addAll(value);
+                searchFound = "yes";
               });
               print(searchResult[0]);
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text("No result found".toString()),
-                    duration: Duration(seconds: 1)),
-              );
+              setState(() {
+                searchFound = "no";
+              });
+              // ScaffoldMessenger.of(context).showSnackBar(
+              //   SnackBar(
+              //       content: Text("No result found".toString()),
+              //       duration: Duration(seconds: 1)),
+              // );
             }
           });
         } else {
@@ -88,13 +96,17 @@ class _SearchScreenState extends State<SearchScreen> {
               setState(() {
                 searchResult.clear();
                 searchResult.addAll(value);
+                searchFound = "yes";
               });
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text("No result found".toString()),
-                    duration: Duration(seconds: 1)),
-              );
+              setState(() {
+                searchFound = "no";
+              });
+              // ScaffoldMessenger.of(context).showSnackBar(
+              //   SnackBar(
+              //       content: Text("No result found".toString()),
+              //       duration: Duration(seconds: 1)),
+              // );
             }
           });
         }
@@ -102,6 +114,7 @@ class _SearchScreenState extends State<SearchScreen> {
     } else {
       setState(() {
         searchResult.clear();
+        searchFound = "";
       });
     }
   }
@@ -141,6 +154,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   late stt.SpeechToText _speech;
+  String searchFound = "";
   bool _isListening = false;
   String _text = 'Press the button and start speaking';
   double _confidence = 1.0;
@@ -206,6 +220,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(searchFound);
     return Consumer<UpdateCartData>(builder: (context, viewModel, child) {
       return Scaffold(
         // bottomNavigationBar: viewModel.counterShowCart ? bottomSheet() : null,
@@ -256,7 +271,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     hintText: searchHint,
                     hintStyle: TextStyle(
                         color: Colors.black,
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.w300),
                     prefixIcon: InkWell(
                       onTap: () {
@@ -288,6 +303,34 @@ class _SearchScreenState extends State<SearchScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    searchResult.length == 0
+                        ? Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  suggestProductBottom();
+                                },
+                                child: Container(
+                                  height: 50,
+                                  width:
+                                      MediaQuery.of(context).size.width / 1.12,
+                                  decoration: BoxDecoration(
+                                      color: Colors.teal[100],
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Center(
+                                    child: Text(
+                                      "Didn't find your product. Click to Suggest.",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              )
+                            ],
+                          )
+                        : SizedBox(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                       child: Column(
@@ -480,32 +523,19 @@ class _SearchScreenState extends State<SearchScreen> {
                                                                 .tealAccent[50],
                                                           ),
                                                           child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                            child: e['product_image']
-                                                                        .toString() ==
-                                                                    "0"
-                                                                ? Image.asset(
-                                                                    "assets/no_image.jpeg",
-                                                                  )
-                                                                : Image.network(
-                                                                    e['product_image']
-                                                                        .toString(),
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    errorBuilder:
-                                                                        (context,
-                                                                            error,
-                                                                            stackTrace) {
-                                                                      return Image
-                                                                          .asset(
-                                                                        "assets/no_image.jpeg",
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                          ))),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              child: e['product_image']
+                                                                          .toString() ==
+                                                                      "0"
+                                                                  ? Image.asset(
+                                                                      "assets/no_image.jpeg",
+                                                                    )
+                                                                  : cacheImage(e[
+                                                                          'product_image']
+                                                                      .toString())))),
                                                   SizedBox(
                                                     height: 10,
                                                   ),
@@ -553,4 +583,283 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   TextEditingController controller = TextEditingController();
+  TextEditingController productName = TextEditingController();
+  TextEditingController brandName = TextEditingController();
+  TextEditingController productQty = TextEditingController();
+  GlobalKey<FormState> suggestForm = GlobalKey<FormState>();
+  Future<void> suggestProductBottom() async {
+    setState(() {
+      productName.clear();
+      brandName.clear();
+      productQty.clear();
+    });
+    await showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+        backgroundColor: Colors.white,
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => Padding(
+            padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+            child: SingleChildScrollView(
+                child: Form(
+              key: suggestForm,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("Suggest Products",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        )),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Text(
+                        "Didn't find what you are lokking for? Please suggest the product",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        )),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          side: BorderSide(color: Color(0xFFEEEEEE))),
+                      child: TextFormField(
+                        controller: productName,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700),
+                        maxLines: 2,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Required Field';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          contentPadding: EdgeInsets.all(10),
+                          // filled: true,
+                          // fillColor: Colors.teal[50],
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.lightBlue),
+                              borderRadius: BorderRadius.circular(10)),
+                          hintText: "Suggested Product Name",
+                          hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                side: BorderSide(color: Color(0xFFEEEEEE))),
+                            child: TextFormField(
+                              controller: productQty,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Required Field';
+                                }
+                                return null;
+                              },
+                              keyboardType: TextInputType.number,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w700),
+                              maxLines: 1,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                contentPadding: EdgeInsets.all(10),
+                                // filled: true,
+                                // fillColor: Colors.teal[50],
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.lightBlue),
+                                    borderRadius: BorderRadius.circular(10)),
+                                hintText: "QTY",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                side: BorderSide(color: Color(0xFFEEEEEE))),
+                            child: TextFormField(
+                              controller: brandName,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w700),
+                              maxLines: 1,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Required Field';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                contentPadding: EdgeInsets.all(10),
+                                // filled: true,
+                                // fillColor: Colors.teal[50],
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.lightBlue),
+                                    borderRadius: BorderRadius.circular(10)),
+                                hintText: "Brand Name",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
+                          ),
+                          flex: 3,
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    SizedBox(
+                        width: MediaQuery.of(context).size.width / 1.15,
+                        height: 45,
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                )),
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.teal[700])),
+                            onPressed: () {
+                              if (suggestForm.currentState!.validate()) {
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Adding suggested product"),
+                                  ),
+                                );
+                                OtherAPI()
+                                    .requestProduct(
+                                        productName.text.toString(),
+                                        brandName.text.toString(),
+                                        productQty.text.toString())
+                                    .then((value) {
+                                  if (value) {
+                                    suggestProductBottomThankYou();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text("Product Suggestion Failed"),
+                                      ),
+                                    );
+                                  }
+                                });
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text("Please enter required fields"),
+                                    duration: Duration(milliseconds: 500),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Text(
+                              "Send",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                  color: Colors.white),
+                            ))),
+                  ]),
+            ))));
+  }
+
+  Future<void> suggestProductBottomThankYou() async {
+    await showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+        backgroundColor: Colors.white,
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => Padding(
+            padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+            child: SingleChildScrollView(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                  Text("Thank You!",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      )),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Image.asset(
+                    "assets/balloons.png",
+                    scale: 10,
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Text("We've received your suggestion.",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      )),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width / 1.15,
+                      height: 45,
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              )),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.teal[700])),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            "Done",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 16,
+                                color: Colors.white),
+                          ))),
+                ]))));
+  }
 }

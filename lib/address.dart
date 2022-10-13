@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, use_build_context_synchronously, unused_local_variable, prefer_is_empty
 
 import 'dart:convert';
 
@@ -12,13 +12,15 @@ import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
+import 'package:instadent/google_map.dart';
 import 'package:instadent/main.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddressListScreen extends StatefulWidget {
-  const AddressListScreen({Key? key}) : super(key: key);
+  Map m = {};
+  AddressListScreen({required this.m});
 
   @override
   _AddressListScreenState createState() => _AddressListScreenState();
@@ -67,6 +69,14 @@ class _AddressListScreenState extends State<AddressListScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    if (widget.m.toString().isNotEmpty) {
+      recentSearch.add({
+        "address_type": widget.m['address_type'].toString(),
+        "address": widget.m['address'].toString(),
+        "pincode": widget.m['pincode'].toString(),
+      });
+      print("test----" + widget.m.toString());
+    }
     getAddressList();
     getData();
   }
@@ -163,11 +173,21 @@ class _AddressListScreenState extends State<AddressListScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: ListTile(
                           onTap: () {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            _determinePosition().then((value) {
-                              _getAddress(value);
+                            // setState(() {
+                            //   isLoading = true;
+                            // });
+                            _determinePosition().then((value) async {
+                              // setState(() {
+                              //   isLoading = false;
+                              // });
+                              await Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => GoogleMapForAddress(
+                                            lat: value.latitude.toString(),
+                                            long: value.longitude.toString(),
+                                          )));
+                              // _getAddress(value);
                             });
                           },
                           dense: true,
@@ -301,303 +321,371 @@ class _AddressListScreenState extends State<AddressListScreen> {
                     ],
                   ),
                 )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: ListTile(
-                        onTap: () {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          _determinePosition().then((value) {
-                            _getAddress(value);
-                          });
-                        },
-                        dense: true,
-                        leading: Padding(
-                          padding: const EdgeInsets.only(top: 7),
-                          child: Image.asset(
-                            "assets/gps.png",
-                            color: Colors.brown[400],
-                            scale: 18,
+              : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: ListTile(
+                          onTap: () {
+                            // print("object");
+                            // setState(() {
+                            //   isLoading = true;
+                            // });
+                            _determinePosition().then((value) async {
+                              // setState(() {
+                              //   isLoading = false;
+                              // });
+                              if (value.toString().isNotEmpty) {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            GoogleMapForAddress(
+                                              lat: value.latitude.toString(),
+                                              long: value.longitude.toString(),
+                                            )));
+                              }
+                            });
+                          },
+                          dense: true,
+                          leading: Padding(
+                            padding: const EdgeInsets.only(top: 7),
+                            child: Image.asset(
+                              "assets/gps.png",
+                              color: Colors.brown[400],
+                              scale: 18,
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          "Current Location",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.brown[400]),
-                        ),
-                        subtitle: Text(
-                          "Using GPS",
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.brown[400]),
-                        ),
-                      ),
-                    ),
-                    Divider(
-                      thickness: 8,
-                      color: Colors.grey[300],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                          left: 55, top: 20, bottom: 20, right: 10),
-                      child: Text(
-                        "SAVED ADDRESSES",
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey),
-                      ),
-                    ),
-                    Column(
-                      children: addressList
-                          .map(
-                            (e) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: InkWell(
-                                  onTap: () async {
-                                    setDefaultAddress(
-                                        e['pincode'].toString(),
-                                        e['address'].toString(),
-                                        e['address_type'].toString(),
-                                        viewModel.counter.toString());
-                                  },
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                          child: currentPincode ==
-                                                  e['pincode'].toString()
-                                              ? Image.asset(
-                                                  "assets/placeholder_1.png",
-                                                  scale: 20,
-                                                )
-                                              : Image.asset(
-                                                  "assets/placeholder.png",
-                                                  scale: 20,
-                                                )),
-                                      Expanded(
-                                          flex: 5,
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    e['address_type']
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                  ),
-                                                ],
-                                              ),
-                                              Text(
-                                                capitalize(e['address']
-                                                        .toString() +
-                                                    ", " +
-                                                    e['pincode'].toString()),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              addressList.indexOf(e) ==
-                                                      addressList.length - 1
-                                                  ? SizedBox()
-                                                  : Divider(
-                                                      thickness: 0.9,
-                                                      height: 40,
-                                                    ),
-                                            ],
-                                          )),
-                                      Expanded(
-                                          child: PopupMenuButton(
-                                              padding: EdgeInsets.zero,
-                                              icon: Icon(
-                                                Icons.more_vert_rounded,
-                                                color: Colors.grey[600],
-                                              ),
-                                              onSelected: (item) {
-                                                switch (item) {
-                                                  case "EDIT":
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                AddUpdateAddressScreen(
-                                                                  update: true,
-                                                                  map: e,
-                                                                ))).then(
-                                                        (value) {
-                                                      getAddressList();
-                                                    });
-                                                    break;
-                                                  case "REMOVE":
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        action: SnackBarAction(
-                                                            label: "Remove",
-                                                            onPressed: () {
-                                                              LoginAPI()
-                                                                  .removeAddress(e[
-                                                                          'id']
-                                                                      .toString())
-                                                                  .then(
-                                                                      (value) {
-                                                                if (value) {
-                                                                  ScaffoldMessenger.of(
-                                                                          context)
-                                                                      .showSnackBar(
-                                                                    SnackBar(
-                                                                      duration: Duration(
-                                                                          seconds:
-                                                                              1),
-                                                                      content: Text(
-                                                                          "Address Removed."),
-                                                                    ),
-                                                                  );
-                                                                  getAddressList();
-                                                                }
-                                                              });
-                                                            }),
-                                                        content: Text(
-                                                            "Want to remove?"),
-                                                      ),
-                                                    );
-                                                    break;
-                                                }
-                                              },
-                                              itemBuilder: (BuildContext
-                                                      context) =>
-                                                  ["EDIT", "REMOVE"]
-                                                      .map((e) => PopupMenuItem(
-                                                            value: e,
-                                                            child: Text(
-                                                              e,
-                                                              style: TextStyle(
-                                                                  fontSize: 14),
-                                                            ),
-                                                          ))
-                                                      .toList()))
-                                    ],
-                                  ),
-                                )),
-                          )
-                          .toList(),
-                    ),
-                    Divider(
-                      color: Colors.black,
-                      thickness: 1,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                          left: 55, top: 20, bottom: 20, right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "RECENT SEARCHES",
+                          title: Text(
+                            "Current Location",
                             style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.brown[400]),
                           ),
-                          InkWell(
-                            onTap: () async {
-                              SharedPreferences pref =
-                                  await SharedPreferences.getInstance();
-                              pref.remove("recent_address_list");
-                              setState(() {
-                                recentSearch.clear();
-                              });
-                            },
-                            child: Text(
-                              "CLEAR",
+                          subtitle: Text(
+                            "Using GPS",
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.brown[400]),
+                          ),
+                        ),
+                      ),
+                      Divider(
+                        thickness: 8,
+                        color: Colors.grey[300],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 55, top: 20, bottom: 20, right: 10),
+                        child: Text(
+                          "SAVED ADDRESSES",
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey),
+                        ),
+                      ),
+                      Column(
+                        children: addressList
+                            .map(
+                              (e) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: InkWell(
+                                    onTap: () async {
+                                      setDefaultAddress(
+                                          e['pincode'].toString(),
+                                          e['address'].toString(),
+                                          e['address_type'].toString(),
+                                          viewModel.counter.toString());
+                                    },
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                            child: currentPincode ==
+                                                    e['pincode'].toString()
+                                                ? Image.asset(
+                                                    "assets/placeholder_1.png",
+                                                    scale: 20,
+                                                  )
+                                                : Image.asset(
+                                                    "assets/placeholder.png",
+                                                    scale: 20,
+                                                  )),
+                                        Expanded(
+                                            flex: 5,
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      e['address_type']
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w600),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Text(
+                                                  capitalize(e['address']
+                                                          .toString() +
+                                                      ", " +
+                                                      e['pincode'].toString()),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                addressList.indexOf(e) ==
+                                                        addressList.length - 1
+                                                    ? SizedBox()
+                                                    : Divider(
+                                                        thickness: 0.9,
+                                                        height: 40,
+                                                      ),
+                                              ],
+                                            )),
+                                        Expanded(
+                                            child: PopupMenuButton(
+                                                padding: EdgeInsets.zero,
+                                                icon: Icon(
+                                                  Icons.more_vert_rounded,
+                                                  color: Colors.grey[600],
+                                                ),
+                                                onSelected: (item) {
+                                                  switch (item) {
+                                                    case "EDIT":
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  AddUpdateAddressScreen(
+                                                                    update:
+                                                                        true,
+                                                                    map: e,
+                                                                  ))).then(
+                                                          (value) {
+                                                        getAddressList();
+                                                      });
+                                                      break;
+                                                    case "REMOVE":
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          action:
+                                                              SnackBarAction(
+                                                                  label:
+                                                                      "Remove",
+                                                                  onPressed:
+                                                                      () {
+                                                                    LoginAPI()
+                                                                        .removeAddress(e['id']
+                                                                            .toString())
+                                                                        .then(
+                                                                            (value) {
+                                                                      if (value) {
+                                                                        ScaffoldMessenger.of(context)
+                                                                            .showSnackBar(
+                                                                          SnackBar(
+                                                                            duration:
+                                                                                Duration(seconds: 1),
+                                                                            content:
+                                                                                Text("Address Removed."),
+                                                                          ),
+                                                                        );
+                                                                        getAddressList();
+                                                                      }
+                                                                    });
+                                                                  }),
+                                                          content: Text(
+                                                              "Want to remove?"),
+                                                        ),
+                                                      );
+                                                      break;
+                                                  }
+                                                },
+                                                itemBuilder:
+                                                    (BuildContext context) => [
+                                                          "EDIT",
+                                                          "REMOVE"
+                                                        ]
+                                                            .map((e) =>
+                                                                PopupMenuItem(
+                                                                  value: e,
+                                                                  child: Text(
+                                                                    e,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            14),
+                                                                  ),
+                                                                ))
+                                                            .toList()))
+                                      ],
+                                    ),
+                                  )),
+                            )
+                            .toList(),
+                      ),
+                      Divider(
+                        color: Colors.black,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 55, top: 20, bottom: 20, right: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "RECENT SEARCHES",
                               style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.grey[700]),
+                                  color: Colors.grey),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      children: recentSearch
-                          .toSet()
-                          .toList()
-                          .map(
-                            (e) => InkWell(
+                            InkWell(
                               onTap: () async {
-                                setDefaultAddress(
-                                    e['pincode'].toString(),
-                                    e['address'].toString(),
-                                    e['address_type'].toString(),
-                                    viewModel.counter.toString());
+                                SharedPreferences pref =
+                                    await SharedPreferences.getInstance();
+                                pref.remove("recent_address_list");
+                                setState(() {
+                                  recentSearch.clear();
+                                });
                               },
-                              child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                          child: currentPincode ==
-                                                  e['pincode'].toString()
-                                              ? Image.asset(
-                                                  "assets/placeholder_1.png",
-                                                  scale: 20,
-                                                )
-                                              : Image.asset(
-                                                  "assets/placeholder.png",
-                                                  scale: 20,
-                                                )),
-                                      Expanded(
-                                          flex: 6,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                e['address_type'].toString(),
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                              ),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                capitalize(
-                                                    e['address'].toString()),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              recentSearch.indexOf(e) ==
-                                                      recentSearch.length - 1
-                                                  ? SizedBox()
-                                                  : Divider(
-                                                      thickness: 0.9,
-                                                      height: 40,
-                                                    ),
-                                            ],
-                                          )),
-                                    ],
-                                  )),
+                              child: Text(
+                                "CLEAR",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[700]),
+                              ),
                             ),
-                          )
-                          .toList(),
-                    ),
-                  ],
+                          ],
+                        ),
+                      ),
+                      Column(
+                        children: recentSearch.toSet().toList().map((e) {
+                          bool showAddAddressToSavedAddress = addressList
+                                      .where((element) =>
+                                          element['pincode'].toString() ==
+                                          e['pincode'].toString())
+                                      .toList()
+                                      .length !=
+                                  0
+                              ? true
+                              : false;
+
+                          return InkWell(
+                            onTap: () async {
+                              setDefaultAddress(
+                                  e['pincode'].toString(),
+                                  e['address'].toString(),
+                                  e['address_type'].toString(),
+                                  viewModel.counter.toString());
+                            },
+                            child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        child: currentPincode ==
+                                                e['pincode'].toString()
+                                            ? Image.asset(
+                                                "assets/placeholder_1.png",
+                                                scale: 20,
+                                              )
+                                            : Image.asset(
+                                                "assets/placeholder.png",
+                                                scale: 20,
+                                              )),
+                                    Expanded(
+                                        flex: 6,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              e['address_type'].toString(),
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              capitalize(
+                                                  e['address'].toString()),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child:
+                                                  !showAddAddressToSavedAddress
+                                                      ? Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  right: 20),
+                                                          child: ElevatedButton(
+                                                              style:
+                                                                  ButtonStyle(
+                                                                      shape: MaterialStateProperty.all<
+                                                                              RoundedRectangleBorder>(
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(18.0),
+                                                                      )),
+                                                                      backgroundColor:
+                                                                          MaterialStateProperty.all(Colors.blue[
+                                                                              900])),
+                                                              onPressed:
+                                                                  () async {
+                                                                Navigator.push(
+                                                                    context,
+                                                                    MaterialPageRoute(
+                                                                        builder: (context) =>
+                                                                            AddUpdateAddressScreen(
+                                                                              update: false,
+                                                                              map: e,
+                                                                            ))).then(
+                                                                    (value) {
+                                                                  getAddressList();
+                                                                });
+                                                                // LoginAPI()
+                                                                //     .addAddress(m);
+                                                              },
+                                                              child: Text(
+                                                                  "Add to saved addresses")),
+                                                        )
+                                                      : SizedBox(),
+                                            ),
+                                            recentSearch.indexOf(e) ==
+                                                    recentSearch.length - 1
+                                                ? SizedBox()
+                                                : Divider(
+                                                    thickness: 0.9,
+                                                    height: 40,
+                                                  ),
+                                          ],
+                                        )),
+                                  ],
+                                )),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
                 );
         }),
       ),
@@ -787,4 +875,218 @@ class _AddressListScreenState extends State<AddressListScreen> {
 
   String defaultAddress = "";
   bool isLoading = true;
+
+  // TextEditingController addTypeNew = TextEditingController();
+  // TextEditingController addressNew = TextEditingController();
+  // TextEditingController addPincodeNew = TextEditingController();
+  // TextEditingController addLandmarkNew = TextEditingController();
+  // GlobalKey<FormState> addAddressKey = GlobalKey();
+  // Future<void> suggestProductBottom(Map e) async {
+  //   setState(() {
+  //     addTypeNew.text = e['address_type'].toString();
+  //     addressNew.text = e['address'].toString();
+  //     addPincodeNew.text = e['pincode'].toString();
+  //   });
+  //   await showModalBottomSheet(
+  //       shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+  //       backgroundColor: Colors.white,
+  //       context: context,
+  //       isScrollControlled: true,
+  //       builder: (context) => Padding(
+  //           padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+  //           child: SingleChildScrollView(
+  //               child: Form(
+  //             key: addAddressKey,
+  //             child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.center,
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   Text("Add to saved address",
+  //                       style: GoogleFonts.montserrat(
+  //                           fontSize: 14,
+  //                           fontWeight: FontWeight.w500,
+  //                           color: Colors.grey)),
+  //                   Divider(
+  //                     thickness: 0.9,
+  //                     color: Colors.grey,
+  //                     height: 20,
+  //                   ),
+  //                   TextFormField(
+  //                     controller: addTypeNew,
+  //                     style:
+  //                         TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+  //                     maxLines: 1,
+  //                     validator: (value) {
+  //                       if (value == null || value.isEmpty) {
+  //                         return 'Required Field';
+  //                       }
+  //                       return null;
+  //                     },
+  //                     decoration: InputDecoration(
+  //                       border: OutlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(10)),
+  //                       contentPadding: EdgeInsets.all(10),
+  //                       // filled: true,
+  //                       // fillColor: Colors.teal[50],
+  //                       focusedBorder: OutlineInputBorder(
+  //                           borderSide: BorderSide(color: Colors.lightBlue),
+  //                           borderRadius: BorderRadius.circular(10)),
+  //                       hintText: "Address Type",
+  //                       hintStyle: TextStyle(
+  //                           color: Colors.grey,
+  //                           fontSize: 16,
+  //                           fontWeight: FontWeight.w400),
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 8,
+  //                   ),
+  //                   TextFormField(
+  //                     controller: addressNew,
+  //                     style:
+  //                         TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+  //                     maxLines: 3,
+  //                     validator: (value) {
+  //                       if (value == null || value.isEmpty) {
+  //                         return 'Required Field';
+  //                       }
+  //                       return null;
+  //                     },
+  //                     decoration: InputDecoration(
+  //                       border: OutlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(10)),
+  //                       contentPadding: EdgeInsets.all(10),
+  //                       // filled: true,
+  //                       // fillColor: Colors.teal[50],
+  //                       focusedBorder: OutlineInputBorder(
+  //                           borderSide: BorderSide(color: Colors.lightBlue),
+  //                           borderRadius: BorderRadius.circular(10)),
+  //                       hintText: "Complete Address",
+  //                       hintStyle: TextStyle(
+  //                           color: Colors.grey,
+  //                           fontSize: 16,
+  //                           fontWeight: FontWeight.w400),
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 8,
+  //                   ),
+  //                   TextFormField(
+  //                     controller: addLandmarkNew,
+  //                     style:
+  //                         TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+  //                     maxLines: 1,
+  //                     validator: (value) {
+  //                       if (value == null || value.isEmpty) {
+  //                         return 'Required Field';
+  //                       }
+  //                       return null;
+  //                     },
+  //                     decoration: InputDecoration(
+  //                       border: OutlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(10)),
+  //                       contentPadding: EdgeInsets.all(10),
+  //                       // filled: true,
+  //                       // fillColor: Colors.teal[50],
+  //                       focusedBorder: OutlineInputBorder(
+  //                           borderSide: BorderSide(color: Colors.lightBlue),
+  //                           borderRadius: BorderRadius.circular(10)),
+  //                       hintText: "Landmark",
+  //                       hintStyle: TextStyle(
+  //                           color: Colors.grey,
+  //                           fontSize: 16,
+  //                           fontWeight: FontWeight.w400),
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 8,
+  //                   ),
+  //                   TextFormField(
+  //                     controller: addPincodeNew,
+  //                     style:
+  //                         TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+  //                     maxLines: 1,
+  //                     validator: (value) {
+  //                       if (value == null || value.isEmpty) {
+  //                         return 'Required Field';
+  //                       }
+  //                       return null;
+  //                     },
+  //                     decoration: InputDecoration(
+  //                       border: OutlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(10)),
+  //                       contentPadding: EdgeInsets.all(10),
+  //                       // filled: true,
+  //                       // fillColor: Colors.teal[50],
+  //                       focusedBorder: OutlineInputBorder(
+  //                           borderSide: BorderSide(color: Colors.lightBlue),
+  //                           borderRadius: BorderRadius.circular(10)),
+  //                       hintText: "Pincode",
+  //                       hintStyle: TextStyle(
+  //                           color: Colors.grey,
+  //                           fontSize: 16,
+  //                           fontWeight: FontWeight.w400),
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 8,
+  //                   ),
+  //                   SizedBox(
+  //                       width: MediaQuery.of(context).size.width / 1.15,
+  //                       height: 45,
+  //                       child: ElevatedButton(
+  //                           style: ButtonStyle(
+  //                               shape: MaterialStateProperty.all(
+  //                                   RoundedRectangleBorder(
+  //                                 borderRadius: BorderRadius.circular(10.0),
+  //                               )),
+  //                               backgroundColor: MaterialStateProperty.all(
+  //                                   Colors.teal[700])),
+  //                           onPressed: () {
+  //                             if (suggestForm.currentState!.validate()) {
+  //                               Navigator.of(context).pop();
+  //                               ScaffoldMessenger.of(context).showSnackBar(
+  //                                 SnackBar(
+  //                                   content: Text("Adding suggested product"),
+  //                                 ),
+  //                               );
+  //                               OtherAPI()
+  //                                   .requestProduct(
+  //                                       productName.text.toString(),
+  //                                       brandName.text.toString(),
+  //                                       productQty.text.toString())
+  //                                   .then((value) {
+  //                                 if (value) {
+  //                                   suggestProductBottomThankYou();
+  //                                 } else {
+  //                                   ScaffoldMessenger.of(context).showSnackBar(
+  //                                     SnackBar(
+  //                                       content:
+  //                                           Text("Product Suggestion Failed"),
+  //                                     ),
+  //                                   );
+  //                                 }
+  //                               });
+  //                             } else {
+  //                               ScaffoldMessenger.of(context).showSnackBar(
+  //                                 SnackBar(
+  //                                   content:
+  //                                       Text("Please enter required fields"),
+  //                                   duration: Duration(milliseconds: 500),
+  //                                 ),
+  //                               );
+  //                             }
+  //                           },
+  //                           child: Text(
+  //                             "Save",
+  //                             style: TextStyle(
+  //                                 fontWeight: FontWeight.w400,
+  //                                 fontSize: 16,
+  //                                 color: Colors.white),
+  //                           ))),
+  //                 ]),
+  //           ))));
+  // }
+
 }

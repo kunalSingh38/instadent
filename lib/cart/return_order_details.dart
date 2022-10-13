@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instadent/cart/return_item_page.dart';
 import 'package:instadent/constants.dart';
@@ -167,42 +168,18 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                                           child: Padding(
                                             padding: const EdgeInsets.all(5),
                                             child: Container(
-                                              height: 80,
-                                              width: 80,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      color: Colors.grey,
-                                                      width: 0.5)),
-                                              child: Image.network(
-                                                e['product_image'].toString(),
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Image.asset(
-                                                    "assets/no_image.jpeg",
-                                                  );
-                                                },
-                                                loadingBuilder: (context, child,
-                                                    loadingProgress) {
-                                                  if (loadingProgress == null)
-                                                    return child;
-                                                  return Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      value: loadingProgress
-                                                                  .expectedTotalBytes !=
-                                                              null
-                                                          ? loadingProgress
-                                                                  .cumulativeBytesLoaded /
-                                                              loadingProgress
-                                                                  .expectedTotalBytes!
-                                                          : null,
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
+                                                height: 80,
+                                                width: 80,
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                    border: Border.all(
+                                                        color: Colors.grey,
+                                                        width: 0.5)),
+                                                child: cacheImage(
+                                                    e['product_image']
+                                                        .toString())),
                                           ),
                                         ),
                                         Expanded(
@@ -320,42 +297,18 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                                           child: Padding(
                                             padding: const EdgeInsets.all(5),
                                             child: Container(
-                                              height: 80,
-                                              width: 80,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      color: Colors.grey,
-                                                      width: 0.5)),
-                                              child: Image.network(
-                                                e['product_image'].toString(),
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Image.asset(
-                                                    "assets/no_image.jpeg",
-                                                  );
-                                                },
-                                                loadingBuilder: (context, child,
-                                                    loadingProgress) {
-                                                  if (loadingProgress == null)
-                                                    return child;
-                                                  return Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      value: loadingProgress
-                                                                  .expectedTotalBytes !=
-                                                              null
-                                                          ? loadingProgress
-                                                                  .cumulativeBytesLoaded /
-                                                              loadingProgress
-                                                                  .expectedTotalBytes!
-                                                          : null,
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
+                                                height: 80,
+                                                width: 80,
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                    border: Border.all(
+                                                        color: Colors.grey,
+                                                        width: 0.5)),
+                                                child: cacheImage(
+                                                    e['product_image']
+                                                        .toString())),
                                           ),
                                         ),
                                         Expanded(

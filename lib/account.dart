@@ -16,10 +16,12 @@ import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
 import 'package:instadent/main.dart';
 import 'package:instadent/policy_view.dart';
+import 'package:instadent/signup.dart';
 import 'package:instadent/user_profile.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -30,8 +32,8 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   List yourInfo = [
-    {"title": "Profile", "id": "4", "icon": "account.png"},
-    {"title": "Order History", "id": "1", "icon": "order.png"},
+    // {"title": "Profile", "id": "4", "icon": "account.png"},
+    // {"title": "Order History", "id": "1", "icon": "order.png"},
     {"title": "Address Book", "id": "2", "icon": "address.png"},
     {"title": "Share the app", "id": "3", "icon": "share.png"}
   ];
@@ -72,9 +74,9 @@ class _AccountScreenState extends State<AccountScreen> {
   ];
 
   List list = [
-    {"title": "Wallet", "id": "1", "icon": "wallet.png"},
-    {"title": "Support", "id": "2", "icon": "support.png"},
-    {"title": "Payment", "id": "3", "icon": "payment.png"}
+    {"title": "My Orders", "id": "1", "icon": "shopping-bag.png"},
+    {"title": "Support", "id": "2", "icon": "whatsapp.png"},
+    {"title": "Profile", "id": "3", "icon": "profile.png"}
   ];
 
   String phoneNumber = "";
@@ -209,18 +211,53 @@ class _AccountScreenState extends State<AccountScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: list
                                         .map(
-                                          (e) => Column(
-                                            children: [
-                                              Image.asset(
-                                                "assets/" +
-                                                    e['icon'].toString(),
-                                                scale: 18,
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Text(e['title']),
-                                            ],
+                                          (e) => InkWell(
+                                            onTap: () async {
+                                              switch (e['id'].toString()) {
+                                                case "1":
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: ((context) =>
+                                                              OrderHistoryScreen())));
+                                                  break;
+                                                case "2":
+                                                  await launch(
+                                                      "https://wa.me/919899339093");
+                                                  break;
+                                                case "3":
+                                                  // Navigator.push(
+                                                  //     context,
+                                                  //     MaterialPageRoute(
+                                                  //         builder: ((context) =>
+                                                  //             UserProfileViewUpdate())));
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              SignUpScreen(
+                                                                phoneNumber:
+                                                                    phoneNumber
+                                                                        .toString(),
+                                                                signupNew:
+                                                                    false,
+                                                              )));
+                                                  break;
+                                              }
+                                            },
+                                            child: Column(
+                                              children: [
+                                                Image.asset(
+                                                  "assets/" +
+                                                      e['icon'].toString(),
+                                                  scale: 18,
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Text(e['title']),
+                                              ],
+                                            ),
                                           ),
                                         )
                                         .toList()),
@@ -268,26 +305,14 @@ class _AccountScreenState extends State<AccountScreen> {
                                         ),
                                         onTap: () async {
                                           switch (e['id'].toString()) {
-                                            case "4":
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          UserProfileViewUpdate())));
-                                              break;
-                                            case "1":
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: ((context) =>
-                                                          OrderHistoryScreen())));
-                                              break;
                                             case "2":
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: ((context) =>
-                                                          AddressListScreen())));
+                                                          AddressListScreen(
+                                                            m: {},
+                                                          ))));
                                               break;
                                             case "3":
                                               await FlutterShare.share(

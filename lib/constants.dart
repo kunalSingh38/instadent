@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/cart/cart_view.dart';
@@ -20,7 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const URL = "https://dev.techstreet.in/idc/public/api/v1/";
-const searchHint = "Search for rotary files, airotor & more";
+const searchHint = "Search for gutta percha, files & more";
 const whatsAppNo = "919899339093";
 showLaoding(context) {
   return showDialog(
@@ -38,6 +39,18 @@ showLaoding(context) {
               ),
             ),
           ));
+}
+
+Widget cacheImage(String imageUrl) {
+  return CachedNetworkImage(
+    imageUrl: imageUrl,
+    fit: BoxFit.fill,
+    errorWidget: (context, url, error) {
+      return Image.asset(
+        "assets/logo.png",
+      );
+    },
+  );
 }
 
 capitalize(str) {
@@ -133,8 +146,6 @@ Future<void> showProdcutDetails(
     List productItems,
     FirebaseDynamicLinks dynamicLinks,
     bool show) async {
-  print(m);
-
   String group_Data = m['group_price']
       .toString()
       .replaceAll("&#8377;", "₹")
@@ -144,7 +155,7 @@ Future<void> showProdcutDetails(
   List data = group_Data.split(",");
   data.removeLast();
   double height = 220;
-  double heightMain = 1.7;
+  double heightMain = 1.4;
 
   String disccount = "";
   String temp = m['item_discount'].toString().split("%")[0];
@@ -163,6 +174,11 @@ Future<void> showProdcutDetails(
 
   if (m.containsKey("multiple_images")) {
     multipleImages.addAll(m['multiple_images']);
+  }
+
+  List otherDetails = [];
+  if (m.containsKey("other_details")) {
+    otherDetails.addAll(m['other_details']);
   }
 
   await showModalBottomSheet(
@@ -211,19 +227,16 @@ Future<void> showProdcutDetails(
                                                             20.0),
                                                   ),
                                                   child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                    child: Image.network(
-                                                      e['image'].toString(),
-                                                      errorBuilder: (context,
-                                                          error, stackTrace) {
-                                                        return Image.asset(
-                                                          "assets/no_image.jpeg",
-                                                        );
-                                                      },
-                                                    ),
-                                                  )),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      child: SizedBox(
+                                                        height: 200,
+                                                        width: 220,
+                                                        child: cacheImage(
+                                                            e['image']
+                                                                .toString()),
+                                                      ))),
                                             ))
                                         .toList(),
                                   )
@@ -233,17 +246,9 @@ Future<void> showProdcutDetails(
                                     ),
                                     elevation: 8,
                                     child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Image.network(
-                                        m['product_image'].toString(),
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Image.asset(
-                                            "assets/no_image.jpeg",
-                                          );
-                                        },
-                                      ),
-                                    ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: cacheImage(
+                                            m['product_image'].toString())),
                                   ),
                           ),
                           Divider(),
@@ -292,6 +297,16 @@ Future<void> showProdcutDetails(
                           SizedBox(
                             height: 12,
                           ),
+                          m['packing_info'] == null
+                              ? SizedBox()
+                              : Column(
+                                  children: [
+                                    Text(m['packing_info'].toString()),
+                                    SizedBox(
+                                      height: 12,
+                                    ),
+                                  ],
+                                ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -320,25 +335,30 @@ Future<void> showProdcutDetails(
                                     SizedBox(
                                       width: 8,
                                     ),
-                                    Container(
-                                      width: 65,
-                                      decoration: BoxDecoration(
-                                          color: Colors.teal,
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: Text(
-                                          double.parse(disccount.toString())
-                                                  .toStringAsFixed(0) +
-                                              "% OFF",
-                                          style: TextStyle(
-                                              fontSize: 12.5,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ),
-                                    ),
+                                    disccount == "0"
+                                        ? SizedBox()
+                                        : Container(
+                                            width: 65,
+                                            decoration: BoxDecoration(
+                                                color: Colors.teal,
+                                                borderRadius:
+                                                    BorderRadius.circular(5)),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: Text(
+                                                double.parse(disccount
+                                                            .toString())
+                                                        .toStringAsFixed(0) +
+                                                    "% OFF",
+                                                style: TextStyle(
+                                                    fontSize: 12.5,
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ),
+                                          ),
                                   ],
                                 ),
                               ),
@@ -556,7 +576,6 @@ Future<void> showProdcutDetails(
                           SizedBox(
                             height: 10,
                           ),
-
                           data.length == 0
                               ? SizedBox()
                               : Column(
@@ -604,7 +623,6 @@ Future<void> showProdcutDetails(
                                     ),
                                   ],
                                 ),
-
                           m['warranty_month'].toString() != "0"
                               ? Column(
                                   children: [
@@ -631,7 +649,6 @@ Future<void> showProdcutDetails(
                                   ],
                                 )
                               : SizedBox(),
-
                           m['expiry_date'] == null || m['expiry_date'] == ""
                               ? SizedBox()
                               : Column(
@@ -656,32 +673,53 @@ Future<void> showProdcutDetails(
                                     ),
                                   ],
                                 ),
-
                           Divider(
                             thickness: 0.9,
                             height: 30,
                           ),
-
+                          Text("Description",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15,
+                                  color: Colors.black)),
+                          SizedBox(
+                            height: 2,
+                          ),
                           Text(m['short_description'].toString(),
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 15,
                                   color: Colors.grey)),
-                          // SizedBox(
-                          //   height: 10,
-                          // ),
-                          // Text("Nutrient Value & Benefits",
-                          //     style: TextStyle(
-                          //         fontWeight: FontWeight.w400, fontSize: 17)),
-                          // SizedBox(
-                          //   height: 8,
-                          // ),
-                          // Text(
-                          //     "Contains Folic Acid, Vitamin C, Vitamin K, .Vitamin C act as a powerful antioxidants and also helps formation of collagen that is responsible for skin and hair health.",
-                          //     style: TextStyle(
-                          //         fontWeight: FontWeight.w400,
-                          //         fontSize: 15,
-                          //         color: Colors.grey)),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: otherDetails
+                                .map((e) => Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(e['title'].toString(),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 15,
+                                                color: Colors.black)),
+                                        SizedBox(
+                                          height: 2,
+                                        ),
+                                        Text(e['description'].toString(),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 15,
+                                                color: Colors.grey)),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                      ],
+                                    ))
+                                .toList(),
+                          )
                         ]),
                   )),
             );
@@ -750,15 +788,7 @@ Widget allCategoryGrid(
                                 )
                               : ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: CachedNetworkImage(
-                                    fit: BoxFit.cover,
-
-                                    imageUrl: e['icon'].toString(),
-                                    // placeholder: (context, url) =>
-                                    //     CircularProgressIndicator(),
-                                    errorWidget: (context, url, error) =>
-                                        Image.asset("assets/logo.png"),
-                                  )
+                                  child: cacheImage(e['icon'].toString())
 
                                   //  Image.network(
                                   //   e['icon'].toString(),
@@ -866,32 +896,23 @@ Widget singleProductDesign(
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: Image.network(
-                        e['product_image'].toString(),
-                        scale: 2,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            "assets/no_image.jpeg",
-                          );
-                        },
-                      ),
-                    ),
+                        padding: const EdgeInsets.only(top: 15),
+                        child: cacheImage(e['product_image'].toString())),
                   ),
                   // SizedBox(
                   //   height: 2,
                   // ),
                   Expanded(
                       child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 15, 8, 10),
+                    padding: const EdgeInsets.fromLTRB(5, 20, 5, 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          e['product_name'].toString(),
+                          e['product_name'].toString() + "\n\n",
                           textAlign: TextAlign.left,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
+                          maxLines: 3,
                           style: TextStyle(
                               fontWeight: FontWeight.w500, fontSize: 12),
                         ),
@@ -906,23 +927,174 @@ Widget singleProductDesign(
                           height: 10,
                         ),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("₹" + e['discount_price'].toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 12)),
-                                Text("₹" + e['mrp'].toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 11,
-                                        decoration: TextDecoration.lineThrough,
-                                        color: Colors.grey))
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        "₹" +
+                                            double.parse(e['discount_price']
+                                                    .toString())
+                                                .toStringAsFixed(0),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 12)),
+                                    Text(
+                                        "₹" +
+                                            double.parse(e['mrp'].toString())
+                                                .toStringAsFixed(0),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 11,
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey))
+                                  ],
+                                ),
                               ],
                             ),
+                            inStock
+                                ? SizedBox()
+                                : Container(
+                                    width: 75,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                        color: e['quantity'] > 0
+                                            ? Colors.teal[400]
+                                            : Colors.teal[50],
+                                        border: Border.all(
+                                            color: Color(0xFF004D40)),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: e['quantity'] > 0
+                                        ? Stack(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(8, 4, 2, 4),
+                                                    child: Text(
+                                                      "-",
+                                                      style: textStyle1,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    e['quantity'].toString(),
+                                                    style: textStyle1,
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(2, 4, 8, 4),
+                                                    child: Text(
+                                                      "+",
+                                                      style: textStyle1,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                      child: InkWell(
+                                                    onTap: () async {
+                                                      await setQunatity(
+                                                          productItems
+                                                              .indexOf(e),
+                                                          false,
+                                                          productItems,
+                                                          context);
+                                                    },
+                                                    child: Container(
+                                                      color: Colors.transparent,
+                                                    ),
+                                                  )),
+                                                  Expanded(
+                                                      child: InkWell(
+                                                    onTap: () async {
+                                                      setState(() {
+                                                        controller.clear();
+                                                      });
+                                                      await manuallyUpdateQuantity(
+                                                          productItems
+                                                              .indexOf(e),
+                                                          productItems,
+                                                          context,
+                                                          controller);
+                                                    },
+                                                    child: Container(
+                                                        color:
+                                                            Colors.transparent),
+                                                  )),
+                                                  Expanded(
+                                                      child: InkWell(
+                                                    onTap: () async {
+                                                      await setQunatity(
+                                                          productItems
+                                                              .indexOf(e),
+                                                          true,
+                                                          productItems,
+                                                          context);
+                                                    },
+                                                    child: Container(
+                                                        color:
+                                                            Colors.transparent),
+                                                  ))
+                                                ],
+                                              )
+                                            ],
+                                          )
+                                        : InkWell(
+                                            onTap: () async {
+                                              await setQunatity(
+                                                  productItems.indexOf(e),
+                                                  true,
+                                                  productItems,
+                                                  context);
+                                            },
+                                            child: Stack(
+                                              alignment: Alignment.topRight,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          8, 2, 8, 2),
+                                                  child: Center(
+                                                    child: Text(
+                                                      "ADD",
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              Colors.teal[900]),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    color: Colors.teal[900],
+                                                    size: 10,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                  ),
                           ],
                         )
                       ],
@@ -958,134 +1130,10 @@ Widget singleProductDesign(
                     ),
                   ),
                 ),
-          Positioned(
-            bottom: 8,
-            right: 8,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 10, right: 10),
-              child: inStock
-                  ? SizedBox()
-                  : Container(
-                      width: 75,
-                      height: 28,
-                      decoration: BoxDecoration(
-                          color: e['quantity'] > 0
-                              ? Colors.teal[400]
-                              : Colors.teal[50],
-                          border: Border.all(color: Color(0xFF004D40)),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: e['quantity'] > 0
-                          ? Stack(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(8, 4, 2, 4),
-                                      child: Text(
-                                        "-",
-                                        style: textStyle1,
-                                      ),
-                                    ),
-                                    Text(
-                                      e['quantity'].toString(),
-                                      style: textStyle1,
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(2, 4, 8, 4),
-                                      child: Text(
-                                        "+",
-                                        style: textStyle1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                        child: InkWell(
-                                      onTap: () async {
-                                        await setQunatity(
-                                            productItems.indexOf(e),
-                                            false,
-                                            productItems,
-                                            context);
-                                      },
-                                      child: Container(
-                                        color: Colors.transparent,
-                                      ),
-                                    )),
-                                    Expanded(
-                                        child: InkWell(
-                                      onTap: () async {
-                                        setState(() {
-                                          controller.clear();
-                                        });
-                                        await manuallyUpdateQuantity(
-                                            productItems.indexOf(e),
-                                            productItems,
-                                            context,
-                                            controller);
-                                      },
-                                      child:
-                                          Container(color: Colors.transparent),
-                                    )),
-                                    Expanded(
-                                        child: InkWell(
-                                      onTap: () async {
-                                        await setQunatity(
-                                            productItems.indexOf(e),
-                                            true,
-                                            productItems,
-                                            context);
-                                      },
-                                      child:
-                                          Container(color: Colors.transparent),
-                                    ))
-                                  ],
-                                )
-                              ],
-                            )
-                          : InkWell(
-                              onTap: () async {
-                                await setQunatity(productItems.indexOf(e), true,
-                                    productItems, context);
-                              },
-                              child: Stack(
-                                alignment: Alignment.topRight,
-                                children: [
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(8, 2, 8, 2),
-                                    child: Center(
-                                      child: Text(
-                                        "ADD",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.teal[900]),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: Icon(
-                                      Icons.add,
-                                      color: Colors.teal[900],
-                                      size: 10,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                    ),
-            ),
-          ),
+          // Positioned(
+          //   bottom: 8,
+          //   right: 2,
+          //   child: ),
           // e['is_favorite'] == 0
           //     ? SizedBox()
           //     : Padding(
@@ -1391,348 +1439,3 @@ Future<String> createDynamicLink(FirebaseDynamicLinks dynamicLinks) async {
   print(shortLink.shortUrl.toString());
   return shortLink.shortUrl.toString();
 }
-
-
-// Future<void> showProdcutDetailsOnly(
-//     BuildContext context, Map m, FirebaseDynamicLinks dynamicLinks) async {
-//   String group_Data = m['group_price']
-//       .toString()
-//       .replaceAll("&#8377;", "₹")
-//       .replaceAll("<br/>", ",")
-//       .toString();
-
-//   List data = group_Data.split(",");
-//   data.removeLast();
-//   double height = 220;
-//   double heightMain = 1.7;
-
-//   String disccount = "";
-//   String temp = m['item_discount'].toString().split("%")[0];
-
-//   if (temp.split(".")[0].toString() == "0" &&
-//       temp.split(".")[1].toString() == "00") {
-//     disccount = "0";
-//   } else if (temp.split(".")[1].toString() == "00") {
-//     disccount = temp.split(".")[0].toString();
-//   } else {
-//     disccount = temp;
-//   }
-//   print("disccount" + disccount.toString());
-
-//   List multipleImages = [];
-//   if (m.containsKey("multiple_images")) {
-//     multipleImages = m['multiple_images'];
-//   }
-
-//   await showModalBottomSheet(
-//       shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-//       backgroundColor: Colors.white,
-//       context: context,
-//       isScrollControlled: true,
-//       builder: (context) => StatefulBuilder(
-//               builder: (BuildContext context, StateSetter setState) {
-//             return SizedBox(
-//               height: MediaQuery.of(context).size.height / heightMain,
-//               child: Padding(
-//                   padding: const EdgeInsets.all(20),
-//                   child: SingleChildScrollView(
-//                     child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         mainAxisSize: MainAxisSize.min,
-//                         children: [
-//                           InkWell(
-//                             onTap: () {
-//                               if (height == 500) {
-//                                 setState(() {
-//                                   height = 200;
-//                                   heightMain = 1.7;
-//                                 });
-//                               } else {
-//                                 setState(() {
-//                                   height = 500;
-//                                   heightMain = 1.2;
-//                                 });
-//                               }
-//                             },
-//                             child: SizedBox(
-//                               height: height,
-//                               child: multipleImages.isNotEmpty
-//                                   ? ListView(
-//                                       scrollDirection: Axis.horizontal,
-//                                       children: multipleImages
-//                                           .map((e) => Card(
-//                                               elevation: 8,
-//                                               shape: RoundedRectangleBorder(
-//                                                 borderRadius:
-//                                                     BorderRadius.circular(20.0),
-//                                               ),
-//                                               child: ClipRRect(
-//                                                 borderRadius:
-//                                                     BorderRadius.circular(20),
-//                                                 child: Image.network(
-//                                                   e['image'].toString(),
-//                                                   errorBuilder: (context, error,
-//                                                       stackTrace) {
-//                                                     return Image.asset(
-//                                                       "assets/no_image.jpeg",
-//                                                     );
-//                                                   },
-//                                                 ),
-//                                               )))
-//                                           .toList(),
-//                                     )
-//                                   : Card(
-//                                       shape: RoundedRectangleBorder(
-//                                         borderRadius:
-//                                             BorderRadius.circular(20.0),
-//                                       ),
-//                                       elevation: 8,
-//                                       child: ClipRRect(
-//                                         borderRadius: BorderRadius.circular(20),
-//                                         child: Image.network(
-//                                           m['product_image'].toString(),
-//                                           errorBuilder:
-//                                               (context, error, stackTrace) {
-//                                             return Image.asset(
-//                                               "assets/no_image.jpeg",
-//                                             );
-//                                           },
-//                                         ),
-//                                       ),
-//                                     ),
-//                             ),
-//                           ),
-//                           Divider(),
-//                           SizedBox(
-//                             height: 10,
-//                           ),
-//                           Row(
-//                             children: [
-//                               Expanded(
-//                                 flex: 6,
-//                                 child: Text(m['product_name'].toString(),
-//                                     style: TextStyle(
-//                                         fontWeight: FontWeight.w700,
-//                                         fontSize: 18)),
-//                               ),
-//                               Expanded(
-//                                   child: InkWell(
-//                                 onTap: () async {
-//                                   await createDynamicLink(dynamicLinks)
-//                                       .then((value) async {
-//                                     await FlutterShare.share(
-//                                         title: m['product_name'].toString(),
-//                                         // text: 'Example share text',
-//                                         linkUrl: value,
-//                                         chooserTitle:
-//                                             m['product_name'].toString(),
-//                                         text: "InstaDent Product");
-//                                   });
-//                                 },
-//                                 child: CircleAvatar(
-//                                   radius: 20,
-//                                   backgroundColor: Colors.grey,
-//                                   child: CircleAvatar(
-//                                     radius: 19,
-//                                     backgroundColor: Colors.white,
-//                                     child: Image.asset(
-//                                       "assets/share2.png",
-//                                       scale: 2.5,
-//                                       color: Colors.grey,
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ))
-//                             ],
-//                           ),
-//                           SizedBox(
-//                             height: 12,
-//                           ),
-//                           Row(
-//                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                             children: [
-//                               Expanded(
-//                                 flex: 2,
-//                                 child: Row(
-//                                   children: [
-//                                     Text(
-//                                         "₹" +
-//                                             double.parse(m['discount_price']
-//                                                     .toString())
-//                                                 .toStringAsFixed(0),
-//                                         style: TextStyle(
-//                                             fontWeight: FontWeight.w600,
-//                                             fontSize: 16)),
-//                                     SizedBox(
-//                                       width: 8,
-//                                     ),
-//                                     Text("₹" + removeNull(m['mrp'].toString()),
-//                                         style: TextStyle(
-//                                             decoration:
-//                                                 TextDecoration.lineThrough,
-//                                             fontWeight: FontWeight.w400,
-//                                             color: Colors.grey,
-//                                             fontSize: 14)),
-//                                     SizedBox(
-//                                       width: 8,
-//                                     ),
-//                                     Container(
-//                                       width: 65,
-//                                       decoration: BoxDecoration(
-//                                           color: Colors.teal,
-//                                           borderRadius:
-//                                               BorderRadius.circular(5)),
-//                                       child: Padding(
-//                                         padding: const EdgeInsets.all(5.0),
-//                                         child: Text(
-//                                           double.parse(disccount.toString())
-//                                                   .toStringAsFixed(0) +
-//                                               "% OFF",
-//                                           style: TextStyle(
-//                                               fontSize: 12.5,
-//                                               color: Colors.white,
-//                                               fontWeight: FontWeight.w500),
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                           SizedBox(
-//                             height: 10,
-//                           ),
-
-//                           data.length == 0
-//                               ? SizedBox()
-//                               : Column(
-//                                   children: [
-//                                     Column(
-//                                       crossAxisAlignment:
-//                                           CrossAxisAlignment.start,
-//                                       children: data
-//                                           .map(
-//                                             (e) => Column(
-//                                               children: [
-//                                                 Container(
-//                                                   width: MediaQuery.of(context)
-//                                                       .size
-//                                                       .width,
-//                                                   decoration: BoxDecoration(
-//                                                       color: Colors.blue,
-//                                                       borderRadius:
-//                                                           BorderRadius.circular(
-//                                                               5)),
-//                                                   child: Padding(
-//                                                       padding:
-//                                                           const EdgeInsets.all(
-//                                                               8.0),
-//                                                       child: Text(
-//                                                         e.toString(),
-//                                                         style: TextStyle(
-//                                                             fontSize: 16,
-//                                                             fontWeight:
-//                                                                 FontWeight.w500,
-//                                                             color:
-//                                                                 Colors.white),
-//                                                       )),
-//                                                 ),
-//                                                 SizedBox(
-//                                                   height: 2,
-//                                                 )
-//                                               ],
-//                                             ),
-//                                           )
-//                                           .toList(),
-//                                     ),
-//                                     SizedBox(
-//                                       height: 12,
-//                                     ),
-//                                   ],
-//                                 ),
-
-//                           m['warranty_month'].toString() != "0"
-//                               ? Column(
-//                                   children: [
-//                                     SizedBox(
-//                                       height: 10,
-//                                     ),
-//                                     Row(
-//                                       mainAxisAlignment:
-//                                           MainAxisAlignment.spaceBetween,
-//                                       children: [
-//                                         Text("Warranty Duration",
-//                                             style: TextStyle(
-//                                                 fontWeight: FontWeight.w400,
-//                                                 fontSize: 17)),
-//                                         Text(
-//                                             m['warranty_month'].toString() +
-//                                                 " Months",
-//                                             style: TextStyle(
-//                                               fontWeight: FontWeight.w600,
-//                                               fontSize: 15,
-//                                             )),
-//                                       ],
-//                                     ),
-//                                   ],
-//                                 )
-//                               : SizedBox(),
-
-//                           // m['expiry_date'] == null
-//                           //     ? SizedBox()
-//                           //     :
-//                           //      Column(
-//                           //         children: [
-//                           //           SizedBox(
-//                           //             height: 10,
-//                           //           ),
-//                           //           Row(
-//                           //             mainAxisAlignment:
-//                           //                 MainAxisAlignment.spaceBetween,
-//                           //             children: [
-//                           //               Text("Expiry Date",
-//                           //                   style: TextStyle(
-//                           //                       fontWeight: FontWeight.w400,
-//                           //                       fontSize: 17)),
-//                           //               Text(m['expiry_date'].toString(),
-//                           //                   style: TextStyle(
-//                           //                     fontWeight: FontWeight.w600,
-//                           //                     fontSize: 15,
-//                           //                   )),
-//                           //             ],
-//                           //           ),
-//                           //         ],
-//                           //       ),
-
-//                           Divider(
-//                             thickness: 0.9,
-//                             height: 30,
-//                           ),
-
-//                           Text(m['short_description'].toString(),
-//                               style: TextStyle(
-//                                   fontWeight: FontWeight.w400,
-//                                   fontSize: 15,
-//                                   color: Colors.grey)),
-//                           // SizedBox(
-//                           //   height: 10,
-//                           // ),
-//                           // Text("Nutrient Value & Benefits",
-//                           //     style: TextStyle(
-//                           //         fontWeight: FontWeight.w400, fontSize: 17)),
-//                           // SizedBox(
-//                           //   height: 8,
-//                           // ),
-//                           // Text(
-//                           //     "Contains Folic Acid, Vitamin C, Vitamin K, .Vitamin C act as a powerful antioxidants and also helps formation of collagen that is responsible for skin and hair health.",
-//                           //     style: TextStyle(
-//                           //         fontWeight: FontWeight.w400,
-//                           //         fontSize: 15,
-//                           //         color: Colors.grey)),
-//                         ]),
-//                   )),
-//             );
-//           }));
-// }

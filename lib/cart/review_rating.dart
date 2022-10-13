@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -77,12 +78,10 @@ class _ReviewAndRatingState extends State<ReviewAndRating> {
         child: Column(
           children: [
             showRating
-                ? Image.network(
+                ? cacheImage(
                     ratingImages[int.parse(ele['rating'].toString()) - 1]
                             ['icon']
-                        .toString(),
-                    scale: 5,
-                  )
+                        .toString())
                 : SizedBox(),
             SizedBox(
               height: 60,

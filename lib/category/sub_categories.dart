@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -314,12 +315,12 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                           children: subCategoryList
                                               .map((e) => InkWell(
                                                     onTap: () async {
-                                                      Scrollable.ensureVisible(
-                                                          e['key']
-                                                              .currentContext,
-                                                          duration: Duration(
-                                                              milliseconds:
-                                                                  1300));
+                                                      // Scrollable.ensureVisible(
+                                                      //     e['key']
+                                                      //         .currentContext,
+                                                      //     duration: Duration(
+                                                      //         milliseconds:
+                                                      //             1300));
                                                       subCategoryList
                                                           .forEach((element) {
                                                         setState(() {
@@ -378,7 +379,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                                       CircleAvatar(
                                                                         backgroundColor: e['selected']
                                                                             ? Colors.greenAccent[100]
-                                                                            : Colors.grey[200],
+                                                                            : Colors.grey[50],
                                                                         radius:
                                                                             30,
                                                                       ),
@@ -387,7 +388,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                                             ? Alignment.center
                                                                             : Alignment.bottomCenter,
                                                                         duration:
-                                                                            const Duration(milliseconds: 500),
+                                                                            const Duration(milliseconds: 450),
                                                                         curve: Curves
                                                                             .fastOutSlowIn,
                                                                         child:
@@ -396,16 +397,14 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                                               bottomLeft: Radius.circular(10),
                                                                               bottomRight: Radius.circular(10)),
                                                                           child:
-                                                                              Image.network(
-                                                                            e['icon'].toString(),
+                                                                              AnimatedScale(
+                                                                            duration:
+                                                                                Duration(milliseconds: 400),
                                                                             scale: e['selected']
                                                                                 ? 1
-                                                                                : 2,
-                                                                            errorBuilder: (context,
-                                                                                error,
-                                                                                stackTrace) {
-                                                                              return Align(alignment: Alignment.center, child: Image.asset("assets/logo.png"));
-                                                                            },
+                                                                                : 0.8,
+                                                                            child:
+                                                                                cacheImage(e['icon'].toString()),
                                                                           ),
                                                                         ),
                                                                       ),
@@ -539,20 +538,17 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                             width: MediaQuery.of(context)
                                                 .size
                                                 .width,
-                                            child:
-                                                widget.bannerImage.toString() ==
-                                                        ""
-                                                    ? Image.asset(
-                                                        "assets/logo.png",
-                                                        fit: BoxFit.contain,
-                                                      )
-                                                    : Image.network(
-                                                        widget.bannerImage
-                                                            .toString(),
-                                                        fit: BoxFit.fill,
-                                                      )),
+                                            child: widget.bannerImage
+                                                        .toString() ==
+                                                    ""
+                                                ? Image.asset(
+                                                    "assets/logo.png",
+                                                    fit: BoxFit.contain,
+                                                  )
+                                                : cacheImage(widget.bannerImage
+                                                    .toString())),
                                         allProductsList(productItems, context,
-                                            controller, 0.56, dynamicLinks),
+                                            controller, 0.6, dynamicLinks),
                                         viewModel.counterShowCart
                                             ? SizedBox(
                                                 height: 70,
