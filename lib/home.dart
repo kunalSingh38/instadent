@@ -200,6 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       content: SizedBox(
                         height: MediaQuery.of(context).size.height*0.06,
+                        width:MediaQuery.of(context).size.width*0.99 ,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
