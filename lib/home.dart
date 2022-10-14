@@ -190,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 30,
                           ),
                           Container(
-                            height: 50,
+                            height: MediaQuery.of(context).size.height*0.055,
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     image:
@@ -208,10 +208,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                     color: Colors.teal,
                                     fontWeight: FontWeight.w500)),
-                            Text("Please confirm if you want to exit?",
-                                style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w600)),
+                            Container(
+                              alignment: Alignment.center,
+                              width: MediaQuery.of(context).size.width*0.99,
+                              child: Text("Please confirm if you want to exit?",
+                                  style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.w600)),
+                            ),
                           ],
                         ),
                       ),
