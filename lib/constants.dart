@@ -722,7 +722,63 @@ Future<void> showProdcutDetails(
                                       ],
                                     ))
                                 .toList(),
-                          )
+                          ),
+                       Divider(
+                            thickness: 0.9,
+                            height: 30,
+                          ),
+                          Text("You may also like", style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15,
+                                  color: Colors.black)),
+                                   SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                    children: productItems.map((e) {
+                                  bool inStock =
+                                      e['is_stock'] == 1 ? false : true;
+
+                                  String disccount =
+                                      e['discount_percentage'].toString();
+
+                                  // if (temp
+                                  //             .split(".")[
+                                  //                 0]
+                                  //             .toString() ==
+                                  //         "0" &&
+                                  //     temp
+                                  //             .split(
+                                  //                 ".")[1]
+                                  //             .toString() ==
+                                  //         "00") {
+                                  //   disccount = "0";
+                                  // } else if (temp
+                                  //         .split(".")[1]
+                                  //         .toString() ==
+                                  //     "00") {
+                                  //   disccount = temp
+                                  //       .split(".")[0]
+                                  //       .toString();
+                                  // } else {
+                                  //   disccount = temp;
+                                  // }
+                                  // return Text("data");
+                                  return singleProductDesign(
+                                      context,
+                                      e,
+                                      inStock,
+                                      controller,
+                                      productItems,
+                                      dynamicLinks,
+                                      disccount,
+                                      true);
+                                }).toList()),
+                              )),
                         ]),
                   )),
             );
@@ -1187,7 +1243,7 @@ Widget singleProductDesign(
                     )
                   : SizedBox(),
             ),
-          )
+          ),
         ],
       );
     });

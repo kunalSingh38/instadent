@@ -1,25 +1,13 @@
-// ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, must_be_immutable
 
-import 'dart:convert';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:instadent/UpdateCart.dart';
-import 'package:instadent/account.dart';
-import 'package:instadent/add_to_cart_helper.dart';
-import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/apis/category_api.dart';
 import 'package:instadent/constants.dart';
-import 'package:instadent/dashboard.dart';
-import 'package:instadent/product_model.dart';
-import 'package:instadent/search/search.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletons/skeletons.dart';
 
@@ -28,8 +16,12 @@ class SubCategoriesScreen extends StatefulWidget {
   String catId;
   String bannerImage;
 
-  SubCategoriesScreen(
-      {required this.catName, required this.catId, required this.bannerImage});
+  SubCategoriesScreen({
+    super.key,
+    required this.catName,
+    required this.catId,
+    required this.bannerImage,
+  });
 
   @override
   _SubCategoriesScreenState createState() => _SubCategoriesScreenState();
@@ -50,7 +42,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
   Future getSubCategoryList() async {
     CategoryAPI().subCartegoryList(widget.catId.toString()).then((value) async {
       print(value);
-      if (value.length > 0) {
+      if (value.isNotEmpty) {
         setState(() {
           subCategoryList.clear();
 
@@ -70,7 +62,8 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
           currentSelection = subCategoryList[0]['id'].toString();
         });
 
-        await getSubCategoryProducts(subCategoryList[0]['id'].toString());
+        await getSubCategoryProducts(
+            subCategoryList[0]['id'].toString(), );
       } else {
         setState(() {
           isLoadingLeft = false;
@@ -85,7 +78,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
     });
   }
 
-  Future getSubCategoryProducts(String id) async {
+  Future getSubCategoryProducts(String id,) async {
     print(id);
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -182,11 +175,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                             fontSize: 14))),
                 BreadCrumbItem(
                     content: Text(
-                        selectedSubCategory.split(" ")[0] +
-                            "..." +
-                            " (" +
-                            productItems.length.toString() +
-                            ")",
+                        "${selectedSubCategory.split(" ")[0]}... (${productItems.length})",
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
@@ -342,7 +331,8 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                       });
 
                                                       await getSubCategoryProducts(
-                                                          e['id'].toString());
+                                                          e['id'].toString(),
+                                                          );
                                                     },
                                                     child: Stack(
                                                       key: e['key'],
@@ -516,9 +506,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                     Expanded(
                       child: isLoadingRight
                           ? Center(
-                              child: loadingProducts("Getting " +
-                                  selectedSubCategory.toString() +
-                                  " products"),
+                              child: loadingProducts("Getting $selectedSubCategory products"),
                             )
                           : LiquidPullToRefresh(
                               animSpeedFactor: 5,

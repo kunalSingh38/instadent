@@ -1047,6 +1047,7 @@ class _CartViewState extends State<CartView> {
                                               listen: false)
                                           .showCartorNot()
                                           .then((value) {
+                                            getData();
                                         Navigator.of(context).pop();
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(

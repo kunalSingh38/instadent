@@ -161,7 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     reloadApis();
   }
@@ -430,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       // SizedBox(
                                       //   height: 5,
                                       // ),
-                                      bannerImagesList.length == 0
+                                      bannerImagesList.isEmpty
                                           ? SizedBox()
                                           : Padding(
                                               padding:
@@ -501,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             SizedBox(
                                               height: 10,
                                             ),
-                                            categoryList.length == 0
+                                            categoryList.isEmpty
                                                 ? Padding(
                                                     padding:
                                                         const EdgeInsets.all(
@@ -527,7 +526,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         categoryList,
                                                         context,
                                                         unitHeightValue),
-                                            categoryList.length == 0
+                                            categoryList.isEmpty
                                                 ? SizedBox()
                                                 : categoryList.length <= 8
                                                     ? SizedBox()
@@ -556,8 +555,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 children: [
                                                                   Text(
                                                                       seeMore
-                                                                          ? "See more categories"
-                                                                          : "See less categories",
+                                                                          ? "Show more categories"
+                                                                          : "Show less categories",
                                                                       style: TextStyle(
                                                                           fontSize:
                                                                               12,
@@ -587,7 +586,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: Colors.grey[200],
                                         thickness: 10,
                                       ),
-                                      recentOrderItems.length == 0
+                                      recentOrderItems.isEmpty
                                           ? SizedBox()
                                           : Column(
                                               crossAxisAlignment:
@@ -683,12 +682,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               true);
                                                         }).toList()),
                                                       )),
+                                              
                                                   Divider(
                                                     color: Colors.grey[200],
                                                     thickness: 10,
                                                   ),
                                                 ]),
-                                      carouselsList.length == 0
+                                      carouselsList.isEmpty
                                           ? SizedBox()
                                           : Column(
                                               crossAxisAlignment:

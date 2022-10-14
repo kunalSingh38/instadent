@@ -1,16 +1,12 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
-import 'package:instadent/add_to_cart_helper.dart';
 import 'package:instadent/apis/category_api.dart';
-import 'package:instadent/category/sub_categories.dart';
 import 'package:instadent/constants.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
-import 'package:skeletons/skeletons.dart';
 
 class AllCategoriesScreen extends StatefulWidget {
   const AllCategoriesScreen({Key? key}) : super(key: key);
@@ -27,7 +23,6 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
   TextEditingController searching = TextEditingController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     CategoryAPI().cartegoryList().then((value) {
       setState(() {
