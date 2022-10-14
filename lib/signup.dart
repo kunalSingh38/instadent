@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -81,7 +82,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ? ""
               : value['registration_no'].toString();
           sameNumberSaved =
-              value['is_whatsapp_alternate'] == "1" ? true : false;
+              value['is_whatsapp_alternate'].toString() == "1" ? false : true;
+              log("--->${value['is_whatsapp_alternate'].toString()}");
           secondaryWhatsAppNumber.text =
               value['alternate_whatsapp_number'] == null
                   ? ""

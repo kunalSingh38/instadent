@@ -12,14 +12,13 @@ class CategoryAPI {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     var response = await http.post(
-
       Uri.parse(URL + "category"),
       headers: {
         'Authorization': 'Bearer ' + pref.getString("token").toString(),
         'Content-Type': 'application/json'
       },
     );
-    log("---->"+jsonDecode(response.body)['Response']['category'][0]);
+    log("---->"+jsonDecode(response.body)['Response']['category'][0].toString());
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['category'];
     }

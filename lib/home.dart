@@ -189,21 +189,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(
                             height: 30,
                           ),
-                          Image.asset(
-                            "assets/logo_text.png",
-                            scale: 1,
+                          Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image:
+                                        AssetImage("assets/instavalue.png"))),
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            "DELIVERING VALUE",
-                            style: TextStyle(
-                                color: Colors.teal,
-                                fontSize: 11,
-                                letterSpacing: 1.5,
-                                fontWeight: FontWeight.w500),
-                          )
                         ],
                       ),
                       content: SizedBox(
@@ -217,12 +209,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontWeight: FontWeight.w500)),
                             Text("Please confirm if you want to exit?",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.grey[700],
                                     fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
                       actionsAlignment: MainAxisAlignment.spaceAround,
+                      actionsPadding: EdgeInsets.only(bottom: 10),
                       actions: [
                         Container(
                           height: MediaQuery.of(context).size.height * 0.044,
@@ -260,15 +253,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       left: 145,
                       top: 215,
                       child: Container(
+                        alignment: Alignment.center,
                         height: 100,
                         width: 100,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
                           color: Colors.white,
                         ),
-                        child: Image.asset(
-                          "assets/backlogo.png",
-                          scale: 1.2,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 80,
+                              width: 80,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: AssetImage("assets/instaCircle.png"))),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -682,7 +684,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               true);
                                                         }).toList()),
                                                       )),
-                                              
                                                   Divider(
                                                     color: Colors.grey[200],
                                                     thickness: 10,
