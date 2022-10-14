@@ -199,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       content: SizedBox(
-                        height: 50,
+                        height: MediaQuery.of(context).size.height*0.06,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -250,8 +250,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     Positioned(
-                      left: 145,
-                      top: 215,
+                      left: MediaQuery.of(context).size.width*0.37,
+                      top: MediaQuery.of(context).size.height*0.27,
                       child: Container(
                         alignment: Alignment.center,
                         height: 100,
