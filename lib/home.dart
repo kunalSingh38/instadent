@@ -177,45 +177,100 @@ class _HomeScreenState extends State<HomeScreen> {
       onWillPop: () async {
         return await showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-                  backgroundColor: Colors.teal[100],
-                  title: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Close this app?",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15)),
-                      Image.asset(
-                        "assets/logo.png",
-                        scale: 2,
-                      )
-                    ],
-                  ),
-                  content: Text("Are you sure you want to exit.",
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.w500)),
-                  actionsAlignment: MainAxisAlignment.spaceAround,
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(color: Colors.black),
-                        )),
-                    TextButton(
-                        onPressed: () {
-                          SystemNavigator.pop();
-                        },
-                        child: Text(
-                          "Confirm",
-                          style: TextStyle(color: Colors.black),
-                        )),
+            builder: (context) => Container(
+                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width,
+                child: Stack(
+                  children: [
+                    AlertDialog(
+                      backgroundColor: Colors.white,
+                      title: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Image.asset(
+                            "assets/logo_text.png",
+                            scale: 1,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "DELIVERING VALUE",
+                            style: TextStyle(color: Colors.teal, fontSize: 11,letterSpacing: 1.5,fontWeight: FontWeight.w500),
+                          )
+                        ],
+                      ),
+                      content: SizedBox(
+                        height: 50,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Thanks for visiting",
+                                style: TextStyle(
+                                    color: Colors.teal,
+                                    fontWeight: FontWeight.w500)),
+                            Text("Please confirm if you want to exit?",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                      actionsAlignment: MainAxisAlignment.spaceAround,
+                      actions: [
+                        Container(
+                          height: 35,
+                          width: 110,
+                          decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(5)),
+                          child: TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(color: Colors.black),
+                              )),
+                        ),
+                        Container(
+                          height: 35,
+                          width: 110,
+                          decoration: BoxDecoration(
+                              color: Colors.blue[800],
+                              borderRadius: BorderRadius.circular(5)),
+                          child: TextButton(
+                              onPressed: () {
+                                SystemNavigator.pop();
+                              },
+                              child: Text(
+                                "Confirm",
+                                style: TextStyle(color: Colors.white),
+                              )),
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                      left: 145,
+                      top: 215,
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Colors.white,
+                        ),
+                        child: Image.asset(
+                          "assets/backlogo.png",
+                          scale: 1.2,
+                        ),
+                      ),
+                    ),
                   ],
-                ));
+                )));
       },
       child: LiquidPullToRefresh(
         animSpeedFactor: 5,
@@ -1023,7 +1078,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 15,
                     ),
                     Text(
-                        "Didn't find what you are lokking for? Please suggest the product",
+                        "Didn't find what you are looking for? Please suggest the product",
                         style: GoogleFonts.montserrat(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,

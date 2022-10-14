@@ -1,11 +1,6 @@
-// ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_interpolation_to_compose_strings, use_build_context_synchronously, prefer_const_literals_to_create_immutables
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors, prefer_interpolation_to_compose_strings, use_build_context_synchronously, prefer_const_literals_to_create_immutables, library_private_types_in_public_api
 
-import 'dart:async';
-
-import 'package:animate_icons/animate_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
@@ -13,11 +8,9 @@ import 'package:instadent/address.dart';
 import 'package:instadent/cart/order_history.dart';
 import 'package:instadent/contact_us.dart';
 import 'package:instadent/dashboard.dart';
-import 'package:instadent/login.dart';
 import 'package:instadent/main.dart';
 import 'package:instadent/policy_view.dart';
 import 'package:instadent/signup.dart';
-import 'package:instadent/user_profile.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

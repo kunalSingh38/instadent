@@ -1,17 +1,13 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:async';
-import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
-import 'package:instadent/noInternet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

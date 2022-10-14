@@ -152,22 +152,25 @@ Future<void> showProdcutDetails(
       .replaceAll("<br/>", ",")
       .toString();
 
+  print(group_Data);
+
   List data = group_Data.split(",");
   data.removeLast();
   double height = 220;
   double heightMain = 1.4;
+  print(data);
 
-  String disccount = "";
-  String temp = m['item_discount'].toString().split("%")[0];
+  String disccount = m['discount_percentage'].toString();
+  // String temp = m['item_discount'].toString().split("%")[0].toString();
 
-  if (temp.split(".")[0].toString() == "0" &&
-      temp.split(".")[1].toString() == "00") {
-    disccount = "0";
-  } else if (temp.split(".")[1].toString() == "00") {
-    disccount = temp.split(".")[0].toString();
-  } else {
-    disccount = temp;
-  }
+  // if (temp.split(".")[0].toString() == "0" &&
+  //     temp.split(".")[1].toString() == "00") {
+  //   disccount = "0";
+  // } else if (temp.split(".")[1].toString() == "00") {
+  //   disccount = temp.split(".")[0].toString();
+  // } else {
+  //   disccount = temp;
+  // }
 
   List multipleImages = [];
   multipleImages.add({"image": m['product_image'].toString()});

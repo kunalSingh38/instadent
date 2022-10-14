@@ -9,9 +9,9 @@ class CartAPI {
     SharedPreferences pref = await SharedPreferences.getInstance();
     print(pref.getString("token").toString());
     var response = await http.post(
-      Uri.parse(URL + "cart"),
+      Uri.parse("${URL}cart"),
       headers: {
-        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Authorization': 'Bearer ${pref.getString("token")}',
         'Content-Type': 'application/json'
       },
     );

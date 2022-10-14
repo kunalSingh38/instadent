@@ -78,10 +78,20 @@ class _ReviewAndRatingState extends State<ReviewAndRating> {
         child: Column(
           children: [
             showRating
-                ? cacheImage(
-                    ratingImages[int.parse(ele['rating'].toString()) - 1]
-                            ['icon']
-                        .toString())
+                ? CachedNetworkImage(
+                    imageUrl:
+                        ratingImages[int.parse(ele['rating'].toString()) - 1]
+                                ['icon']
+                            .toString(),
+                    fit: BoxFit.fill,
+                    height: 150,
+                    width: 150,
+                    errorWidget: (context, url, error) {
+                      return Image.asset(
+                        "assets/logo.png",
+                      );
+                    },
+                  )
                 : SizedBox(),
             SizedBox(
               height: 60,

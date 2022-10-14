@@ -617,7 +617,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       height: 15,
                     ),
                     Text(
-                        "Didn't find what you are lokking for? Please suggest the product",
+                        "Didn't find what you are looking for? Please suggest the product",
                         style: GoogleFonts.montserrat(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -759,11 +759,11 @@ class _SearchScreenState extends State<SearchScreen> {
                             onPressed: () {
                               if (suggestForm.currentState!.validate()) {
                                 Navigator.of(context).pop();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Adding suggested product"),
-                                  ),
-                                );
+                                // ScaffoldMessenger.of(context).showSnackBar(
+                                //   SnackBar(
+                                //     content: Text("Adding suggested product"),
+                                //   ),
+                                // );
                                 OtherAPI()
                                     .requestProduct(
                                         productName.text.toString(),
