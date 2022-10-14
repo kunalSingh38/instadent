@@ -199,7 +199,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Text(
                             "DELIVERING VALUE",
-                            style: TextStyle(color: Colors.teal, fontSize: 11,letterSpacing: 1.5,fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                                color: Colors.teal,
+                                fontSize: 11,
+                                letterSpacing: 1.5,
+                                fontWeight: FontWeight.w500),
                           )
                         ],
                       ),
@@ -222,8 +226,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       actionsAlignment: MainAxisAlignment.spaceAround,
                       actions: [
                         Container(
-                          height: 35,
-                          width: 110,
+                          height: MediaQuery.of(context).size.height * 0.044,
+                          width: MediaQuery.of(context).size.width * 0.3,
                           decoration: BoxDecoration(
                               color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(5)),
@@ -237,8 +241,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               )),
                         ),
                         Container(
-                          height: 35,
-                          width: 110,
+                          height: MediaQuery.of(context).size.height * 0.044,
+                          width: MediaQuery.of(context).size.width * 0.3,
                           decoration: BoxDecoration(
                               color: Colors.blue[800],
                               borderRadius: BorderRadius.circular(5)),
