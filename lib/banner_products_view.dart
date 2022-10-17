@@ -1,7 +1,5 @@
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:instadent/apis/cart_api.dart';
 
 import 'constants.dart';
@@ -47,11 +45,10 @@ class _BannerProductsViewState extends State<BannerProductsView> {
           },
         ),
         title: Text(
-          "Banner Products View",
+          "Banner products ",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,color: Colors.black),
 
         ),
-        centerTitle: true,
       ),
       body: loading
           ? Center(
