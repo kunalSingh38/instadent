@@ -146,7 +146,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           orderMap = value;
           items.addAll(value['items']);
           orderId = value['order_number'].toString();
-          orderPlaced = value['created_at'].toString();
+          orderPlaced = value['order_created_at'].toString();
           payment = value['payment_mode'].toString();
           trackLink = widget.map['liveTrackLink'].toString();
           total = value['total'].toString();
@@ -645,9 +645,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         SizedBox(
                           height: 10,
                         ),
-                        Text(DateFormat.yMMMMd("en_US")
-                            .add_jm()
-                            .format(DateTime.parse(orderPlaced))),
+                        Text(orderPlaced.toString()),
                       ],
                     ),
                   ),

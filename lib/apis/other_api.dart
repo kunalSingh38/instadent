@@ -125,13 +125,14 @@ class OtherAPI {
 
   Future<List> carouselsWithoutLogin() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response = await http.post(
-      Uri.parse(URL + "carousels/list"),
-      headers: {
-        // 'Authorization': 'Bearer ' + pref.getString("token").toString(),
-        'Content-Type': 'application/json'
-      },
-    );
+    String postalCode = pref.getString('pincode').toString();
+    var response = await http.post(Uri.parse(URL + "carousels/list"),
+        headers: {
+          // 'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"type": "all", "pincode": postalCode.toString()}));
+
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['carousels_list'];
     }

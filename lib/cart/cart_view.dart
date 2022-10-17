@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, library_private_types_in_public_api, use_build_context_synchronously
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class _CartViewState extends State<CartView> {
   int productCount = 0;
   double originalRateTotal = 0;
   bool isLoading2 = false;
+  String deliveryInst="";
   bool isNumeric(String s) {
     if (s == null) {
       return false;
@@ -63,6 +65,8 @@ class _CartViewState extends State<CartView> {
               deliveryCarges = value['delivery_fee'].toString();
               totalPrice = value['sub_total'].toString();
               totalItemPrice = value['total'].toString();
+              deliveryInst=value['delivery_instructions'].toString();
+              log("---->$deliveryInst");
             });
 
             double temp = 0;
@@ -149,7 +153,6 @@ class _CartViewState extends State<CartView> {
                                 content: Text("Removing items...".toString()),
                                 duration: Duration(seconds: 1)),
                           );
-
                           CartAPI().emptyCart().then((value) {
                             if (value) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -873,6 +876,28 @@ class _CartViewState extends State<CartView> {
                             ),
                             Text(
                                 "Orders cannot be cancelled once packed for delivery. In case of unexpected delays, a refund will be provided, if applicable.",
+                                style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                    color: Colors.grey)),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10,),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        margin: const EdgeInsets.symmetric(horizontal: 18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Delivery Instructions",
+                                style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w800, fontSize: 16)),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Text(
+                                deliveryInst,
                                 style: GoogleFonts.montserrat(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 11,

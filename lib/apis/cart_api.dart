@@ -25,9 +25,9 @@ class CartAPI {
   Future<int> cartBadge() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var response = await http.post(
-      Uri.parse(URL + "cart-badge"),
+      Uri.parse("${URL}cart-badge"),
       headers: {
-        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Authorization': 'Bearer ${pref.getString("token")}',
         'Content-Type': 'application/json'
       },
     );
@@ -40,9 +40,9 @@ class CartAPI {
 
   Future<bool> addToCart(Map m) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response = await http.post(Uri.parse(URL + "cart-add"),
+    var response = await http.post(Uri.parse("${URL}cart-add"),
         headers: {
-          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Authorization': 'Bearer ${pref.getString("token")}',
           'Content-Type': 'application/json'
         },
         body: jsonEncode(m));
@@ -55,9 +55,9 @@ class CartAPI {
   Future<bool> emptyCart() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var response = await http.post(
-      Uri.parse(URL + "cart-empty"),
+      Uri.parse("${URL}cart-empty"),
       headers: {
-        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Authorization': 'Bearer ${pref.getString("token")}',
         'Content-Type': 'application/json'
       },
     );
@@ -70,9 +70,9 @@ class CartAPI {
 
   Future<bool> emptyCartItemWise(String id) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response = await http.post(Uri.parse(URL + "cart-delete"),
+    var response = await http.post(Uri.parse("${URL}cart-delete"),
         headers: {
-          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Authorization': 'Bearer ${pref.getString("token")}',
           'Content-Type': 'application/json'
         },
         body: jsonEncode({"cart_id": id.toString()}));
@@ -85,9 +85,9 @@ class CartAPI {
 
   Future<Map> orderDetails(String orderId) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response = await http.post(Uri.parse(URL + "order-detail"),
+    var response = await http.post(Uri.parse("${URL}order-detail"),
         headers: {
-          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Authorization': 'Bearer ${pref.getString("token")}',
           'Content-Type': 'application/json'
         },
         body: jsonEncode({"order_id": orderId.toString()}));
@@ -100,9 +100,9 @@ class CartAPI {
   Future<Map> placeOrder() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var response = await http.post(
-      Uri.parse(URL + "placeorder"),
+      Uri.parse("${URL}placeorder"),
       headers: {
-        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Authorization': 'Bearer ${pref.getString("token")}',
         'Content-Type': 'application/json'
       },
     );
@@ -112,9 +112,9 @@ class CartAPI {
   Future<Map> cashOnDelivery() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var response = await http.post(
-      Uri.parse(URL + "placeorder-cod"),
+      Uri.parse("${URL}placeorder-cod"),
       headers: {
-        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Authorization': 'Bearer ${pref.getString("token")}',
         'Content-Type': 'application/json'
       },
     );
@@ -123,9 +123,9 @@ class CartAPI {
 
   Future<Map> paymentUpdate(String orderId, String paymentId) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response = await http.post(Uri.parse(URL + "transaction-update"),
+    var response = await http.post(Uri.parse("${URL}transaction-update"),
         headers: {
-          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Authorization': 'Bearer ${pref.getString("token")}',
           'Content-Type': 'application/json'
         },
         body: jsonEncode({
@@ -138,9 +138,9 @@ class CartAPI {
 
   Future<bool> cancelOrder(String orderId, String reason) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response = await http.post(Uri.parse(URL + "order-cancel"),
+    var response = await http.post(Uri.parse("${URL}order-cancel"),
         headers: {
-          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Authorization': 'Bearer ${pref.getString("token")}',
           'Content-Type': 'application/json'
         },
         body: jsonEncode({
@@ -160,7 +160,7 @@ class CartAPI {
     var response = await http.post(
       Uri.parse(URL + url),
       headers: {
-        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Authorization': 'Bearer ${pref.getString("token")}',
         'Content-Type': 'application/json'
       },
     );
@@ -171,14 +171,29 @@ class CartAPI {
   Future<List> recentOrderItems() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var response = await http.post(
-      Uri.parse(URL + "recent-order-items"),
+      Uri.parse("${URL}recent-order-items"),
       headers: {
-        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Authorization': 'Bearer ${pref.getString("token")}',
         'Content-Type': 'application/json'
       },
     );
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response'];
+    }
+    return [];
+  }
+
+  Future<List> bannerCarusalProductList(String id) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse("${URL}carousels/item/list"),
+        headers: {
+          'Authorization': 'Bearer ${pref.getString("token")}',
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"carousel_id": id.toString()}));
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response']['carousels_list']['items'];
+
     }
     return [];
   }
