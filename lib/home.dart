@@ -190,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 30,
                           ),
                           Container(
-                            height: MediaQuery.of(context).size.height*0.055,
+                            height: 50,
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     image:
@@ -199,8 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       content: SizedBox(
-                        height: MediaQuery.of(context).size.height*0.06,
-                        width:MediaQuery.of(context).size.width*0.99 ,
+                        height: MediaQuery.of(context).size.height * 0.06,
+                        width: MediaQuery.of(context).size.width * 0.99,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -208,14 +208,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                     color: Colors.teal,
                                     fontWeight: FontWeight.w500)),
-                            Container(
-                              alignment: Alignment.center,
-                              width: MediaQuery.of(context).size.width*0.99,
-                              child: Text("Please confirm if you want to exit?",
-                                  style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontWeight: FontWeight.w600)),
-                            ),
+                            Text("Please confirm if you want to exit?",
+                                style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -255,8 +251,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     Positioned(
-                      left: MediaQuery.of(context).size.width*0.37,
-                      top: MediaQuery.of(context).size.height*0.27,
+                      left: MediaQuery.of(context).size.width * 0.37,
+                      top: MediaQuery.of(context).size.height * 0.27,
                       child: Container(
                         alignment: Alignment.center,
                         height: 100,
@@ -273,7 +269,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 80,
                               decoration: BoxDecoration(
                                   image: DecorationImage(
-                                      image: AssetImage("assets/instaCircle.png"))),
+                                      image: AssetImage(
+                                          "assets/instaCircle.png"))),
                             ),
                           ],
                         ),
