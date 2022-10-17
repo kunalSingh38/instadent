@@ -297,286 +297,311 @@ class _SearchScreenState extends State<SearchScreen> {
                         ))),
               ),
             )),
-        body: Stack(
-          children: [
-            SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    searchResult.length == 0
-                        ? Column(
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  suggestProductBottom();
-                                },
-                                child: Container(
-                                  height: 50,
-                                  width:
-                                      MediaQuery.of(context).size.width / 1.12,
-                                  decoration: BoxDecoration(
-                                      color: Colors.teal[100],
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Center(
-                                    child: Text(
-                                      "Didn't find your product. Click to Suggest.",
-                                      style: TextStyle(color: Colors.black),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _speech = stt.SpeechToText();
+            recentSearchItems();
+            myFocusNode = FocusNode();
+            getFeaturedList();
+            var keyboardVisibilityController = KeyboardVisibilityController();
+
+            keyboardSubscription =
+                keyboardVisibilityController.onChange.listen((bool visible) {
+              if (!visible) {
+                addRecentItems();
+              }
+            });
+            keyboardSubscription.cancel();
+          },
+          child: Stack(
+            children: [
+              SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      searchResult.length == 0
+                          ? Column(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    suggestProductBottom();
+                                  },
+                                  child: Container(
+                                    height: 50,
+                                    width: MediaQuery.of(context).size.width /
+                                        1.12,
+                                    decoration: BoxDecoration(
+                                        color: Colors.teal[100],
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Center(
+                                      child: Text(
+                                        "Didn't find your product. Click to Suggest.",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              )
-                            ],
-                          )
-                        : SizedBox(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      child: Column(
-                        children: [
-                          items.length == 0
-                              ? SizedBox()
-                              : Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(Icons.history),
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Text(
-                                              "Recent searches",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            )
-                                          ],
-                                        ),
-                                        InkWell(
-                                          child: Text(
-                                            "Clear",
-                                            style: TextStyle(
-                                                color: Colors.blue,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          onTap: () async {
-                                            SharedPreferences prefs =
-                                                await SharedPreferences
-                                                    .getInstance();
-                                            setState(() {
-                                              items.clear();
-                                              prefs.remove("recentSearch");
-                                              searchResult.clear();
-                                              searchCont.text = "";
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    items.length == 0
-                                        ? SizedBox()
-                                        : SizedBox(
-                                            height: 35,
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            child: ListView.separated(
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: items.length,
-                                              separatorBuilder:
-                                                  (BuildContext context,
-                                                          int index) =>
-                                                      const SizedBox(
-                                                width: 10,
-                                              ),
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int index) {
-                                                return InkWell(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      searchCont.clear();
-                                                      searchCont.text =
-                                                          items[index]
-                                                              .toString();
-                                                      myFocusNode
-                                                          .requestFocus();
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                      decoration: BoxDecoration(
-                                                          border: Border.all(
-                                                              color:
-                                                                  Colors.grey),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      10)),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
-                                                        child: Text(
-                                                          items[index]
-                                                              .toString(),
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .grey[700]),
-                                                        ),
-                                                      )),
-                                                );
-                                              },
-                                            )),
-                                  ],
-                                ),
-                        ],
-                      ),
-                    ),
-                    searchResult.length == 0
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  "assets/feature.png",
-                                  scale: 20,
-                                ),
                                 SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                  "Featured Products",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14),
+                                  height: 10,
                                 )
                               ],
-                            ),
-                          )
-                        : SizedBox(),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Consumer<UpdateCartData>(
-                        builder: (context, viewModel, child) {
-                      return isLoading
-                          ? Center(
-                              child: CircularProgressIndicator(),
                             )
-                          : searchResult.length == 0
-                              ? Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: GridView.count(
-                                    crossAxisCount: 4,
-                                    mainAxisSpacing: 10,
-                                    crossAxisSpacing: 10,
-                                    childAspectRatio: 0.6,
-                                    physics: ClampingScrollPhysics(),
-                                    scrollDirection: Axis.vertical,
-                                    shrinkWrap: true,
-                                    children: featureProducts
-                                        .map((e) => InkWell(
-                                              onTap: () {
-                                                print(e);
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                                bool inStock =
-                                                    e['is_stock'] == 1
-                                                        ? false
-                                                        : true;
-                                                showProdcutDetails(
-                                                    context,
-                                                    e,
-                                                    inStock,
-                                                    controller,
-                                                    featureProducts,
-                                                    dynamicLinks,
-                                                    false);
-                                              },
-                                              child: Column(
-                                                children: [
-                                                  Expanded(
-                                                      flex: 2,
-                                                      child: Container(
-                                                          width: MediaQuery.of(
-                                                                  context)
-                                                              .size
-                                                              .width,
-                                                          decoration:
-                                                              BoxDecoration(
+                          : SizedBox(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        child: Column(
+                          children: [
+                            items.length == 0
+                                ? SizedBox()
+                                : Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.history),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                "Recent searches",
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ],
+                                          ),
+                                          InkWell(
+                                            child: Text(
+                                              "Clear",
+                                              style: TextStyle(
+                                                  color: Colors.blue,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            onTap: () async {
+                                              SharedPreferences prefs =
+                                                  await SharedPreferences
+                                                      .getInstance();
+                                              setState(() {
+                                                items.clear();
+                                                prefs.remove("recentSearch");
+                                                searchResult.clear();
+                                                searchCont.text = "";
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      items.length == 0
+                                          ? SizedBox()
+                                          : SizedBox(
+                                              height: 35,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              child: ListView.separated(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemCount: items.length,
+                                                separatorBuilder:
+                                                    (BuildContext context,
+                                                            int index) =>
+                                                        const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return InkWell(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        searchCont.clear();
+                                                        searchCont.text =
+                                                            items[index]
+                                                                .toString();
+                                                        myFocusNode
+                                                            .requestFocus();
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                        decoration: BoxDecoration(
                                                             border: Border.all(
-                                                                color:
-                                                                    Colors.grey,
-                                                                width: 0.9),
+                                                                color: Colors
+                                                                    .grey),
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .circular(
-                                                                        10),
-                                                            color: Colors
-                                                                .tealAccent[50],
+                                                                        10)),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Text(
+                                                            items[index]
+                                                                .toString(),
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .grey[700]),
                                                           ),
-                                                          child: ClipRRect(
+                                                        )),
+                                                  );
+                                                },
+                                              )),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                      ),
+                      searchResult.length == 0
+                          ? Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/feature.png",
+                                    scale: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    "Featured Products",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14),
+                                  )
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Consumer<UpdateCartData>(
+                          builder: (context, viewModel, child) {
+                        return isLoading
+                            ? Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : searchResult.length == 0
+                                ? Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: GridView.count(
+                                      crossAxisCount: 4,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                      childAspectRatio: 0.6,
+                                      physics: ClampingScrollPhysics(),
+                                      scrollDirection: Axis.vertical,
+                                      shrinkWrap: true,
+                                      children: featureProducts
+                                          .map((e) => InkWell(
+                                                onTap: () {
+                                                  print(e);
+                                                  FocusScope.of(context)
+                                                      .unfocus();
+                                                  bool inStock =
+                                                      e['is_stock'] == 1
+                                                          ? false
+                                                          : true;
+                                                  showProdcutDetails(
+                                                      context,
+                                                      e,
+                                                      inStock,
+                                                      controller,
+                                                      featureProducts,
+                                                      dynamicLinks,
+                                                      false);
+                                                },
+                                                child: Column(
+                                                  children: [
+                                                    Expanded(
+                                                        flex: 2,
+                                                        child: Container(
+                                                            width:
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  width: 0.9),
                                                               borderRadius:
                                                                   BorderRadius
                                                                       .circular(
                                                                           10),
-                                                              child: e['product_image']
-                                                                          .toString() ==
-                                                                      "0"
-                                                                  ? Image.asset(
-                                                                      "assets/no_image.jpeg",
-                                                                    )
-                                                                  : cacheImage(e[
-                                                                          'product_image']
-                                                                      .toString())))),
-                                                  SizedBox(
-                                                    height: 10,
-                                                  ),
-                                                  Expanded(
-                                                      child: Text(
-                                                    e['product_name'] == ""
-                                                        ? "No Name"
-                                                        : e['product_name']
-                                                            .toString(),
-                                                    softWrap: true,
-                                                    textAlign: TextAlign.center,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 2,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 12),
-                                                  ))
-                                                ],
-                                              ),
-                                            ))
-                                        .toList(),
-                                  ),
-                                )
-                              : allProductsList(searchResult, context,
-                                  controller, 0.8, dynamicLinks);
-                    }),
-                    viewModel.counterShowCart
-                        ? SizedBox(
-                            height: 60,
-                          )
-                        : SizedBox(),
-                  ],
+                                                              color: Colors
+                                                                  .tealAccent[50],
+                                                            ),
+                                                            child: ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                                child: e['product_image']
+                                                                            .toString() ==
+                                                                        "0"
+                                                                    ? Image
+                                                                        .asset(
+                                                                        "assets/no_image.jpeg",
+                                                                      )
+                                                                    : cacheImage(
+                                                                        e['product_image']
+                                                                            .toString())))),
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Expanded(
+                                                        child: Text(
+                                                      e['product_name'] == ""
+                                                          ? "No Name"
+                                                          : e['product_name']
+                                                              .toString(),
+                                                      softWrap: true,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 2,
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 12),
+                                                    ))
+                                                  ],
+                                                ),
+                                              ))
+                                          .toList(),
+                                    ),
+                                  )
+                                : allProductsList(searchResult, context,
+                                    controller, 0.8, dynamicLinks);
+                      }),
+                      viewModel.counterShowCart
+                          ? SizedBox(
+                              height: 60,
+                            )
+                          : SizedBox(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Align(
-                alignment: Alignment.bottomCenter,
-                child: viewModel.counterShowCart ? bottomSheet() : SizedBox()),
-          ],
+              Align(
+                  alignment: Alignment.bottomCenter,
+                  child:
+                      viewModel.counterShowCart ? bottomSheet() : SizedBox()),
+            ],
+          ),
         ),
       );
     });
@@ -704,6 +729,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         ),
                         Expanded(
+                          flex: 3,
                           child: Card(
                             elevation: 5,
                             shape: RoundedRectangleBorder(
@@ -738,7 +764,6 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                             ),
                           ),
-                          flex: 3,
                         )
                       ],
                     ),

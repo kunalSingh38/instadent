@@ -1,8 +1,7 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, library_private_types_in_public_api, use_build_context_synchronously
 
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,16 +9,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/address.dart';
 import 'package:instadent/apis/cart_api.dart';
-import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/apis/other_api.dart';
-import 'package:instadent/cart/cancelled_payment.dart';
 import 'package:instadent/cart/payment_methods.dart';
-import 'package:instadent/category/all_categories.dart';
 import 'package:instadent/constants.dart';
-import 'package:instadent/dashboard.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CartView extends StatefulWidget {
@@ -73,9 +66,9 @@ class _CartViewState extends State<CartView> {
             });
 
             double temp = 0;
-            cartData.forEach((element) {
+            for (var element in cartData) {
               temp = temp + double.parse(element['rate'].toString());
-            });
+            }
 
             setState(() {
               originalRateTotal = temp - double.parse(totalPrice.toString());
@@ -95,7 +88,6 @@ class _CartViewState extends State<CartView> {
                 taxSlab.add(key.toString());
               }
             });
-
             setState(() {
               taxes.clear();
               taxSlab.forEach((element) {
@@ -120,9 +112,7 @@ class _CartViewState extends State<CartView> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
     getData();
   }
 
@@ -369,14 +359,14 @@ class _CartViewState extends State<CartView> {
                                     child: Container(
                                         height: 40,
                                         width: 40,
-                                        child: Image.asset(
-                                          "assets/clock.png",
-                                          scale: 25,
-                                        ),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           color: Colors.grey[200],
+                                        ),
+                                        child: Image.asset(
+                                          "assets/clock.png",
+                                          scale: 25,
                                         ))),
                                 Expanded(
                                   flex: 7,
@@ -967,7 +957,7 @@ class _CartViewState extends State<CartView> {
         backgroundColor: Colors.white,
         context: context,
         isScrollControlled: true,
-        builder: (context) => Container(
+        builder: (context) => SizedBox(
             height: 180,
             child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -1047,7 +1037,7 @@ class _CartViewState extends State<CartView> {
                                               listen: false)
                                           .showCartorNot()
                                           .then((value) {
-                                            getData();
+                                        getData();
                                         Navigator.of(context).pop();
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(

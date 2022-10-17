@@ -1,6 +1,5 @@
-// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, sort_child_properties_last, library_private_types_in_public_api
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,8 +11,6 @@ import 'package:instadent/constants.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:skeletons/skeletons.dart';
-import 'package:collection/collection.dart';
 
 class OffersScreen extends StatefulWidget {
   const OffersScreen({Key? key}) : super(key: key);
@@ -59,7 +56,6 @@ class _OffersScreenState extends State<OffersScreen> {
   List brandImageList = [];
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setState(() {
       searching.clear();
@@ -140,9 +136,7 @@ class _OffersScreenState extends State<OffersScreen> {
             ),
             // bottomNavigationBar:
             //     viewModel.counterShowCart ? bottomSheet() : null,
-            body: LiquidPullToRefresh(
-              animSpeedFactor: 5,
-              springAnimationDurationInMilliseconds: 800,
+            body: RefreshIndicator(
               onRefresh: () async {
                 getBrandList();
               },

@@ -43,10 +43,7 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
         MediaQuery.of(context).orientation == Orientation.portrait
             ? MediaQuery.of(context).size.height * 0.02
             : MediaQuery.of(context).size.width * 0.02;
-    return LiquidPullToRefresh(
-      showChildOpacityTransition: true,
-      animSpeedFactor: 5,
-      springAnimationDurationInMilliseconds: 800,
+    return RefreshIndicator(
       onRefresh: () async {
         CategoryAPI().cartegoryList().then((value) {
           setState(() {
@@ -168,48 +165,56 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
               ),
               // bottomNavigationBar:
               //     viewModel.counterShowCart ? bottomSheet() : null,
-              body: Stack(
+              body: ListView(
                 children: [
-                  isLoading
-                      ? loadingProducts("Getting your InstaDent products")
-                      : Padding(
-                          padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
-                          child: categoryList.length == 0
-                              ? Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset("assets/noData.jpg"),
-                                      Text(
-                                        "No data found",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              : SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      allCategoryGrid(categoryList, context,
-                                          unitHeightValue),
-                                      viewModel.counterShowCart
-                                          ? SizedBox(
-                                              height: 60,
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height*0.8,
+                    child: Stack(
+                      children: [
+                        isLoading
+                            ? loadingProducts("Getting your InstaDent products")
+                            : Padding(
+                                padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
+                                child: categoryList.isEmpty
+                                    ? Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Image.asset("assets/noData.jpg"),
+                                            Text(
+                                              "No data found",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
                                             )
-                                          : SizedBox(),
-                                    ],
-                                  ),
-                                ),
-                        ),
-                  Align(
-                      alignment: Alignment.bottomCenter,
-                      child: viewModel.counterShowCart
-                          ? bottomSheet()
-                          : SizedBox())
+                                          ],
+                                        ),
+                                      )
+                                    : SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            allCategoryGrid(categoryList, context,
+                                                unitHeightValue),
+                                            viewModel.counterShowCart
+                                                ? SizedBox(
+                                                    height: 60,
+                                                  )
+                                                : SizedBox(),
+                                          ],
+                                        ),
+                                      ),
+                              ),
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: viewModel.counterShowCart
+                                ? bottomSheet()
+                                : SizedBox())
+                      ],
+                    ),
+                  ),
                 ],
               ));
         }),

@@ -37,13 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
     SmsAutoFill();
-    // TODO: implement dispose
     super.dispose();
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getPhoneNumber();
   }
@@ -241,6 +239,13 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 height: 40,
               ),
+              Text(
+                "By continuing, you agree to our",
+                style: TextStyle(color: Colors.grey),
+              ),
+              SizedBox(
+                height: 5,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -258,8 +263,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),
-                  SizedBox(
-                    width: 10,
+                
+                  Text(" & ",
+                      style: TextStyle(color: Colors.grey),
+                  
                   ),
                   InkWell(
                     onTap: () {

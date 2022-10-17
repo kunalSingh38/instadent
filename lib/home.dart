@@ -187,10 +187,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            height: 30,
+                            height: MediaQuery.of(context).size.height * 0.055,
                           ),
                           Container(
-                            height: MediaQuery.of(context).size.height*0.055,
+                            height: MediaQuery.of(context).size.height * 0.055,
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     image:
@@ -199,8 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       content: SizedBox(
-                        height: MediaQuery.of(context).size.height*0.06,
-                        width:MediaQuery.of(context).size.width*0.99 ,
+                        height: MediaQuery.of(context).size.height * 0.06,
+                        width: MediaQuery.of(context).size.width * 0.99,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -210,11 +210,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontWeight: FontWeight.w500)),
                             Container(
                               alignment: Alignment.center,
-                              width: MediaQuery.of(context).size.width*0.99,
-                              child: Text("Please confirm if you want to exit?",
-                                  style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontWeight: FontWeight.w600)),
+                              width: MediaQuery.of(context).size.width,
+                              child: Text(
+                                "Please confirm if you want to exit?",
+                                style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600),
+                                maxLines: 1,
+                              ),
                             ),
                           ],
                         ),
@@ -223,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       actionsPadding: EdgeInsets.only(bottom: 10),
                       actions: [
                         Container(
-                          height: MediaQuery.of(context).size.height * 0.044,
+                          height: MediaQuery.of(context).size.height * 0.04,
                           width: MediaQuery.of(context).size.width * 0.3,
                           decoration: BoxDecoration(
                               color: Colors.grey[200],
@@ -255,8 +259,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     Positioned(
-                      left: MediaQuery.of(context).size.width*0.37,
-                      top: MediaQuery.of(context).size.height*0.27,
+                      left: MediaQuery.of(context).size.width * 0.37,
+                      top: MediaQuery.of(context).size.height * 0.27,
                       child: Container(
                         alignment: Alignment.center,
                         height: 100,
@@ -273,7 +277,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 80,
                               decoration: BoxDecoration(
                                   image: DecorationImage(
-                                      image: AssetImage("assets/instaCircle.png"))),
+                                      image: AssetImage(
+                                          "assets/instaCircle.png"))),
                             ),
                           ],
                         ),
@@ -282,10 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 )));
       },
-      child: LiquidPullToRefresh(
-        animSpeedFactor: 5,
-        showChildOpacityTransition: true,
-        springAnimationDurationInMilliseconds: 800,
+      child: RefreshIndicator(
         onRefresh: () async {
           reloadApis();
         },
