@@ -3,8 +3,6 @@
 import 'dart:convert';
 
 // import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:expandable/expandable.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +21,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import 'banner_products_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -101,16 +101,15 @@ class _HomeScreenState extends State<HomeScreen> {
           print(carouselsList.length.toString() + "test");
         });
       });
+    } else {
+      OtherAPI().carouselsWithoutLogin().then((value) {
+        setState(() {
+          carouselsList.clear();
+          carouselsList.addAll(value);
+          isLoadingCarosole = false;
+        });
+      });
     }
-    // else {
-    //   OtherAPI().carouselsWithoutLogin().then((value) {
-    //     setState(() {
-    //       carouselsList.clear();
-    //       carouselsList.addAll(value);
-    //       isLoadingCarosole = false;
-    //     });
-    //   });
-    // }
   }
 
   double currentIndexPage = 0;
@@ -706,45 +705,59 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     "banner_carousel") {
                                                   List items = e['items'];
 
-                                                  return items.length == 0
+                                                  return items.isEmpty
                                                       ? SizedBox()
                                                       : Column(
                                                           children: [
                                                             SizedBox(
                                                               height: 10,
                                                             ),
-                                                            Padding(
-                                                              padding: const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      15),
-                                                              child: Container(
-                                                                decoration: BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        50]),
-                                                                child: ImageSlideshow(
-                                                                    width: double.infinity,
-                                                                    height: 180,
-                                                                    initialPage: 0,
-                                                                    indicatorColor: items.length == 1 ? Colors.white : Colors.black,
-                                                                    indicatorBackgroundColor: Colors.grey,
-                                                                    children: items
-                                                                        .map((e) => Padding(
-                                                                              padding: const EdgeInsets.only(bottom: 22),
-                                                                              child: SizedBox(
-                                                                                height: 140,
-                                                                                width: MediaQuery.of(context).size.width / 0.5,
-                                                                                child: ClipRRect(borderRadius: BorderRadius.circular(10), child: cacheImage(e['mobile_banner'].toString())),
-                                                                              ),
-                                                                            ))
-                                                                        .toList(),
-                                                                    onPageChanged: (value) {},
-                                                                    autoPlayInterval: 4000,
-                                                                    isLoop: items.length == 1 ? false : true),
+                                                            InkWell(
+                                                              onTap: () {
+                                                                if (e['banner_items'] ==
+                                                                    true) {
+                                                                  Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) => BannerProductsView(
+                                                                                id: e['id'].toString(),
+                                                                              )));
+                                                                }
+                                                              },
+                                                              child: Padding(
+                                                                padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                    horizontal:
+                                                                        15),
+                                                                child:
+                                                                    Container(
+                                                                  decoration: BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                      color: Colors
+                                                                              .grey[
+                                                                          50]),
+                                                                  child: ImageSlideshow(
+                                                                      width: double.infinity,
+                                                                      height: 180,
+                                                                      initialPage: 0,
+                                                                      indicatorColor: items.length == 1 ? Colors.white : Colors.black,
+                                                                      indicatorBackgroundColor: Colors.grey,
+                                                                      children: items
+                                                                          .map((e) => Padding(
+                                                                                padding: const EdgeInsets.only(bottom: 22),
+                                                                                child: SizedBox(
+                                                                                  height: 140,
+                                                                                  width: MediaQuery.of(context).size.width / 0.5,
+                                                                                  child: ClipRRect(borderRadius: BorderRadius.circular(10), child: cacheImage(e['mobile_banner'].toString())),
+                                                                                ),
+                                                                              ))
+                                                                          .toList(),
+                                                                      onPageChanged: (value) {},
+                                                                      autoPlayInterval: 4000,
+                                                                      isLoop: items.length == 1 ? false : true),
+                                                                ),
                                                               ),
                                                             ),
                                                           ],
