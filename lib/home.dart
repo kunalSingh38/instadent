@@ -187,10 +187,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            height: 30,
+                            height: MediaQuery.of(context).size.height * 0.055,
                           ),
                           Container(
-                            height: 50,
+                            height: MediaQuery.of(context).size.height * 0.055,
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     image:
@@ -208,10 +208,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                     color: Colors.teal,
                                     fontWeight: FontWeight.w500)),
-                            Text("Please confirm if you want to exit?",
+                            Container(
+                              alignment: Alignment.center,
+                              width: MediaQuery.of(context).size.width,
+                              child: Text(
+                                "Please confirm if you want to exit?",
                                 style: TextStyle(
                                     color: Colors.grey[700],
-                                    fontWeight: FontWeight.w600)),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600),
+                                maxLines: 1,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -219,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       actionsPadding: EdgeInsets.only(bottom: 10),
                       actions: [
                         Container(
-                          height: MediaQuery.of(context).size.height * 0.044,
+                          height: MediaQuery.of(context).size.height * 0.04,
                           width: MediaQuery.of(context).size.width * 0.3,
                           decoration: BoxDecoration(
                               color: Colors.grey[200],
@@ -279,10 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 )));
       },
-      child: LiquidPullToRefresh(
-        animSpeedFactor: 5,
-        showChildOpacityTransition: true,
-        springAnimationDurationInMilliseconds: 800,
+      child: RefreshIndicator(
         onRefresh: () async {
           reloadApis();
         },
