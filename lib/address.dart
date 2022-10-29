@@ -47,11 +47,11 @@ class _AddressListScreenState extends State<AddressListScreen> {
       isLoading = false;
     }
 
-    if (pref.getString("recent_address_list").toString().isNotEmpty) {
+    if (pref.containsKey("recent_address_list")) {
+      print(pref.getString("recent_address_list"));
       List list = jsonDecode(pref.getString("recent_address_list").toString());
-      print(list.toString() + "__");
+
       setState(() {
-        recentSearch.clear();
         recentSearch.addAll(list.toSet().toList());
       });
     }
@@ -69,13 +69,12 @@ class _AddressListScreenState extends State<AddressListScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    if (widget.m.toString().isNotEmpty) {
+    if (widget.m.isNotEmpty) {
       recentSearch.add({
         "address_type": widget.m['address_type'].toString(),
         "address": widget.m['address'].toString(),
         "pincode": widget.m['pincode'].toString(),
       });
-      print("test----" + widget.m.toString());
     }
     getAddressList();
     getData();
@@ -252,72 +251,81 @@ class _AddressListScreenState extends State<AddressListScreen> {
                           ],
                         ),
                       ),
-                      Column(
-                        children: recentSearch
-                            .toSet()
-                            .toList()
-                            .map(
-                              (e) => InkWell(
-                                onTap: () async {
-                                  setDefaultAddress(
-                                      e['pincode'].toString(),
-                                      e['address'].toString(),
-                                      e['address_type'].toString(),
-                                      viewModel.counter.toString());
-                                },
-                                child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            child: currentPincode ==
-                                                    e['pincode'].toString()
-                                                ? Image.asset(
-                                                    "assets/placeholder_1.png",
-                                                    scale: 20,
-                                                  )
-                                                : Image.asset(
-                                                    "assets/placeholder.png",
-                                                    scale: 20,
-                                                  )),
-                                        Expanded(
-                                            flex: 6,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  e['address_type'].toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Text(
-                                                  capitalize(
-                                                      e['address'].toString()),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                recentSearch.indexOf(e) ==
-                                                        recentSearch.length - 1
-                                                    ? SizedBox()
-                                                    : Divider(
-                                                        thickness: 0.9,
-                                                        height: 40,
+                      recentSearch.length == 0
+                          ? SizedBox()
+                          : Column(
+                              children: recentSearch
+                                  .toSet()
+                                  .toList()
+                                  .map(
+                                    (e) => InkWell(
+                                      onTap: () async {
+                                        setDefaultAddress(
+                                            e['pincode'].toString(),
+                                            e['address'].toString(),
+                                            e['address_type'].toString(),
+                                            viewModel.counter.toString());
+                                      },
+                                      child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 10),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  child: currentPincode ==
+                                                          e['pincode']
+                                                              .toString()
+                                                      ? Image.asset(
+                                                          "assets/placeholder_1.png",
+                                                          scale: 20,
+                                                        )
+                                                      : Image.asset(
+                                                          "assets/placeholder.png",
+                                                          scale: 20,
+                                                        )),
+                                              Expanded(
+                                                  flex: 6,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        e['address_type']
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
                                                       ),
-                                              ],
-                                            )),
-                                      ],
-                                    )),
-                              ),
-                            )
-                            .toList(),
-                      ),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      Text(
+                                                        capitalize(e['address']
+                                                            .toString()),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                      recentSearch.indexOf(e) ==
+                                                              recentSearch
+                                                                      .length -
+                                                                  1
+                                                          ? SizedBox()
+                                                          : Divider(
+                                                              thickness: 0.9,
+                                                              height: 40,
+                                                            ),
+                                                    ],
+                                                  )),
+                                            ],
+                                          )),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
                     ],
                   ),
                 )
@@ -396,11 +404,18 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                   padding: const EdgeInsets.only(bottom: 8),
                                   child: InkWell(
                                     onTap: () async {
-                                      setDefaultAddress(
-                                          e['pincode'].toString(),
-                                          e['address'].toString(),
-                                          e['address_type'].toString(),
-                                          viewModel.counter.toString());
+                                      LoginAPI()
+                                          .setDefaultAddressAPI(
+                                              e['id'].toString())
+                                          .then((value) {
+                                        if (value) {
+                                          setDefaultAddress(
+                                              e['pincode'].toString(),
+                                              e['address'].toString(),
+                                              e['address_type'].toString(),
+                                              viewModel.counter.toString());
+                                        }
+                                      });
                                     },
                                     child: Row(
                                       crossAxisAlignment:

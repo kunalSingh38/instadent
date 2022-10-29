@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, use_build_context_synchronously
 
 import 'dart:convert';
 import 'dart:developer';
@@ -12,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/apis/other_api.dart';
 import 'package:instadent/constants.dart';
+import 'package:instadent/dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -83,7 +84,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               : value['registration_no'].toString();
           sameNumberSaved =
               value['is_whatsapp_alternate'].toString() == "1" ? false : true;
-              log("--->${value['is_whatsapp_alternate'].toString()}");
+          log("--->${value['is_whatsapp_alternate'].toString()}");
           secondaryWhatsAppNumber.text =
               value['alternate_whatsapp_number'] == null
                   ? ""
@@ -341,7 +342,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.circular(10)),
-                    labelText: "Dental Council Registration (DNC) Number*",
+                    labelText: "Dental Council Registration Number*",
                     labelStyle: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -639,7 +640,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         .registration(m)
                                         .then((value) async {
                                       Navigator.of(context).pop();
-                                      if (value) {
+                                      if (value["ErrorCode"] == 0) {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(
@@ -647,7 +648,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                   "Registration Successfully"),
                                               duration: Duration(seconds: 2)),
                                         );
-                                        Navigator.of(context).pop();
+                                        SharedPreferences pref =
+                                            await SharedPreferences
+                                                .getInstance();
+                                        pref.setBool("loggedIn", true);
+                                        pref.setString(
+                                            "userPhoneNo",
+                                            value["Response"]["mobile"]
+                                                .toString());
+                                        pref.setString(
+                                            "token", value["token"].toString());
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    Dashboard()),
+                                            (route) => false);
                                       } else {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(

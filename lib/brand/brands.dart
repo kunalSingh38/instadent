@@ -28,7 +28,6 @@ class _OffersScreenState extends State<OffersScreen> {
   getBrandList() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.getBool("loggedIn") ?? false) {
-      print("with login");
       CategoryAPI().brandCategorywithLogin().then((value) {
         setState(() {
           brandList.clear();
@@ -40,7 +39,6 @@ class _OffersScreenState extends State<OffersScreen> {
         });
       });
     } else {
-      print("without login");
       CategoryAPI().brandCategorywithoutLogin().then((value) {
         setState(() {
           brandList.clear();
@@ -50,7 +48,6 @@ class _OffersScreenState extends State<OffersScreen> {
         });
       });
     }
-    print("Offer 4");
   }
 
   List brandImageList = [];
@@ -138,6 +135,9 @@ class _OffersScreenState extends State<OffersScreen> {
             //     viewModel.counterShowCart ? bottomSheet() : null,
             body: RefreshIndicator(
               onRefresh: () async {
+                setState(() {
+                  isLoading = true;
+                });
                 getBrandList();
               },
               child: Stack(

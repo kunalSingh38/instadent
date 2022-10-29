@@ -35,31 +35,31 @@ class _AccountScreenState extends State<AccountScreen> {
       "title": "About Us",
       "id": "1",
       "icon": "aboutus.png",
-      "data": "aboutus.html"
+      "data": "https://idcweb.techstreet.in/#/about-us"
     },
     {
       "title": "Privacy Policy",
       "id": "5",
       "icon": "policy.png",
-      "data": "privacy.html"
+      "data": "https://idcweb.techstreet.in/#/privacy-policy"
     },
     {
       "title": "Shipping Policy",
       "id": "6",
       "icon": "shipping.png",
-      "data": "shipping.html"
+      "data": "https://idcweb.techstreet.in/#/shipping-policy"
     },
     {
       "title": "Refund & Replacement",
       "id": "7",
       "icon": "refund.png",
-      "data": "refund.html"
+      "data": "https://idcweb.techstreet.in/#/return-refund-policy"
     },
     {
       "title": "Terms & Condition",
       "id": "8",
       "icon": "terms.png",
-      "data": "term_condition.html"
+      "data": "https://idcweb.techstreet.in/#/terms-and-condition"
     },
     {"title": "Rate us on Play Store", "id": "2", "icon": "star.png"},
     {"title": "Contact Us", "id": "4", "icon": "contact.png"},
@@ -333,7 +333,8 @@ class _AccountScreenState extends State<AccountScreen> {
                       Column(
                         children: otherInfo.map((e) {
                           int index = otherInfo.indexOf(e);
-                          return phoneNumber == "null" && e['id'] == "3"
+                          return phoneNumber == "null" && e['id'] == "3" ||
+                                  phoneNumber == "null" && e['id'] == "4"
                               ? SizedBox()
                               : ListTile(
                                   onTap: () async {
@@ -374,6 +375,10 @@ class _AccountScreenState extends State<AccountScreen> {
                                                             CrossAxisAlignment
                                                                 .center,
                                                         children: [
+                                                          // Image.asset(
+                                                          //   "assets/instavalue.png",
+                                                          //   scale: 25,
+                                                          // ),
                                                           Text(
                                                             "LOG OUT",
                                                             style: TextStyle(

@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_html/flutter_html.dart';
+// import 'package:flutter_html/flutter_html.dart';
 import 'package:instadent/constants.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class Policy_View extends StatefulWidget {
   String policy;
@@ -15,49 +16,47 @@ class Policy_View extends StatefulWidget {
 }
 
 class _Policy_ViewState extends State<Policy_View> {
-  String htmlData = "";
-  void loadAssets() async {
-    var data =
-        await rootBundle.loadString("assets/policy/" + widget.data.toString());
-    setState(() {
-      htmlData = data;
-    });
-  }
-
+  bool loading = true;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    loadAssets();
+    print(widget.policy);
+    print(widget.data);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: backIcon(context),
-        elevation: 3,
-        title: Text(
-          widget.policy.toString(),
-          textAlign: TextAlign.left,
-          style: TextStyle(
-              fontWeight: FontWeight.w600, color: Colors.black, fontSize: 14),
-        ),
-      ),
-      body: SafeArea(
-          child: Scrollbar(
-        interactive: true,
-        isAlwaysShown: true,
-        radius: Radius.circular(10),
-        thickness: 8,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Html(data: htmlData.toString()),
+        appBar: AppBar(
+          bottom: loading
+              ? PreferredSize(
+                  preferredSize: Size(double.infinity, 1.0),
+                  child: LinearProgressIndicator(),
+                )
+              : null,
+          backgroundColor: Colors.white,
+          leading: backIcon(context),
+          elevation: 3,
+          title: Text(
+            widget.policy.toString(),
+            textAlign: TextAlign.left,
+            style: TextStyle(
+                fontWeight: FontWeight.w600, color: Colors.black, fontSize: 14),
           ),
         ),
-      )),
-    );
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: WebView(
+              initialUrl: widget.data.toString(),
+              onProgress: (int progress) {
+                if (progress == 100) {
+                  setState(() {
+                    loading = false;
+                  });
+                }
+              },
+              javascriptMode: JavascriptMode.unrestricted),
+        ));
   }
 }

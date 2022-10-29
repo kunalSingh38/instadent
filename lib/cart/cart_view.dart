@@ -15,6 +15,7 @@ import 'package:instadent/cart/payment_methods.dart';
 import 'package:instadent/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 
 class CartView extends StatefulWidget {
   const CartView({Key? key}) : super(key: key);
@@ -39,7 +40,7 @@ class _CartViewState extends State<CartView> {
   int productCount = 0;
   double originalRateTotal = 0;
   bool isLoading2 = false;
-  String deliveryInst="";
+  String deliveryInst = "";
   bool isNumeric(String s) {
     if (s == null) {
       return false;
@@ -63,10 +64,9 @@ class _CartViewState extends State<CartView> {
               cartData.addAll(value['items']);
               // productCount = cartData.length;
               deliveryCarges = value['delivery_fee'].toString();
-              totalPrice = value['sub_total'].toString();
+              totalPrice = value['total_price'].toString();
               totalItemPrice = value['total'].toString();
-              deliveryInst=value['delivery_instructions'].toString();
-              log("---->$deliveryInst");
+              deliveryInst = value['delivery_instructions'].toString();
             });
 
             double temp = 0;
@@ -277,14 +277,18 @@ class _CartViewState extends State<CartView> {
                                   backgroundColor: MaterialStateProperty.all(
                                       Colors.teal[800])),
                               onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
+                                Navigator.of(context, rootNavigator: true)
+                                    .push(MaterialPageRoute(
                                         builder: (context) =>
                                             PaymentMenthosScreen(
+                                                retry: false,
+                                                orderId: "",
                                                 totalPayment:
                                                     double.parse(totalItemPrice)
-                                                        .toStringAsFixed(2))));
+                                                        .toStringAsFixed(0))))
+                                    .then((value) {
+                                  getData();
+                                });
                               },
                               child: Text(
                                 "Select Payment Options",
@@ -303,609 +307,661 @@ class _CartViewState extends State<CartView> {
               child: Consumer<UpdateCartData>(
                   builder: (context, viewModel, child) {
                 return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10, 20, 10, 10),
-                        child: Column(
-                          children: [
-                            originalRateTotal == 0
-                                ? SizedBox()
-                                : Column(
-                                    children: [
-                                      Container(
-                                        // height: 35,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            border: Border.all(
-                                                color: Colors.indigo,
-                                                width: 1.5)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                "Your total savings",
-                                                style: TextStyle(
-                                                    color: Colors.indigo,
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 15),
-                                              ),
-                                              Text(
-                                                "₹ " +
-                                                    originalRateTotal
-                                                        .toStringAsFixed(0)
-                                                        .replaceAll("-", ""),
-                                                style: TextStyle(
-                                                    color: Colors.indigo,
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 15),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                    ],
-                                  ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                    child: Container(
-                                        height: 40,
-                                        width: 40,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: Colors.grey[200],
-                                        ),
-                                        child: Image.asset(
-                                          "assets/clock.png",
-                                          scale: 25,
-                                        ))),
-                                Expanded(
-                                  flex: 7,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text("Delivery in 11 mintues",
-                                            overflow: TextOverflow.ellipsis,
-                                            style: GoogleFonts.montserrat(
-                                                fontWeight: FontWeight.w800,
-                                                fontSize: 18)),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              productCount.toString() +
-                                                  " items",
-                                              style:
-                                                  TextStyle(color: Colors.grey),
-                                            ),
-                                            Text(
-                                              "(incl. all taxes)",
-                                              textAlign: TextAlign.left,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey,
-                                                  fontSize: 12),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Column(
-                                children: cartData.map((e) {
-                              return Column(
+                  child: StickyHeader(
+                    header: Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+                        child: originalRateTotal == 0
+                            ? SizedBox()
+                            : Column(
                                 children: [
-                                  InkWell(
-                                    onTap: () async {
-                                      if (isLoading2 == false) {
-                                        setState(() {
-                                          isLoading2 = true;
-                                        });
-                                        OtherAPI()
-                                            .singleProductDetails(
-                                                e['id'].toString())
-                                            .then((value) async {
-                                          setState(() {
-                                            isLoading2 = false;
-                                          });
-                                          await showProdcutDetails(
-                                              context,
-                                              value,
-                                              false,
-                                              controller,
-                                              [],
-                                              dynamicLinks,
-                                              true);
-                                        });
-                                      }
-                                    },
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                            child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 2, 5, 2),
-                                          child: Container(
-                                            height: 80,
-                                            width: 80,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                border: Border.all(
-                                                    color: Colors.grey,
-                                                    width: 0.5)),
-                                            child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: cacheImage(
-                                                    e['image'].toString())),
+                                  Container(
+                                    // height: 35,
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: Border.all(
+                                            color: Colors.indigo, width: 1.5)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "Your total savings",
+                                            style: TextStyle(
+                                                color: Colors.indigo,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 15),
                                           ),
-                                        )),
-                                        Expanded(
-                                            flex: 2,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      5, 2, 10, 0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    e['product_name']
-                                                        .toString(),
-                                                    textAlign: TextAlign.left,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 2,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: 13),
-                                                  ),
-                                                  // SizedBox(
-                                                  //   height: 5,
-                                                  // ),
-                                                  // Text(
-                                                  //   "500 g",
-                                                  //   textAlign: TextAlign.left,
-                                                  //   maxLines: 1,
-                                                  //   style: TextStyle(
-                                                  //       fontWeight:
-                                                  //           FontWeight.w300,
-                                                  //       fontSize: 12),
-                                                  // ),
-                                                  SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                          "₹" +
-                                                              e['offer_price']
-                                                                  .toString(),
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700,
-                                                              fontSize: 15)),
-                                                      SizedBox(
-                                                        width: 10,
-                                                      ),
-                                                      Text(
-                                                          "₹" +
-                                                              e['rate']
-                                                                  .toString(),
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                              fontSize: 13,
-                                                              decoration:
-                                                                  TextDecoration
-                                                                      .lineThrough,
-                                                              color:
-                                                                  Colors.grey))
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            )),
-                                        Expanded(
-                                            child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom: 15, right: 10),
-                                          child: Container(
-                                            width: 75,
-                                            height: 28,
-                                            decoration: BoxDecoration(
-                                                color: e['quantity'] > 0
-                                                    ? Colors.teal[400]
-                                                    : Colors.teal[50],
-                                                border: Border.all(
-                                                    color: Color(0xFF004D40)),
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: e['quantity'] > 0
-                                                ? Stack(
-                                                    children: [
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .fromLTRB(
-                                                                    8, 4, 2, 4),
-                                                            child: Text(
-                                                              "-",
-                                                              style: textStyle1,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            e['quantity']
-                                                                .toString(),
-                                                            style: textStyle1,
-                                                          ),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .fromLTRB(
-                                                                    2, 4, 8, 4),
-                                                            child: Text(
-                                                              "+",
-                                                              style: textStyle1,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Expanded(
-                                                              child: InkWell(
-                                                            onTap: () async {
-                                                              await setQunatity(
-                                                                  cartData
-                                                                      .indexOf(
-                                                                          e),
-                                                                  false);
-                                                            },
-                                                            child: Container(
-                                                              color: Colors
-                                                                  .transparent,
-                                                            ),
-                                                          )),
-                                                          Expanded(
-                                                              child: InkWell(
-                                                            onTap: () async {
-                                                              setState(() {
-                                                                controller
-                                                                    .clear();
-                                                              });
-                                                              await manuallyUpdateQuantity(
-                                                                  cartData
-                                                                      .indexOf(
-                                                                          e));
-                                                            },
-                                                            child: Container(
-                                                                color: Colors
-                                                                    .transparent),
-                                                          )),
-                                                          Expanded(
-                                                              child: InkWell(
-                                                            onTap: () async {
-                                                              await setQunatity(
-                                                                  cartData
-                                                                      .indexOf(
-                                                                          e),
-                                                                  true);
-                                                            },
-                                                            child: Container(
-                                                                color: Colors
-                                                                    .transparent),
-                                                          ))
-                                                        ],
-                                                      )
-                                                    ],
-                                                  )
-                                                : InkWell(
-                                                    onTap: () async {
-                                                      await setQunatity(
-                                                          cartData.indexOf(e),
-                                                          true);
-                                                    },
-                                                    child: Stack(
-                                                      alignment:
-                                                          Alignment.topRight,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .fromLTRB(
-                                                                  8, 2, 8, 2),
-                                                          child: Center(
-                                                            child: Text(
-                                                              "ADD",
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  color: Colors
-                                                                          .teal[
-                                                                      900]),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(5.0),
-                                                          child: Icon(
-                                                            Icons.add,
-                                                            color: Colors
-                                                                .teal[900],
-                                                            size: 10,
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
+                                          Text(
+                                            "₹ " +
+                                                originalRateTotal
+                                                    .toStringAsFixed(0)
+                                                    .replaceAll("-", ""),
+                                            style: TextStyle(
+                                                color: Colors.indigo,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 15),
                                           ),
-                                        ))
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   SizedBox(
                                     height: 10,
                                   )
                                 ],
-                              );
-                            }).toList()),
-                          ],
-                        ),
+                              ),
                       ),
-                      Divider(
-                        color: Colors.grey[350],
-                        thickness: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Sub Total (incl. taxes)",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                RichText(
-                                  text: TextSpan(
-                                    text: '',
-                                    style: DefaultTextStyle.of(context).style,
-                                    children: [
-                                      // TextSpan(
-                                      //     text: "₹" + "266",
-                                      //     style: TextStyle(
-                                      //         decoration:
-                                      //             TextDecoration.lineThrough,
-                                      //         fontWeight: FontWeight.w400,
-                                      //         color: Colors.grey,
-                                      //         fontSize: 14)),
-                                      TextSpan(
-                                          text: " ₹" +
-                                              double.parse(
-                                                      totalPrice.toString())
-                                                  .toStringAsFixed(2),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14)),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Column(
-                              children: taxes
-                                  .map((e) => Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            e['title'].toString() +
-                                                " (" +
-                                                e['rate'].toString() +
-                                                "%)",
-                                            textAlign: TextAlign.left,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black,
-                                                fontSize: 14),
-                                          ),
-                                          Text(
-                                            "₹" +
-                                                double.parse(e['tax_amount']
-                                                        .toString())
-                                                    .toStringAsFixed(2),
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500),
-                                          )
-                                        ],
-                                      ))
-                                  .toList(),
-                            ),
-                            // SizedBox(
-                            //   height: 10,
-                            // ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "Delivery charge",
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    PopupMenuButton(
-                                      position: PopupMenuPosition.under,
-                                      padding: EdgeInsets.zero,
-                                      icon: Image.asset(
-                                        "assets/information.png",
-                                        scale: 35,
-                                        color: Colors.green,
-                                      ),
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(
-                                            child: Container(
+                    ),
+                    content: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 20, 10, 10),
+                          child: Column(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                      child: Container(
+                                          height: 40,
+                                          width: 40,
                                           decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text("Testing information"),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            color: Colors.grey[200],
                                           ),
-                                        ))
-                                      ],
+                                          child: Image.asset(
+                                            "assets/clock.png",
+                                            scale: 25,
+                                          ))),
+                                  Expanded(
+                                    flex: 7,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 10),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text("Delivery in 11 mintues",
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.montserrat(
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 18)),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                productCount.toString() +
+                                                    " items",
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              ),
+                                              Text(
+                                                "(incl. all taxes)",
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.grey,
+                                                    fontSize: 12),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Column(
+                                  children: cartData.map((e) {
+                                return Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: () async {
+                                        if (isLoading2 == false) {
+                                          setState(() {
+                                            isLoading2 = true;
+                                          });
+                                          OtherAPI()
+                                              .singleProductDetails(
+                                                  e['id'].toString())
+                                              .then((value) async {
+                                            setState(() {
+                                              isLoading2 = false;
+                                            });
+                                            print(e['id'].toString());
+                                            await showProdcutDetails(
+                                                context,
+                                                value,
+                                                value['is_stock'] == 1
+                                                    ? false
+                                                    : true,
+                                                controller,
+                                                [value],
+                                                dynamicLinks,
+                                                false);
+                                            await getData();
+                                            // await showProdcutDetails(
+                                            //     context,
+                                            //     value,
+                                            //     false,
+                                            //     controller,
+                                            //     [],
+                                            //     dynamicLinks,
+                                            //     true);
+                                          });
+                                        }
+                                      },
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 2, 5, 2),
+                                            child: Container(
+                                              height: 80,
+                                              width: 80,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  border: Border.all(
+                                                      color: Colors.grey,
+                                                      width: 0.5)),
+                                              child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  child: cacheImage(
+                                                      e['image'].toString())),
+                                            ),
+                                          )),
+                                          Expanded(
+                                              flex: 2,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        5, 2, 10, 0),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      e['product_name']
+                                                          .toString(),
+                                                      textAlign: TextAlign.left,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 2,
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontSize: 13),
+                                                    ),
+                                                    // SizedBox(
+                                                    //   height: 5,
+                                                    // ),
+                                                    // Text(
+                                                    //   "500 g",
+                                                    //   textAlign: TextAlign.left,
+                                                    //   maxLines: 1,
+                                                    //   style: TextStyle(
+                                                    //       fontWeight:
+                                                    //           FontWeight.w300,
+                                                    //       fontSize: 12),
+                                                    // ),
+                                                    SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                            "₹" +
+                                                                double.parse(e[
+                                                                            'offer_price']
+                                                                        .toString())
+                                                                    .toStringAsFixed(
+                                                                        0),
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                fontSize: 15)),
+                                                        SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        double.parse(e['offer_price']
+                                                                        .toString())
+                                                                    .toStringAsFixed(
+                                                                        0) ==
+                                                                double.parse(e['rate']
+                                                                        .toString())
+                                                                    .toStringAsFixed(
+                                                                        0)
+                                                            ? SizedBox()
+                                                            : Text(
+                                                                "₹" +
+                                                                    double.parse(e['rate'].toString())
+                                                                        .toStringAsFixed(
+                                                                            0),
+                                                                style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                    fontSize:
+                                                                        13,
+                                                                    decoration:
+                                                                        TextDecoration
+                                                                            .lineThrough,
+                                                                    color: Colors.grey))
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              )),
+                                          Expanded(
+                                              child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 15, right: 10),
+                                            child: Container(
+                                              width: 75,
+                                              height: 28,
+                                              decoration: BoxDecoration(
+                                                  color: e['quantity'] > 0
+                                                      ? Colors.teal[400]
+                                                      : Colors.teal[50],
+                                                  border: Border.all(
+                                                      color: Color(0xFF004D40)),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: e['quantity'] > 0
+                                                  ? Stack(
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .fromLTRB(
+                                                                      8,
+                                                                      4,
+                                                                      2,
+                                                                      4),
+                                                              child: Text(
+                                                                "-",
+                                                                style:
+                                                                    textStyle1,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              e['quantity']
+                                                                  .toString(),
+                                                              style: textStyle1,
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .fromLTRB(
+                                                                      2,
+                                                                      4,
+                                                                      8,
+                                                                      4),
+                                                              child: Text(
+                                                                "+",
+                                                                style:
+                                                                    textStyle1,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Expanded(
+                                                                child: InkWell(
+                                                              onTap: () async {
+                                                                await setQunatity(
+                                                                    cartData
+                                                                        .indexOf(
+                                                                            e),
+                                                                    false);
+                                                              },
+                                                              child: Container(
+                                                                color: Colors
+                                                                    .transparent,
+                                                              ),
+                                                            )),
+                                                            Expanded(
+                                                                child: InkWell(
+                                                              onTap: () async {
+                                                                setState(() {
+                                                                  controller
+                                                                      .clear();
+                                                                });
+                                                                await manuallyUpdateQuantity(
+                                                                    cartData
+                                                                        .indexOf(
+                                                                            e));
+                                                              },
+                                                              child: Container(
+                                                                  color: Colors
+                                                                      .transparent),
+                                                            )),
+                                                            Expanded(
+                                                                child: InkWell(
+                                                              onTap: () async {
+                                                                await setQunatity(
+                                                                    cartData
+                                                                        .indexOf(
+                                                                            e),
+                                                                    true);
+                                                              },
+                                                              child: Container(
+                                                                  color: Colors
+                                                                      .transparent),
+                                                            ))
+                                                          ],
+                                                        )
+                                                      ],
+                                                    )
+                                                  : InkWell(
+                                                      onTap: () async {
+                                                        await setQunatity(
+                                                            cartData.indexOf(e),
+                                                            true);
+                                                      },
+                                                      child: Stack(
+                                                        alignment:
+                                                            Alignment.topRight,
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .fromLTRB(
+                                                                    8, 2, 8, 2),
+                                                            child: Center(
+                                                              child: Text(
+                                                                "ADD",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                            .teal[
+                                                                        900]),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(5.0),
+                                                            child: Icon(
+                                                              Icons.add,
+                                                              color: Colors
+                                                                  .teal[900],
+                                                              size: 10,
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                            ),
+                                          ))
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    )
                                   ],
-                                ),
-                                RichText(
-                                  text: TextSpan(
-                                    text: '',
-                                    style: DefaultTextStyle.of(context).style,
-                                    children: [
-                                      TextSpan(
-                                          text: "",
-                                          style: TextStyle(
-                                              decoration:
-                                                  TextDecoration.lineThrough,
-                                              fontWeight: FontWeight.w400,
-                                              color: Colors.grey,
-                                              fontSize: 14)),
-                                      TextSpan(
-                                          text: " ₹" +
-                                              double.parse(
-                                                      deliveryCarges.toString())
-                                                  .toStringAsFixed(2),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14)),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // SizedBox(
-                            //   height: 10,
-                            // ),
-                            Row(
+                                );
+                              }).toList()),
+                            ],
+                          ),
+                        ),
+                        Divider(
+                          color: Colors.grey[350],
+                          thickness: 10,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: Column(
+                            children: [
+                              Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Bill total",
+                                    "Total Price (incl. taxes)",
                                     style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500),
                                   ),
-                                  Text(
-                                    "₹" +
-                                        double.parse(totalItemPrice)
-                                            .toStringAsFixed(2),
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
+                                  RichText(
+                                    text: TextSpan(
+                                      text: '',
+                                      style: DefaultTextStyle.of(context).style,
+                                      children: [
+                                        // TextSpan(
+                                        //     text: "₹" + "266",
+                                        //     style: TextStyle(
+                                        //         decoration:
+                                        //             TextDecoration.lineThrough,
+                                        //         fontWeight: FontWeight.w400,
+                                        //         color: Colors.grey,
+                                        //         fontSize: 14)),
+                                        TextSpan(
+                                            text: " ₹" +
+                                                double.parse(
+                                                        totalPrice.toString())
+                                                    .toStringAsFixed(0),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14)),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                              // SizedBox(
+                              //   height: 10,
+                              // ),
+                              // Column(
+                              //   children: taxes
+                              //       .map((e) => Row(
+                              //             mainAxisAlignment:
+                              //                 MainAxisAlignment.spaceBetween,
+                              //             children: [
+                              //               Text(
+                              //                 e['title'].toString() +
+                              //                     " (" +
+                              //                     e['rate'].toString() +
+                              //                     "%)",
+                              //                 textAlign: TextAlign.left,
+                              //                 style: TextStyle(
+                              //                     fontWeight: FontWeight.w500,
+                              //                     color: Colors.black,
+                              //                     fontSize: 14),
+                              //               ),
+                              //               Text(
+                              //                 "₹" +
+                              //                     double.parse(e['tax_amount']
+                              //                             .toString())
+                              //                         .toStringAsFixed(2),
+                              //                 style: TextStyle(
+                              //                     fontWeight: FontWeight.w500),
+                              //               )
+                              //             ],
+                              //           ))
+                              //       .toList(),
+                              // ),
+                              // SizedBox(
+                              //   height: 10,
+                              // ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Delivery charge",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      PopupMenuButton(
+                                        position: PopupMenuPosition.under,
+                                        padding: EdgeInsets.zero,
+                                        icon: Image.asset(
+                                          "assets/information.png",
+                                          scale: 35,
+                                          color: Colors.green,
+                                        ),
+                                        itemBuilder: (context) => [
+                                          PopupMenuItem(
+                                              child: Container(
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child:
+                                                  Text("Testing information"),
+                                            ),
+                                          ))
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ])
-                          ],
+                                  RichText(
+                                    text: TextSpan(
+                                      text: '',
+                                      style: DefaultTextStyle.of(context).style,
+                                      children: [
+                                        TextSpan(
+                                            text: "",
+                                            style: TextStyle(
+                                                decoration:
+                                                    TextDecoration.lineThrough,
+                                                fontWeight: FontWeight.w400,
+                                                color: Colors.grey,
+                                                fontSize: 14)),
+                                        TextSpan(
+                                            text: " ₹" +
+                                                double.parse(deliveryCarges
+                                                        .toString())
+                                                    .toStringAsFixed(0),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // SizedBox(
+                              //   height: 10,
+                              // ),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Bill total",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      "₹" +
+                                          double.parse(totalItemPrice)
+                                              .toStringAsFixed(0),
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ])
+                            ],
+                          ),
                         ),
-                      ),
-                      Divider(
-                        color: Colors.grey[350],
-                        thickness: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Cancellation Policy",
-                                style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.w800, fontSize: 16)),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                                "Orders cannot be cancelled once packed for delivery. In case of unexpected delays, a refund will be provided, if applicable.",
-                                style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                    color: Colors.grey)),
-                          ],
+                        Divider(
+                          color: Colors.grey[350],
+                          thickness: 10,
                         ),
-                      ),
-                      SizedBox(height: 10,),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        margin: const EdgeInsets.symmetric(horizontal: 18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Delivery Instructions",
-                                style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.w800, fontSize: 16)),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                                deliveryInst,
-                                style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                    color: Colors.grey)),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Cancellation Policy",
+                                  style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16)),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                  "Orders cannot be cancelled once packed for delivery. In case of unexpected delays, a refund will be provided, if applicable.",
+                                  style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 11,
+                                      color: Colors.grey)),
+                            ],
+                          ),
                         ),
-                      )
-                    ],
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          margin: const EdgeInsets.symmetric(horizontal: 18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Delivery Instructions",
+                                  style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16)),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(deliveryInst,
+                                  style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 11,
+                                      color: Colors.grey)),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 40,
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }),

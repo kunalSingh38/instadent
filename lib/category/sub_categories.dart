@@ -63,7 +63,8 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
         });
 
         await getSubCategoryProducts(
-            subCategoryList[0]['id'].toString(), );
+          subCategoryList[0]['id'].toString(),
+        );
       } else {
         setState(() {
           isLoadingLeft = false;
@@ -78,7 +79,9 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
     });
   }
 
-  Future getSubCategoryProducts(String id,) async {
+  Future getSubCategoryProducts(
+    String id,
+  ) async {
     print(id);
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -331,8 +334,8 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                       });
 
                                                       await getSubCategoryProducts(
-                                                          e['id'].toString(),
-                                                          );
+                                                        e['id'].toString(),
+                                                      );
                                                     },
                                                     child: Stack(
                                                       key: e['key'],
@@ -506,11 +509,10 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                     Expanded(
                       child: isLoadingRight
                           ? Center(
-                              child: loadingProducts("Getting $selectedSubCategory products"),
+                              child: loadingProducts(
+                                  "Getting $selectedSubCategory products"),
                             )
-                          : LiquidPullToRefresh(
-                              animSpeedFactor: 5,
-                              springAnimationDurationInMilliseconds: 800,
+                          : RefreshIndicator(
                               onRefresh: () async {
                                 // print(currentSelection);
                                 await getSubCategoryProducts(currentSelection);

@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "649776695893",
-    "project_id": "instadent-3cd58",
-    "storage_bucket": "instadent-3cd58.appspot.com"
+    "project_number": "232491019013",
+    "project_id": "instadent-9fa8d",
+    "storage_bucket": "instadent-9fa8d.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:649776695893:android:212668c4b86306961262dc",
+        "mobilesdk_app_id": "1:232491019013:android:aed9e1c627d09f5973e56c",
         "android_client_info": {
           "package_name": "com.instadent.instadent"
         }
       },
       "oauth_client": [
         {
-          "client_id": "649776695893-mj02k09liaphehp3s1vk7f4npi79k8he.apps.googleusercontent.com",
+          "client_id": "232491019013-s3kstsk3pq2dbnlik4654clvlitcfjda.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDUGiNEb9BnCBRA1Ehnq1ATdwJZbKqsJZg"
+          "current_key": "AIzaSyDcG9qqQ5IWt4EkDefaron3xsWQsiBVR18"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "649776695893-mj02k09liaphehp3s1vk7f4npi79k8he.apps.googleusercontent.com",
+              "client_id": "232491019013-s3kstsk3pq2dbnlik4654clvlitcfjda.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

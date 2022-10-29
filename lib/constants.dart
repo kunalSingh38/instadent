@@ -7,7 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_html/flutter_html.dart';
+// import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,7 +20,8 @@ import 'package:instadent/zoom_image.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const URL = "https://dev.techstreet.in/idc/public/api/v1/";
+// const URL = "https://dev.techstreet.in/idc/public/api/v1/";
+const URL = "https://admin.instadent.in/api/v1/";
 const searchHint = "Search for gutta percha, files & more";
 const whatsAppNo = "919899339093";
 showLaoding(context) {
@@ -74,7 +75,9 @@ Widget bottomSheet() =>
                 }
               },
               child: Container(
-                color: Colors.transparent,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Container(
@@ -146,19 +149,17 @@ Future<void> showProdcutDetails(
     List productItems,
     FirebaseDynamicLinks dynamicLinks,
     bool show) async {
+  print(m);
   String group_Data = m['group_price']
       .toString()
       .replaceAll("&#8377;", "₹")
       .replaceAll("<br/>", ",")
       .toString();
 
-  print(group_Data);
-
   List data = group_Data.split(",");
   data.removeLast();
   double height = 220;
   double heightMain = 1.4;
-  print(data);
 
   String disccount = m['discount_percentage'].toString();
   // String temp = m['item_discount'].toString().split("%")[0].toString();
@@ -318,23 +319,30 @@ Future<void> showProdcutDetails(
                                 child: Row(
                                   children: [
                                     Text(
-                                        "₹" +
+                                        "₹ " +
                                             double.parse(m['discount_price']
                                                     .toString())
                                                 .toStringAsFixed(0),
                                         style: TextStyle(
+                                            color: Colors.green[800],
                                             fontWeight: FontWeight.w600,
-                                            fontSize: 16)),
+                                            fontSize: 18)),
                                     SizedBox(
                                       width: 8,
                                     ),
-                                    Text("₹" + removeNull(m['mrp'].toString()),
-                                        style: TextStyle(
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.grey,
-                                            fontSize: 14)),
+                                    double.parse(m['discount_price'].toString())
+                                                .toStringAsFixed(0) ==
+                                            removeNull(m['mrp'].toString())
+                                        ? SizedBox()
+                                        : Text(
+                                            "₹ " +
+                                                removeNull(m['mrp'].toString()),
+                                            style: TextStyle(
+                                                decoration:
+                                                    TextDecoration.lineThrough,
+                                                fontWeight: FontWeight.w400,
+                                                color: Colors.grey,
+                                                fontSize: 14)),
                                     SizedBox(
                                       width: 8,
                                     ),
@@ -698,40 +706,40 @@ Future<void> showProdcutDetails(
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: otherDetails
-                                .map((e) => Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(e['title'].toString(),
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 15,
-                                                color: Colors.black)),
-                                        SizedBox(
-                                          height: 2,
-                                        ),
-                                        Text(e['description'].toString(),
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 15,
-                                                color: Colors.grey)),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                      ],
-                                    ))
-                                .toList(),
+                            children: otherDetails.map((e) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(e['title'].toString(),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 15,
+                                          color: Colors.black)),
+                                  SizedBox(
+                                    height: 2,
+                                  ),
+                                  Text(e['description'].toString(),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 15,
+                                          color: Colors.grey)),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                ],
+                              );
+                            }).toList(),
                           ),
-                       Divider(
+                          Divider(
                             thickness: 0.9,
                             height: 30,
                           ),
-                          Text("You may also like", style: TextStyle(
+                          Text("You may also like",
+                              style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 15,
                                   color: Colors.black)),
-                                   SizedBox(
+                          SizedBox(
                             height: 10,
                           ),
                           Padding(
@@ -971,17 +979,22 @@ Widget singleProductDesign(
                           e['product_name'].toString() + "\n\n",
                           textAlign: TextAlign.left,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
+                          maxLines: 2,
                           style: TextStyle(
-                              fontWeight: FontWeight.w500, fontSize: 12),
+                              fontWeight: FontWeight.w600, fontSize: 12),
                         ),
-                        // Text(
-                        //   "500 g",
-                        //   textAlign: TextAlign.left,
-                        //   maxLines: 1,
-                        //   style: TextStyle(
-                        //       fontWeight: FontWeight.w300, fontSize: 12),
-                        // ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          e['packing_info'] == null
+                              ? ""
+                              : e['packing_info'].toString(),
+                          textAlign: TextAlign.left,
+                          maxLines: 1,
+                          style: TextStyle(
+                              fontWeight: FontWeight.w300, fontSize: 12),
+                        ),
                         SizedBox(
                           height: 10,
                         ),
@@ -1003,16 +1016,22 @@ Widget singleProductDesign(
                                         style: TextStyle(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 12)),
-                                    Text(
-                                        "₹" +
+                                    double.parse(e['discount_price'].toString())
+                                                .toStringAsFixed(0) ==
                                             double.parse(e['mrp'].toString())
-                                                .toStringAsFixed(0),
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 11,
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            color: Colors.grey))
+                                                .toStringAsFixed(0)
+                                        ? SizedBox()
+                                        : Text(
+                                            "₹" +
+                                                double.parse(
+                                                        e['mrp'].toString())
+                                                    .toStringAsFixed(0),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 11,
+                                                decoration:
+                                                    TextDecoration.lineThrough,
+                                                color: Colors.grey))
                                   ],
                                 ),
                               ],

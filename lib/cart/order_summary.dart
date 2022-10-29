@@ -20,6 +20,7 @@ import 'package:instadent/cart/cart_view.dart';
 import 'package:instadent/cart/return_order_details.dart';
 import 'package:instadent/cart/review_rating.dart';
 import 'package:instadent/constants.dart';
+import 'package:instadent/policy_view.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:open_filex/open_filex.dart';
@@ -119,9 +120,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    print(widget.map);
     CartAPI().orderDetails(widget.map['orderId'].toString()).then((value) {
-      print(value);
       setState(() {
         isLoading = false;
       });
@@ -141,7 +141,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           });
         });
 
-        print(taxes);
         setState(() {
           orderMap = value;
           items.addAll(value['items']);
@@ -153,7 +152,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           isDelivered = value['order_status'] == "Delivered" ? true : false;
           deliverTo = capitalize(value['deliver_to'].toString());
           deliveryChanges = value['deliver_charge'].toString();
-          subTotal = value['sub_total'].toString();
+          subTotal = value['total_price'].toString();
         });
       }
     });
@@ -208,121 +207,129 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         SizedBox(
                           height: 8,
                         ),
-                        Text(
-                          "Arrived at 08:46 am",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey,
-                              fontSize: 12),
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            widget.map['download_invoice'] == null
-                                ? SizedBox()
-                                : InkWell(
-                                    onTap: () async {
-                                      String filePath = widget
-                                          .map['download_invoice']
-                                          .toString();
-                                      // _setPath(
-                                      //     widget.map['download_invoice'].toString());
-                                      if (await Permission.storage
-                                          .request()
-                                          .isGranted) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                                "Downloading...".toString()),
-                                          ),
-                                        );
-                                        String path = "";
-                                        if (Platform.isAndroid) {
-                                          final baseStorage =
-                                              await getExternalStorageDirectory();
-                                          path = baseStorage!.path.toString();
-                                        } else {
-                                          final baseStorage =
-                                              await getApplicationDocumentsDirectory();
-                                          path = baseStorage.path;
-                                        }
+                        // Text(
+                        //   "Arrived at 08:46 am",
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.w500,
+                        //       color: Colors.grey,
+                        //       fontSize: 12),
+                        // ),
+                        // SizedBox(height: 8),
+                        widget.map["current_status"] == "Cancelled"
+                            ? SizedBox()
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  widget.map['download_invoice'] == null
+                                      ? SizedBox()
+                                      : InkWell(
+                                          onTap: () async {
+                                            String filePath = widget
+                                                .map['download_invoice']
+                                                .toString();
+                                            // _setPath(
+                                            //     widget.map['download_invoice'].toString());
+                                            if (await Permission.storage
+                                                .request()
+                                                .isGranted) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text("Downloading..."
+                                                      .toString()),
+                                                ),
+                                              );
+                                              String path = "";
+                                              if (Platform.isAndroid) {
+                                                final baseStorage =
+                                                    await getExternalStorageDirectory();
+                                                path = baseStorage!.path
+                                                    .toString();
+                                              } else {
+                                                final baseStorage =
+                                                    await getApplicationDocumentsDirectory();
+                                                path = baseStorage.path;
+                                              }
 
-                                        Dio dio = Dio();
-                                        var response = await dio.download(
-                                            filePath,
-                                            path +
-                                                '/' +
-                                                filePath.split("/").last +
-                                                ".pdf");
+                                              Dio dio = Dio();
+                                              var response = await dio.download(
+                                                  filePath,
+                                                  path +
+                                                      '/' +
+                                                      filePath.split("/").last +
+                                                      ".pdf");
 
-                                        if (response.statusCode == 200) {
-                                          OpenFilex.open('$path/' +
-                                              filePath.split("/").last +
-                                              ".pdf");
-                                        }
-                                      }
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Text("Download summary",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500,
+                                              if (response.statusCode == 200) {
+                                                OpenFilex.open('$path/' +
+                                                    filePath.split("/").last +
+                                                    ".pdf");
+                                              }
+                                            }
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Text("Download summary",
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Colors.green[700],
+                                                      fontSize: 14)),
+                                              Icon(
+                                                Icons.file_download_outlined,
                                                 color: Colors.green[700],
-                                                fontSize: 14)),
-                                        Icon(
-                                          Icons.file_download_outlined,
-                                          color: Colors.green[700],
-                                          size: 20,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                            isDelivered
-                                ? InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ReturnOrderDetailsScreen(
-                                                      m: orderMap)));
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "Return & Replacment",
-                                          style: TextStyle(
-                                              color: Colors.green[700],
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14),
+                                                size: 20,
+                                              )
+                                            ],
+                                          ),
                                         ),
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          color: Colors.green[700],
-                                          size: 14,
+                                  isDelivered
+                                      ? InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ReturnOrderDetailsScreen(
+                                                            m: orderMap)));
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "Return & Replacment",
+                                                style: TextStyle(
+                                                    color: Colors.green[700],
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: Colors.green[700],
+                                                size: 14,
+                                              )
+                                            ],
+                                          ),
                                         )
-                                      ],
-                                    ),
-                                  )
-                                : InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        cancelReason.clear();
-                                      });
-                                      suggestCancelReason(orderId);
-                                    },
-                                    child: Text(
-                                      "Cancel Order",
-                                      style: TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14),
-                                    ),
-                                  )
-                          ],
-                        ),
+                                      : widget.map["current_status"] ==
+                                              "Shipped"
+                                          ? SizedBox()
+                                          : InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  cancelReason.clear();
+                                                });
+                                                suggestCancelReason(orderId);
+                                              },
+                                              child: Text(
+                                                "Cancel Order",
+                                                style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14),
+                                              ),
+                                            )
+                                ],
+                              ),
                         Divider(
                           thickness: 0.9,
                         ),
@@ -435,7 +442,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                                                         'offer_price']
                                                                     .toString())
                                                                 .toStringAsFixed(
-                                                                    2),
+                                                                    0),
                                                         style: TextStyle(
                                                             fontWeight:
                                                                 FontWeight
@@ -488,43 +495,43 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             Text(
                               "₹" +
                                   double.parse(subTotal.toString())
-                                      .toStringAsFixed(2),
+                                      .toStringAsFixed(0),
                               style: TextStyle(fontWeight: FontWeight.w500),
                             )
                           ],
                         ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Column(
-                          children: taxes
-                              .map((e) => Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        e['title'].toString() +
-                                            " (" +
-                                            e['rate'].toString() +
-                                            "%)",
-                                        textAlign: TextAlign.left,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                            fontSize: 14),
-                                      ),
-                                      Text(
-                                        "₹" +
-                                            double.parse(
-                                                    e['tax_amount'].toString())
-                                                .toStringAsFixed(2),
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500),
-                                      )
-                                    ],
-                                  ))
-                              .toList(),
-                        ),
+                        // SizedBox(
+                        //   height: 5,
+                        // ),
+                        // Column(
+                        //   children: taxes
+                        //       .map((e) => Row(
+                        //             mainAxisAlignment:
+                        //                 MainAxisAlignment.spaceBetween,
+                        //             children: [
+                        //               Text(
+                        //                 e['title'].toString() +
+                        //                     " (" +
+                        //                     e['rate'].toString() +
+                        //                     "%)",
+                        //                 textAlign: TextAlign.left,
+                        //                 style: TextStyle(
+                        //                     fontWeight: FontWeight.w500,
+                        //                     color: Colors.black,
+                        //                     fontSize: 14),
+                        //               ),
+                        //               Text(
+                        //                 "₹" +
+                        //                     double.parse(
+                        //                             e['tax_amount'].toString())
+                        //                         .toStringAsFixed(2),
+                        //                 style: TextStyle(
+                        //                     fontWeight: FontWeight.w500),
+                        //               )
+                        //             ],
+                        //           ))
+                        //       .toList(),
+                        // ),
                         // SizedBox(
                         //   height: 5,
                         // ),
@@ -562,7 +569,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             Text(
                               "₹" +
                                   double.parse(deliveryChanges.toString())
-                                      .toStringAsFixed(2),
+                                      .toStringAsFixed(0),
                               style: TextStyle(fontWeight: FontWeight.w500),
                             )
                           ],
@@ -584,7 +591,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             Text(
                               "₹" +
                                   double.parse(total.toString())
-                                      .toStringAsFixed(2),
+                                      .toStringAsFixed(0),
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
@@ -845,48 +852,55 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             )
           : trackLink.isEmpty
               ? SizedBox()
-              : Container(
-                  height: 70,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey,
-                        blurRadius: 5.0,
+              : widget.map["current_status"] == "Cancelled"
+                  ? SizedBox()
+                  : Container(
+                      height: 70,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey,
+                            blurRadius: 5.0,
+                          ),
+                        ],
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10)),
+                        color: Colors.white,
                       ),
-                    ],
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10)),
-                    color: Colors.white,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: 45,
-                        child: ElevatedButton(
-                            style: ButtonStyle(
-                                shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                )),
-                                backgroundColor: MaterialStateProperty.all(
-                                    trackLink.isEmpty
-                                        ? Colors.grey
-                                        : Colors.teal[700])),
-                            onPressed: () {
-                              launchUrl(Uri.parse(trackLink.toString()));
-                            },
-                            child: Text(
-                              "track your order",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16,
-                                  color: Colors.white),
-                            ))),
-                  ),
-                ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: 45,
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                    shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    )),
+                                    backgroundColor: MaterialStateProperty.all(
+                                        trackLink.isEmpty
+                                            ? Colors.grey
+                                            : Colors.teal[700])),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Policy_View(
+                                              policy: "Tracking Details",
+                                              data: trackLink.toString())));
+                                },
+                                child: Text(
+                                  "track your order",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                      color: Colors.white),
+                                ))),
+                      ),
+                    ),
     );
   }
 

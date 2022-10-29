@@ -260,13 +260,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: Text(
                       "Term of service",
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: Colors.blue[800]),
                     ),
                   ),
-                
-                  Text(" & ",
-                      style: TextStyle(color: Colors.grey),
-                  
+                  Text(
+                    " & ",
+                    style: TextStyle(color: Colors.blue[800]),
                   ),
                   InkWell(
                     onTap: () {
@@ -279,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: Text(
                       "Privacy Policy",
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: Colors.blue[800]),
                     ),
                   ),
                 ],

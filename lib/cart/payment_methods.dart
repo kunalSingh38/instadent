@@ -13,7 +13,10 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class PaymentMenthosScreen extends StatefulWidget {
   String totalPayment;
-  PaymentMenthosScreen({required this.totalPayment});
+  bool retry;
+  String orderId;
+  PaymentMenthosScreen(
+      {required this.totalPayment, required this.retry, required this.orderId});
   @override
   _PaymentMenthosScreenState createState() => _PaymentMenthosScreenState();
 }
@@ -31,6 +34,24 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
+    if (widget.retry) {
+      setState(() {
+        placingOrder = true;
+      });
+      CartAPI().placePendingOrder(widget.orderId).then((value) {
+        print(value);
+        if (value['ErrorCode'] == 0) {
+          openCheckout(value['Response']['razorpay_order']['id'].toString());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Order place failed. Try again."),
+            ),
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -67,32 +88,30 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
       setState(() {
         placingOrder = false;
       });
-      Navigator.push(
+      Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                   builder: (context) => OrderPlacedScreen(
                       orderId: value['Response']['idc_order_id'].toString())))
           .then((value) {
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
         Provider.of<UpdateCartData>(context, listen: false).changeSearchView(0);
       });
     });
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    Navigator.push(context,
+    Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => CancelledPaymentScreen()))
         .then((value) {
-      Navigator.of(context).pop();
-      Navigator.of(context).pop();
-      Navigator.of(context).pop();
       Provider.of<UpdateCartData>(context, listen: false)
           .incrementCounter()
           .then((value) {
         Provider.of<UpdateCartData>(context, listen: false)
             .showCartorNot()
-            .then((value) {});
+            .then((value) {
+          // Provider.of<UpdateCartData>(context, listen: false)
+          //     .changeSearchView(0);
+        });
       });
     });
   }
@@ -216,15 +235,12 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
                         placingOrder = true;
                       });
                       CartAPI().cashOnDelivery().then((value) {
-                        print(value);
                         if (value['ErrorCode'] == 0) {
                           setState(() {
                             placingOrder = false;
                           });
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pop();
 
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => OrderPlacedScreen(

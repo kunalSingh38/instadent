@@ -45,6 +45,10 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
             : MediaQuery.of(context).size.width * 0.02;
     return RefreshIndicator(
       onRefresh: () async {
+        setState(() {
+          isLoading = true;
+        });
+
         CategoryAPI().cartegoryList().then((value) {
           setState(() {
             categoryList.clear();
@@ -168,7 +172,7 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
               body: ListView(
                 children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height*0.8,
+                    height: MediaQuery.of(context).size.height * 0.8,
                     child: Stack(
                       children: [
                         isLoading
@@ -196,8 +200,8 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            allCategoryGrid(categoryList, context,
-                                                unitHeightValue),
+                                            allCategoryGrid(categoryList,
+                                                context, unitHeightValue),
                                             viewModel.counterShowCart
                                                 ? SizedBox(
                                                     height: 60,

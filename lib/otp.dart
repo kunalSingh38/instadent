@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings, prefer_const_constructors
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/constants.dart';
@@ -87,11 +88,18 @@ class _OTPScreenState extends State<OTPScreen> {
     });
   }
 
+  String fcmToken = "";
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    listenSMS();
+    // FirebaseMessaging.instance.getToken().then((value) {
+    //   setState(() {
+    //     fcmToken = value.toString();
+    //     print(fcmToken);
+    //   });
+    // });
+    // listenSMS();
   }
 
   @override

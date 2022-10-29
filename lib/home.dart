@@ -90,6 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController controller = TextEditingController();
   bool seeMore = true;
   List carouselsList = [];
+  ImageProvider bottomText = AssetImage("assets/instaCircle.png");
+  ImageProvider topImage = AssetImage("assets/instavalue.png");
   Future<void> getCarouselsListData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.getBool("loggedIn") ?? false) {
@@ -98,7 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
           carouselsList.clear();
           carouselsList.addAll(value);
           isLoadingCarosole = false;
-          print(carouselsList.length.toString() + "test");
         });
       });
     } else {
@@ -120,7 +121,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void reloadApis() async {
     OtherAPI().homePageBanner("content").then((value) {
-      print(value);
       setState(() {
         announcment = "";
         announcment = value[0]['mobile_banner'].toString();
@@ -143,7 +143,6 @@ class _HomeScreenState extends State<HomeScreen> {
     getCarouselsListData();
     Provider.of<UpdateCartData>(context, listen: false).counterShowCart;
     CartAPI().recentOrderItems().then((value) {
-      print(value[0]);
       setState(() {
         recentOrderItems.clear();
         recentOrderItems.addAll(value);
@@ -173,121 +172,163 @@ class _HomeScreenState extends State<HomeScreen> {
             : MediaQuery.of(context).size.width * 0.02;
     return WillPopScope(
       onWillPop: () async {
-        return await showDialog(
+        showDialog(
             context: context,
-            builder: (context) => Container(
-                height: MediaQuery.of(context).size.height * 0.4,
-                width: MediaQuery.of(context).size.width,
-                child: Stack(
-                  children: [
-                    AlertDialog(
-                      backgroundColor: Colors.white,
-                      title: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            builder: (context) => Dialog(
+                  backgroundColor: Colors.transparent.withOpacity(0),
+                  elevation: 0,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      Image.asset("assets/exit.png"),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.055,
-                          ),
-                          Container(
-                            height: MediaQuery.of(context).size.height * 0.055,
-                            decoration: BoxDecoration(
-                                image: DecorationImage(
-                                    image:
-                                        AssetImage("assets/instavalue.png"))),
-                          ),
+                          Expanded(
+                              child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.grey[200])),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  "CANCEL",
+                                  style: TextStyle(color: Colors.black),
+                                )),
+                          )),
+                          Expanded(
+                              child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.blue[800])),
+                                onPressed: () {
+                                  SystemNavigator.pop();
+                                },
+                                child: Text("CONFIRM",
+                                    style: TextStyle(color: Colors.white))),
+                          )),
                         ],
-                      ),
-                      content: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.06,
-                        width: MediaQuery.of(context).size.width * 0.99,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Thanks for visiting",
-                                style: TextStyle(
-                                    color: Colors.teal,
-                                    fontWeight: FontWeight.w500)),
-                            Container(
-                              alignment: Alignment.center,
-                              width: MediaQuery.of(context).size.width,
-                              child: Text(
-                                "Please confirm if you want to exit?",
-                                style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600),
-                                maxLines: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      actionsAlignment: MainAxisAlignment.spaceAround,
-                      actionsPadding: EdgeInsets.only(bottom: 10),
-                      actions: [
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.04,
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(5)),
-                          child: TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                "Cancel",
-                                style: TextStyle(color: Colors.black),
-                              )),
-                        ),
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.044,
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          decoration: BoxDecoration(
-                              color: Colors.blue[800],
-                              borderRadius: BorderRadius.circular(5)),
-                          child: TextButton(
-                              onPressed: () {
-                                SystemNavigator.pop();
-                              },
-                              child: Text(
-                                "Confirm",
-                                style: TextStyle(color: Colors.white),
-                              )),
-                        ),
-                      ],
-                    ),
-                    Positioned(
-                      left: MediaQuery.of(context).size.width * 0.37,
-                      top: MediaQuery.of(context).size.height * 0.27,
-                      child: Container(
-                        alignment: Alignment.center,
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: Colors.white,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 80,
-                              width: 80,
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image: AssetImage(
-                                          "assets/instaCircle.png"))),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                )));
+                      )
+                    ],
+                  ),
+                ));
+        // showDialog(
+        //     context: context,
+        //     builder: (context) => Container(
+        //         height: MediaQuery.of(context).size.height * 0.4,
+        //         width: MediaQuery.of(context).size.width,
+        //         child: Stack(
+        //           children: [
+        //             Dialog(
+        //               backgroundColor: Colors.white,
+        //               child: SizedBox(
+        //                 height: MediaQuery.of(context).size.height * 0.06,
+        //                 width: MediaQuery.of(context).size.width * 0.99,
+        //                 child: Column(
+        //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                   children: [
+        //                     SizedBox(
+        //                       height:
+        //                           MediaQuery.of(context).size.height * 0.055,
+        //                     ),
+        //                     Container(
+        //                       height:
+        //                           MediaQuery.of(context).size.height * 0.055,
+        //                       decoration: BoxDecoration(
+        //                           image: DecorationImage(image: topImage)),
+        //                     ),
+        //                     Text("Thanks for visiting",
+        //                         style: TextStyle(
+        //                             color: Colors.teal,
+        //                             fontWeight: FontWeight.w500)),
+        //                     Container(
+        //                       alignment: Alignment.center,
+        //                       width: MediaQuery.of(context).size.width,
+        //                       child: Text(
+        //                         "Please confirm if you want to exit?",
+        //                         style: TextStyle(
+        //                             color: Colors.grey[700],
+        //                             fontSize: 13,
+        //                             fontWeight: FontWeight.w600),
+        //                         maxLines: 1,
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               ),
+        //               // actionsAlignment: MainAxisAlignment.spaceAround,
+        //               // actionsPadding: EdgeInsets.only(bottom: 10),
+        //               // actions: [
+        //               //   Container(
+        //               //     height: MediaQuery.of(context).size.height * 0.04,
+        //               //     width: MediaQuery.of(context).size.width * 0.3,
+        //               //     decoration: BoxDecoration(
+        //               //         color: Colors.grey[200],
+        //               //         borderRadius: BorderRadius.circular(5)),
+        //               //     child: TextButton(
+        //               //         onPressed: () {
+        //               //           Navigator.of(context).pop();
+        //               //         },
+        //               //         child: Text(
+        //               //           "Cancel",
+        //               //           style: TextStyle(color: Colors.black),
+        //               //         )),
+        //               //   ),
+        //               //   Container(
+        //               //     height: MediaQuery.of(context).size.height * 0.044,
+        //               //     width: MediaQuery.of(context).size.width * 0.3,
+        //               //     decoration: BoxDecoration(
+        //               //         color: Colors.blue[800],
+        //               //         borderRadius: BorderRadius.circular(5)),
+        //               //     child: TextButton(
+        //               //         onPressed: () {
+        //               //           SystemNavigator.pop();
+        //               //         },
+        //               //         child: Text(
+        //               //           "Confirm",
+        //               //           style: TextStyle(color: Colors.white),
+        //               //         )),
+        //               //   ),
+        //               // ],
+        //             ),
+        //             Positioned(
+        //               left: MediaQuery.of(context).size.width * 0.37,
+        //               top: MediaQuery.of(context).size.height * 0.27,
+        //               child: Container(
+        //                 alignment: Alignment.center,
+        //                 height: 100,
+        //                 width: 100,
+        //                 decoration: BoxDecoration(
+        //                   borderRadius: BorderRadius.circular(100),
+        //                   color: Colors.white,
+        //                 ),
+        //                 child: Column(
+        //                   mainAxisAlignment: MainAxisAlignment.center,
+        //                   children: [
+        //                     Container(
+        //                       height: 80,
+        //                       width: 80,
+        //                       decoration: BoxDecoration(
+        //                           image: DecorationImage(image: bottomText)),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               ),
+        //             ),
+        //           ],
+        //         )));
+        return true;
       },
       child: RefreshIndicator(
         onRefresh: () async {
+          setState(() {
+            isLoadingAllCategory = true;
+          });
           reloadApis();
         },
         child: SafeArea(
@@ -316,11 +357,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                                  child: Text("Delivery in 11 mintues",
+                                  child: Text("Delivery within 1 hour 30 min",
                                       overflow: TextOverflow.ellipsis,
                                       style: GoogleFonts.montserrat(
                                           fontWeight: FontWeight.w800,
-                                          fontSize: 20)),
+                                          fontSize: 18)),
                                 ),
                                 SizedBox(
                                   height: 10,
