@@ -90,7 +90,7 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
     });
     if (pref.getBool("loggedIn") ?? false) {
       CategoryAPI()
-          .productList(id, pref.getString("pincode").toString())
+          .productListWithoutlogin(id, pref.getString("pincode").toString())
           .then((value) {
         setState(() {
           isLoadingRight = false;

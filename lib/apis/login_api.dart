@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import 'package:instadent/UpdateCart.dart';
@@ -26,6 +27,8 @@ class LoginAPI {
       Uri.parse(URL + "verify/otp"),
       body: {"phone": phone, "otp": otp.toString()},
     );
+    log(phone + "---" + otp);
+    log(response.body);
 
     if (jsonDecode(response.body)["ErrorCode"] == 0) {
       SharedPreferences pref = await SharedPreferences.getInstance();
@@ -44,6 +47,7 @@ class LoginAPI {
       Uri.parse(URL + "register"),
       body: m,
     );
+    log(m.toString());
 
     return jsonDecode(response.body);
   }

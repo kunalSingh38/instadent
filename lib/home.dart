@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_interpolation_to_compose_strings, sort_child_properties_last, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
+import 'dart:developer';
 
 // import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
@@ -21,7 +22,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-
+import 'package:http/http.dart' as http;
 import 'banner_products_view.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoadingCarosole = true;
   Future<void> getAddressList() async {
     _determinePosition().then((value) {
-      _getAddress(value);
+      _getAddress(value).then((value) => getAccessDetails());
     });
   }
 
@@ -103,23 +104,33 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       });
     } else {
-      OtherAPI().carouselsWithoutLogin().then((value) {
-        setState(() {
-          carouselsList.clear();
-          carouselsList.addAll(value);
-          isLoadingCarosole = false;
-        });
-      });
+      // OtherAPI().carouselsWithoutLogin().then((value) {
+      //   setState(() {
+      //     carouselsList.clear();
+      //     carouselsList.addAll(value);
+      //     isLoadingCarosole = false;
+      //   });
+      // });
     }
   }
 
   double currentIndexPage = 0;
   List bannerImagesList = [];
   String announcment = "";
-
   List recentOrderItems = [];
+  String pinCode = '';
 
   void reloadApis() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    pinCode = prefs.getString('pincode').toString();
+    log("pincode--->$pinCode");
+
+    if (pinCode == null || pinCode == "" || pinCode == "null") {
+      getAddressList();
+    } else {
+      getAccessDetails();
+    }
+
     OtherAPI().homePageBanner("content").then((value) {
       setState(() {
         announcment = "";
@@ -139,7 +150,6 @@ class _HomeScreenState extends State<HomeScreen> {
         isLoadingAllCategory = false;
       });
     });
-    getAddressList();
     getCarouselsListData();
     Provider.of<UpdateCartData>(context, listen: false).counterShowCart;
     CartAPI().recentOrderItems().then((value) {
@@ -343,84 +353,93 @@ class _HomeScreenState extends State<HomeScreen> {
                 //       )
                 //     : null,
                 extendBodyBehindAppBar: true,
-                body: isLoadingAllCategory
-                    ? Center(
-                        child: loadingProducts("We are getting your products"),
-                      )
-                    : Stack(
+                body: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      controller: scrollController,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SingleChildScrollView(
-                            controller: scrollController,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                                  child: Text("Delivery within 1 hour 30 min",
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                              child: getItemResponse == ""
+                                  ? Text("Delivery within 1 hour 30 min",
                                       overflow: TextOverflow.ellipsis,
                                       style: GoogleFonts.montserrat(
                                           fontWeight: FontWeight.w800,
-                                          fontSize: 18)),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AddressListScreen(
-                                                    m: {},
-                                                  ))).then((value) async {
-                                        // SharedPreferences pref =
-                                        //     await SharedPreferences
-                                        //         .getInstance();
+                                          fontSize: 18))
+                                  : Text("Delivery $getItemResponse",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.montserrat(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 18))),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AddressListScreen(
+                                              m: {},
+                                            ))).then((value) async {
+                                  // SharedPreferences pref =
+                                  //     await SharedPreferences
+                                  //         .getInstance();
 
-                                        // setState(() {
-                                        //   addressType = pref
-                                        //       .getString("address_type")
-                                        //       .toString();
-                                        //   defaultAddress = pref
-                                        //       .getString("defaultAddress")
-                                        //       .toString();
-                                        // });
-                                      });
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 20,
-                                          child: Text(
-                                              viewModel.counterDefaultOffice
-                                                      .toString()
-                                                      .toUpperCase() +
-                                                  ", " +
-                                                  viewModel
-                                                      .counterDefaultAddress
-                                                      .toString()
-                                                      .replaceAll(" ,", ", "),
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                              style: GoogleFonts.montserrat(
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 14)),
-                                        ),
-                                        Expanded(
-                                            child: Icon(Icons.arrow_drop_down))
-                                      ],
-                                    ),
+                                  // setState(() {
+                                  //   addressType = pref
+                                  //       .getString("address_type")
+                                  //       .toString();
+                                  //   defaultAddress = pref
+                                  //       .getString("defaultAddress")
+                                  //       .toString();
+                                  // });
+                                });
+                              },
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 20,
+                                    child: Text(
+                                        viewModel.counterDefaultOffice
+                                                .toString()
+                                                .toUpperCase() +
+                                            ", " +
+                                            viewModel.counterDefaultAddress
+                                                .toString()
+                                                .replaceAll(" ,", ", "),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: GoogleFonts.montserrat(
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 14)),
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                StickyHeader(
+                                  Expanded(child: Icon(Icons.arrow_drop_down))
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          getAcess == true
+                              ? Column(
+                                  children: [
+                                    // Container(
+                                    //     alignment: Alignment.center,
+                                    //     child: Text(
+                                    //         "Store is not associated with service area")),
+                                    Image.asset(
+                                      "assets/instadent service.jpg",
+                                      scale: 1,
+                                    ),
+                                  ],
+                                )
+                              : StickyHeader(
                                   header: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5),
@@ -1021,16 +1040,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ],
                                   ),
                                 )
-                              ],
-                            ),
-                          ),
-                          Align(
-                              alignment: Alignment.bottomCenter,
-                              child: viewModel.counterShowCart
-                                  ? bottomSheet()
-                                  : SizedBox())
                         ],
-                      ));
+                      ),
+                    ),
+                    Align(
+                        alignment: Alignment.bottomCenter,
+                        child: viewModel.counterShowCart
+                            ? bottomSheet()
+                            : SizedBox())
+                  ],
+                ));
           }),
         ),
       ),
@@ -1098,6 +1117,7 @@ class _HomeScreenState extends State<HomeScreen> {
               place.country.toString());
       defaultAddress = pref.getString("defaultAddress").toString();
       addressType = place.subLocality.toString();
+
       List temp = [
         {
           "address_type": place.subLocality.toString(),
@@ -1388,5 +1408,45 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.white),
                           ))),
                 ]))));
+  }
+
+  String getItemResponse = '';
+  int dataAccess = 0;
+  bool getAcess = false;
+  Future getAccessDetails() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String currentPincode = pref.getString("pincode").toString();
+    var url = URL + "pincode-estimate-delivery";
+    var body = {
+      "pincode": currentPincode,
+    };
+    var response = await http.post(
+      Uri.parse(url),
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    log("body---->"+body.toString());
+
+    var result = jsonDecode(response.body);
+    dataAccess = result['ErrorCode'];
+    if (dataAccess == 0) {
+      getItemResponse =
+          result['ItemResponse']['delivery_expected_time'].toString();
+      log("item response--->$getItemResponse");
+      var snackBar = SnackBar(
+        content: Text(result['ErrorMessage']),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } else {
+      setState(() {
+        getAcess = true;
+      });
+
+      var snackBar = SnackBar(
+        content: Text(result['ErrorMessage']),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 }

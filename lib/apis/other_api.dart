@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -126,7 +127,7 @@ class OtherAPI {
   Future<List> carouselsWithoutLogin() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String postalCode = pref.getString('pincode').toString();
-    var response = await http.post(Uri.parse(URL + "carousels/list"),
+    var response = await http.post(Uri.parse(URL + "pincode/carousels/list"),
         headers: {
           // 'Authorization': 'Bearer ' + pref.getString("token").toString(),
           'Content-Type': 'application/json'
@@ -134,6 +135,7 @@ class OtherAPI {
         body: jsonEncode({"type": "all", "pincode": postalCode.toString()}));
 
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      // log("response--->"+jsonDecode(response.body)['Response']['carousels_list'].toString());
       return jsonDecode(response.body)['Response']['carousels_list'];
     }
     return [];
@@ -176,7 +178,7 @@ class OtherAPI {
           'Authorization': 'Bearer ' + pref.getString("token").toString(),
           'Content-Type': 'application/json'
         },
-        body: jsonEncode({"banner_location": imageFor.toString()}));
+        body: jsonEncode({"banner_location": "header".toString()}));
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['home_banner'];
     }

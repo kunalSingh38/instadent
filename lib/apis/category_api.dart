@@ -39,15 +39,16 @@ class CategoryAPI {
     return [];
   }
 
-  Future<Map> productList(String id, String pincode) async {
+  Future<Map> productListWithoutlogin(String id, String pincode) async {
     print("with login");
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response = await http.post(Uri.parse(URL + "category-productlist"),
+    var response = await http.post(Uri.parse(URL + "pincode-productlist"),
         headers: {
-          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          // 'Authorization': 'Bearer ' + pref.getString("token").toString(),
           'Content-Type': 'application/json'
         },
-        body: jsonEncode({"category_id": id.toString()}));
+               body: jsonEncode({"category_id": id.toString(), "pincode": pincode}));
+
     print(jsonEncode({"category_id": id.toString()}));
     // if (['ErrorCode'] == 0) {
     //   return jsonDecode(response.body)['ItemResponse']['category_products'];

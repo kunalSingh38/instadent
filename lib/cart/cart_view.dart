@@ -7,6 +7,7 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/address.dart';
 import 'package:instadent/apis/cart_api.dart';
@@ -16,6 +17,7 @@ import 'package:instadent/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sticky_headers/sticky_headers.dart';
+import 'package:http/http.dart' as http;
 
 class CartView extends StatefulWidget {
   const CartView({Key? key}) : super(key: key);
@@ -117,6 +119,7 @@ class _CartViewState extends State<CartView> {
   @override
   void initState() {
     super.initState();
+    getAccessDetails();
     getData();
   }
 
@@ -388,11 +391,23 @@ class _CartViewState extends State<CartView> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text("Delivery in 11 mintues",
-                                              overflow: TextOverflow.ellipsis,
-                                              style: GoogleFonts.montserrat(
-                                                  fontWeight: FontWeight.w800,
-                                                  fontSize: 18)),
+                                          getItemResponse == ""
+                                              ? Text(
+                                                  "Delivery in 1 hour 30 mintues",
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: GoogleFonts.montserrat(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      fontSize: 18))
+                                              : Text(
+                                                  "Delivery $getItemResponse",
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: GoogleFonts.montserrat(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      fontSize: 18)),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -568,7 +583,17 @@ class _CartViewState extends State<CartView> {
                                                                             .lineThrough,
                                                                     color: Colors.grey))
                                                       ],
-                                                    )
+                                                    ),
+                                                    SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    Text(e['group_price']
+                                                        .toString()
+                                                        .replaceAll(
+                                                            "&#8377;", "₹")
+                                                        .replaceAll(
+                                                            "<br/>", "\n")
+                                                        .toString(),style: TextStyle(fontSize: 11),),
                                                   ],
                                                 ),
                                               )),
@@ -1138,5 +1163,39 @@ class _CartViewState extends State<CartView> {
                                     fontWeight: FontWeight.w400, fontSize: 16),
                               ))),
                     ])))));
+  }
+
+  String getItemResponse = '';
+  int dataAccess = 0;
+  bool getAcess = false;
+  Future getAccessDetails() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String currentPincode = pref.getString("pincode").toString();
+    var url = URL + "pincode-estimate-delivery";
+    var body = {
+      "pincode": currentPincode,
+    };
+    var response = await http.post(
+      Uri.parse(url),
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    var result = jsonDecode(response.body);
+    dataAccess = result['ErrorCode'];
+    if (dataAccess == 0) {
+      getItemResponse =
+          result['ItemResponse']['delivery_expected_time'].toString();
+      log("item response--->$getItemResponse");
+    } else {
+      setState(() {
+        getAcess = true;
+      });
+
+      var snackBar = SnackBar(
+        content: Text(result['ErrorMessage']),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 }

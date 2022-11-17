@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, use_build_context_synchronously, unused_local_variable, prefer_is_empty
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -13,10 +14,15 @@ import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/google_map.dart';
+import 'package:instadent/home.dart';
 import 'package:instadent/main.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+import 'apis/category_api.dart';
+import 'apis/other_api.dart';
 
 class AddressListScreen extends StatefulWidget {
   Map m = {};
@@ -404,6 +410,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                   padding: const EdgeInsets.only(bottom: 8),
                                   child: InkWell(
                                     onTap: () async {
+                                      SharedPreferences prefs =
+                                          await SharedPreferences.getInstance();
                                       LoginAPI()
                                           .setDefaultAddressAPI(
                                               e['id'].toString())
@@ -415,6 +423,10 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                               e['address_type'].toString(),
                                               viewModel.counter.toString());
                                         }
+                                      });
+                                      setState(() {
+                                        prefs.setString(
+                                            'pincode', e['pincode']);
                                       });
                                     },
                                     child: Row(
@@ -502,24 +514,28 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                                                       "Remove",
                                                                   onPressed:
                                                                       () {
-                                                                    LoginAPI()
-                                                                        .removeAddress(e['id']
-                                                                            .toString())
-                                                                        .then(
-                                                                            (value) {
-                                                                      if (value) {
-                                                                        ScaffoldMessenger.of(context)
+                                                                    addressList.length ==
+                                                                            1
+                                                                        ? ScaffoldMessenger.of(context)
                                                                             .showSnackBar(
-                                                                          SnackBar(
-                                                                            duration:
-                                                                                Duration(seconds: 1),
-                                                                            content:
-                                                                                Text("Address Removed."),
-                                                                          ),
-                                                                        );
-                                                                        getAddressList();
-                                                                      }
-                                                                    });
+                                                                            SnackBar(
+                                                                              duration: Duration(seconds: 1),
+                                                                              content: Text("Cannot Remove default address."),
+                                                                            ),
+                                                                          )
+                                                                        : LoginAPI()
+                                                                            .removeAddress(e['id'].toString())
+                                                                            .then((value) {
+                                                                            if (value) {
+                                                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                                                SnackBar(
+                                                                                  duration: Duration(seconds: 1),
+                                                                                  content: Text("Address Removed."),
+                                                                                ),
+                                                                              );
+                                                                              getAddressList();
+                                                                            }
+                                                                          });
                                                                   }),
                                                           content: Text(
                                                               "Want to remove?"),
@@ -707,6 +723,13 @@ class _AddressListScreenState extends State<AddressListScreen> {
     );
   }
 
+  double currentIndexPage = 0;
+  List bannerImagesList = [];
+  String announcment = "";
+  List categoryList = [];
+  bool isLoadingAllCategory = false;
+
+  List recentOrderItems = [];
   void setDefaultAddress(
       String pincode, String address, String address_type, String count) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -745,6 +768,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                     TextButton(
                         onPressed: () {
                           Navigator.of(dialogContext).pop();
+
                           pref.setString("pincode", pincode.toString());
                           pref.setString("defaultAddress", address);
                           pref.setString("address_type", address_type);
@@ -798,10 +822,14 @@ class _AddressListScreenState extends State<AddressListScreen> {
         Navigator.of(context).pop();
       }
     } else {
-      Navigator.of(context).pop();
+      // Navigator.pop(context, true);
+      // reloadApis();
+
       pref.setString("pincode", pincode.toString());
       pref.setString("defaultAddress", address);
       pref.setString("address_type", address_type);
+
+      log("Default Pin Code---->" + pref.getString('pincode').toString());
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -812,6 +840,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
       setState(() {
         currentPincode = pincode.toString();
       });
+      Navigator.push(
+          context, MaterialPageRoute(builder: ((context) => HomeScreen())));
     }
   }
 
@@ -1103,5 +1133,64 @@ class _AddressListScreenState extends State<AddressListScreen> {
   //                 ]),
   //           ))));
   // }
+  String getItemResponse = '';
+  int dataAccess = 0;
+  Future getAccessDetails() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String currentPincode = pref.getString("pincode").toString();
+    var url = "https://admin.instadent.in/api/v1/pincode-estimate-delivery";
+    var body = {
+      "pincode": currentPincode,
+    };
+    var response = await http.post(
+      Uri.parse(url),
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
 
+    var result = jsonDecode(response.body);
+    dataAccess = result['ErrorCode'];
+
+    if (dataAccess == 0) {
+      pref.setInt("getAscess", dataAccess);
+      getItemResponse =
+          result['ItemResponse']['delivery_expected_time'].toString();
+
+      log("item response--->$getItemResponse");
+      var snackBar = SnackBar(
+        content: Text(result['ErrorMessage']),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } else {
+      var snackBar = SnackBar(
+        content: Text(result['ErrorMessage']),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  List carouselsList = [];
+  bool isLoadingCarosole = true;
+
+  ImageProvider topImage = AssetImage("assets/instavalue.png");
+  Future<void> getCarouselsListData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    if (pref.getBool("loggedIn") ?? false) {
+      OtherAPI().carouselsWithLogin().then((value) {
+        setState(() {
+          carouselsList.clear();
+          carouselsList.addAll(value);
+          isLoadingCarosole = false;
+        });
+      });
+    } else {
+      OtherAPI().carouselsWithoutLogin().then((value) {
+        setState(() {
+          carouselsList.clear();
+          carouselsList.addAll(value);
+          isLoadingCarosole = false;
+        });
+      });
+    }
+  }
 }
