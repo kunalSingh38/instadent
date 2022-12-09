@@ -252,6 +252,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                                 path = baseStorage.path;
                                               }
 
+                                              print(path +
+                                                  '/' +
+                                                  filePath.split("/").last +
+                                                  ".pdf");
                                               Dio dio = Dio();
                                               var response = await dio.download(
                                                   filePath,
@@ -260,6 +264,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                                       filePath.split("/").last +
                                                       ".pdf");
 
+                                              // print(response.statusCode);
                                               if (response.statusCode == 200) {
                                                 OpenFilex.open('$path/' +
                                                     filePath.split("/").last +

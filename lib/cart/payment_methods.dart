@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/apis/cart_api.dart';
+import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/cart/cancelled_payment.dart';
 import 'package:instadent/cart/order_placed.dart';
 import 'package:instadent/category/all_categories.dart';
@@ -26,32 +27,41 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
 
   late Razorpay _razorpay;
   bool placingOrder = false;
+  String email = "";
+  String phoneNumber = "";
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
 
-    if (widget.retry) {
+    LoginAPI().getCustomerDetails().then((value) {
       setState(() {
-        placingOrder = true;
+        email = value["email"].toString();
+        phoneNumber = value["mobile"].toString();
       });
-      CartAPI().placePendingOrder(widget.orderId).then((value) {
-        print(value);
-        if (value['ErrorCode'] == 0) {
-          openCheckout(value['Response']['razorpay_order']['id'].toString());
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Order place failed. Try again."),
-            ),
-          );
-        }
-      });
-    }
+      _razorpay = Razorpay();
+      _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+      _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+      _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
+      if (widget.retry) {
+        setState(() {
+          placingOrder = true;
+        });
+        CartAPI().placePendingOrder(widget.orderId).then((value) {
+          print(value);
+          if (value['ErrorCode'] == 0) {
+            openCheckout(value['Response']['razorpay_order']['id'].toString());
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Order place failed. Try again."),
+              ),
+            );
+          }
+        });
+      }
+    });
   }
 
   @override
@@ -67,10 +77,7 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
       'order_id': orderId,
       'description': '',
       'timeout': 600, // in seconds
-      // 'prefill': {
-      //   'contact': prefs.getString('mobile'),
-      //   'email': prefs.getString('email')
-      // }
+      'prefill': {'contact': phoneNumber.toString(), 'email': email.toString()}
     };
 
     try {

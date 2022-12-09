@@ -41,7 +41,7 @@ class OtherAPI {
           "name": name.toString(),
           "mobile_no": phone.toString(),
           "email": email.toString(),
-          "subject": subject.toString(),
+          "subject": "Issue",
           "query": content.toString()
         }));
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
@@ -96,7 +96,7 @@ class OtherAPI {
     return [];
   }
 
-  Future<List> brandProductData(String brandId) async {
+  Future<List> brandProductDataWithLogin(String brandId) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var response = await http.post(Uri.parse(URL + "brand/products/list"),
         headers: {
@@ -110,14 +110,31 @@ class OtherAPI {
     return [];
   }
 
+  Future<List> brandProductDataWithoutLogin(String brandId) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http
+        .post(Uri.parse(URL + "pincode/brand/products/list"), body: {
+      "brand_id": brandId.toString(),
+      "pincode": pref.getString("pincode").toString()
+    });
+
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response']['brand_products_list'];
+    }
+    return [];
+  }
+
   Future<List> carouselsWithLogin() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    String postalCode = pref.getString('pincode').toString();
     var response = await http.post(Uri.parse(URL + "store/carousels/list"),
         headers: {
           'Authorization': 'Bearer ' + pref.getString("token").toString(),
           'Content-Type': 'application/json'
         },
-        body: jsonEncode({"type": "all"}));
+        body: jsonEncode({"type": "all", "pincode": postalCode.toString()}));
+    print(jsonEncode({"pincode": postalCode.toString()}));
+    print("------ " + response.body.toString());
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['carousels_list'];
     }
@@ -132,8 +149,8 @@ class OtherAPI {
           // 'Authorization': 'Bearer ' + pref.getString("token").toString(),
           'Content-Type': 'application/json'
         },
-        body: jsonEncode({"type": "all", "pincode": postalCode.toString()}));
-
+        body: jsonEncode({"pincode": postalCode.toString()}));
+    print(jsonEncode({"type": "all", "pincode": postalCode.toString()}));
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       // log("response--->"+jsonDecode(response.body)['Response']['carousels_list'].toString());
       return jsonDecode(response.body)['Response']['carousels_list'];
@@ -178,7 +195,7 @@ class OtherAPI {
           'Authorization': 'Bearer ' + pref.getString("token").toString(),
           'Content-Type': 'application/json'
         },
-        body: jsonEncode({"banner_location": "header".toString()}));
+        body: jsonEncode({"banner_location": imageFor.toString()}));
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['home_banner'];
     }

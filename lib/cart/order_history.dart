@@ -331,13 +331,27 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                                                 .grey[600]),
                                                       ),
                                                 e['payment_mode'] == null
-                                                    ? Text(
-                                                        "RETRY PAYMENT",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color: Colors
-                                                                .blue[600]),
+                                                    ? Container(
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.blue,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Text(
+                                                            "RETRY PAYMENT",
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                        ),
                                                       )
                                                     : Text(
                                                         e['payment_mode']

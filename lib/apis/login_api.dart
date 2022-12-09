@@ -22,10 +22,10 @@ class LoginAPI {
     return jsonDecode(response.body);
   }
 
-  Future<bool> otpVerify(String phone, String otp) async {
+  Future<bool> otpVerify(String phone, String otp, String fcm) async {
     var response = await http.post(
       Uri.parse(URL + "verify/otp"),
-      body: {"phone": phone, "otp": otp.toString()},
+      body: {"phone": phone, "otp": otp.toString(), "fcm": fcm.toString()},
     );
     log(phone + "---" + otp);
     log(response.body);
@@ -178,5 +178,19 @@ class LoginAPI {
 
       return false;
     }
+  }
+
+  Future<Map> getCustomerDetails() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(URL + "get_customer_detail"),
+        headers: {
+          'Authorization': 'Bearer ' + pref.getString("token").toString(),
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({"mobile": pref.getString("userPhoneNo").toString()}));
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return jsonDecode(response.body)['Response'][0];
+    }
+    return {};
   }
 }

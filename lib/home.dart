@@ -5,9 +5,11 @@ import 'dart:developer';
 
 // import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +19,7 @@ import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/apis/category_api.dart';
 import 'package:instadent/apis/other_api.dart';
 import 'package:instadent/constants.dart';
+import 'package:instadent/main.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,11 +45,14 @@ class _HomeScreenState extends State<HomeScreen> {
   // List addressList = [];
   bool isLoadingAllCategory = true;
   bool isLoadingCarosole = true;
-  Future<void> getAddressList() async {
-    _determinePosition().then((value) {
-      _getAddress(value).then((value) => getAccessDetails());
-    });
-  }
+
+  // Future<void> getAddressList() async {
+  //   _determinePosition().then((value) {
+  //     _getAddress(value).then((value) =>
+  //         Provider.of<UpdateCartData>(context, listen: false)
+  //             .checkForServiceable());
+  //   });
+  // }
 
   Widget onlySearch() => InkWell(
         onTap: () {
@@ -104,13 +110,13 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       });
     } else {
-      // OtherAPI().carouselsWithoutLogin().then((value) {
-      //   setState(() {
-      //     carouselsList.clear();
-      //     carouselsList.addAll(value);
-      //     isLoadingCarosole = false;
-      //   });
-      // });
+      OtherAPI().carouselsWithoutLogin().then((value) {
+        setState(() {
+          carouselsList.clear();
+          carouselsList.addAll(value);
+          isLoadingCarosole = false;
+        });
+      });
     }
   }
 
@@ -123,21 +129,24 @@ class _HomeScreenState extends State<HomeScreen> {
   void reloadApis() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     pinCode = prefs.getString('pincode').toString();
-    log("pincode--->$pinCode");
+    print("pincode--->$pinCode");
+    setState(() {
+      defaultAddress = prefs.getString("defaultAddress").toString();
+      addressType = prefs.getString("subLocality").toString();
+    });
+    // if (pinCode == null || pinCode == "" || pinCode == "null") {
+    //   // getAddressList();
+    // } else {
+    Provider.of<UpdateCartData>(context, listen: false).checkForServiceable();
+    // }
 
-    if (pinCode == null || pinCode == "" || pinCode == "null") {
-      getAddressList();
-    } else {
-      getAccessDetails();
-    }
-
-    OtherAPI().homePageBanner("content").then((value) {
+    OtherAPI().homePageBanner("header").then((value) {
       setState(() {
         announcment = "";
         announcment = value[0]['mobile_banner'].toString();
       });
     });
-    OtherAPI().homePageBanner("header").then((value) {
+    OtherAPI().homePageBanner("slider").then((value) {
       setState(() {
         bannerImagesList.clear();
         bannerImagesList.addAll(value);
@@ -353,781 +362,763 @@ class _HomeScreenState extends State<HomeScreen> {
                 //       )
                 //     : null,
                 extendBodyBehindAppBar: true,
-                body: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      controller: scrollController,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                body: isLoadingAllCategory
+                    ? loadingProducts("Please Wait...")
+                    : Stack(
                         children: [
-                          Padding(
-                              padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                              child: getItemResponse == ""
-                                  ? Text("Delivery within 1 hour 30 min",
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.montserrat(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 18))
-                                  : Text("Delivery $getItemResponse",
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.montserrat(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 18))),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AddressListScreen(
-                                              m: {},
-                                            ))).then((value) async {
-                                  // SharedPreferences pref =
-                                  //     await SharedPreferences
-                                  //         .getInstance();
+                          SingleChildScrollView(
+                            controller: scrollController,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        15, 15, 15, 0),
+                                    child: viewModel.counterServicable
+                                        ? Text(
+                                            "Delivery " +
+                                                viewModel.counterDeliveryTime
+                                                    .toString(),
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.montserrat(
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 18))
+                                        : Text(
+                                            viewModel.counterDeliveryTime
+                                                .toString(),
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.montserrat(
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 18))),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AddressListScreen(
+                                                    m: {},
+                                                  ))).then((value) async {
+                                        // SharedPreferences pref =
+                                        //     await SharedPreferences
+                                        //         .getInstance();
 
-                                  // setState(() {
-                                  //   addressType = pref
-                                  //       .getString("address_type")
-                                  //       .toString();
-                                  //   defaultAddress = pref
-                                  //       .getString("defaultAddress")
-                                  //       .toString();
-                                  // });
-                                });
-                              },
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 20,
-                                    child: Text(
-                                        viewModel.counterDefaultOffice
-                                                .toString()
-                                                .toUpperCase() +
-                                            ", " +
-                                            viewModel.counterDefaultAddress
-                                                .toString()
-                                                .replaceAll(" ,", ", "),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: GoogleFonts.montserrat(
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 14)),
-                                  ),
-                                  Expanded(child: Icon(Icons.arrow_drop_down))
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          getAcess == true
-                              ? Column(
-                                  children: [
-                                    // Container(
-                                    //     alignment: Alignment.center,
-                                    //     child: Text(
-                                    //         "Store is not associated with service area")),
-                                    Image.asset(
-                                      "assets/instadent service.jpg",
-                                      scale: 1,
-                                    ),
-                                  ],
-                                )
-                              : StickyHeader(
-                                  header: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.only(
-                                                bottomLeft: Radius.circular(10),
-                                                bottomRight:
-                                                    Radius.circular(10))),
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10, 5, 10, 10),
-                                          child: onlySearch(),
-                                        )),
-                                  ),
-                                  content: Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 15,
-                                      ),
-                                      announcment == "" || announcment == null
-                                          ? SizedBox()
-                                          : Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 15),
-                                              child: Container(
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      color: Colors.grey[50]),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 15),
-                                                    child: SizedBox(
-                                                      height: 90,
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              0.5,
-                                                      child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          child: cacheImage(
-                                                              announcment
-                                                                  .toString())),
-                                                    ),
-                                                  )),
-                                            ),
-                                      // SizedBox(
-                                      //   height: 5,
-                                      // ),
-                                      bannerImagesList.isEmpty
-                                          ? SizedBox()
-                                          : Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 15),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    color: Colors.grey[50]),
-                                                child: ImageSlideshow(
-                                                  width: double.infinity,
-                                                  height: 180,
-                                                  initialPage: 0,
-                                                  indicatorColor: Colors.black,
-                                                  indicatorBackgroundColor:
-                                                      Colors.grey,
-                                                  children: bannerImagesList
-                                                      .map((e) => Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    bottom: 22),
-                                                            child: SizedBox(
-                                                              height: 140,
-                                                              width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width /
-                                                                  0.5,
-                                                              child: ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10),
-                                                                  child: cacheImage(
-                                                                      e['mobile_banner']
-                                                                          .toString())),
-                                                            ),
-                                                          ))
-                                                      .toList(),
-                                                  onPageChanged: (value) {},
-                                                  autoPlayInterval: 4000,
-                                                  isLoop: true,
-                                                ),
-                                              ),
-                                            ),
-                                      // SizedBox(
-                                      //   height: 20,
-                                      // ),
-                                      Divider(
-                                        color: Colors.grey[200],
-                                        thickness: 10,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(15),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Shop by category",
+                                        // setState(() {
+                                        //   addressType = pref
+                                        //       .getString("address_type")
+                                        //       .toString();
+                                        //   defaultAddress = pref
+                                        //       .getString("defaultAddress")
+                                        //       .toString();
+                                        // });
+                                      });
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 20,
+                                          child: Text(
+                                              viewModel.counterDefaultOffice
+                                                      .toString()
+                                                      .toUpperCase() +
+                                                  ", " +
+                                                  viewModel
+                                                      .counterDefaultAddress
+                                                      .toString()
+                                                      .replaceAll(",", ""),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
                                               style: GoogleFonts.montserrat(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w800),
-                                            ),
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 14)),
+                                        ),
+                                        Expanded(
+                                            child: Icon(Icons.arrow_drop_down))
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                viewModel.counterServicable
+                                    ? StickyHeader(
+                                        header: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  10),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  10))),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        10, 5, 10, 10),
+                                                child: onlySearch(),
+                                              )),
+                                        ),
+                                        content: Column(
+                                          children: [
                                             SizedBox(
-                                              height: 10,
+                                              height: 15,
                                             ),
-                                            categoryList.isEmpty
-                                                ? Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                        "No products category available"),
-                                                  )
-                                                : seeMore
-                                                    ? categoryList.length > 8
-                                                        ? allCategoryGrid(
-                                                            categoryList
-                                                                .sublist(0, 8),
-                                                            context,
-                                                            unitHeightValue)
-                                                        : allCategoryGrid(
-                                                            categoryList.sublist(
-                                                                0,
-                                                                categoryList
-                                                                    .length),
-                                                            context,
-                                                            unitHeightValue)
-                                                    : allCategoryGrid(
-                                                        categoryList,
-                                                        context,
-                                                        unitHeightValue),
-                                            categoryList.isEmpty
+                                            announcment == "" ||
+                                                    announcment == null
                                                 ? SizedBox()
-                                                : categoryList.length <= 8
-                                                    ? SizedBox()
-                                                    : InkWell(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            seeMore = !seeMore;
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                            decoration: BoxDecoration(
-                                                                color: Colors
-                                                                    .teal[100],
+                                                : Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 15),
+                                                    child: Container(
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            color: Colors
+                                                                .grey[50]),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  bottom: 15),
+                                                          child: SizedBox(
+                                                            height: 90,
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width /
+                                                                0.5,
+                                                            child: ClipRRect(
                                                                 borderRadius:
                                                                     BorderRadius
                                                                         .circular(
-                                                                            10)),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(12),
-                                                              child: Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Text(
-                                                                      seeMore
-                                                                          ? "Show more categories"
-                                                                          : "Show less categories",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          fontWeight:
-                                                                              FontWeight.bold)),
-                                                                  seeMore
-                                                                      ? Icon(
-                                                                          Icons
-                                                                              .keyboard_arrow_down,
-                                                                          size:
-                                                                              15,
-                                                                        )
-                                                                      : Icon(
-                                                                          Icons
-                                                                              .keyboard_arrow_up,
-                                                                          size:
-                                                                              15,
-                                                                        )
-                                                                ],
-                                                              ),
-                                                            )),
-                                                      )
-                                          ],
-                                        ),
-                                      ),
-                                      Divider(
-                                        color: Colors.grey[200],
-                                        thickness: 10,
-                                      ),
-                                      recentOrderItems.isEmpty
-                                          ? SizedBox()
-                                          : Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            15),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          "Recent Orders"
-                                                              .toString(),
-                                                          style: GoogleFonts
-                                                              .montserrat(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w800),
-                                                        ),
-                                                        Text(
-                                                          recentOrderItems
-                                                                  .length
-                                                                  .toString() +
-                                                              " products",
-                                                          style: GoogleFonts.montserrat(
-                                                              decoration:
-                                                                  TextDecoration
-                                                                      .underline,
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400),
-                                                        ),
-                                                      ],
+                                                                            10),
+                                                                child: cacheImage(
+                                                                    announcment
+                                                                        .toString())),
+                                                          ),
+                                                        )),
+                                                  ),
+                                            // SizedBox(
+                                            //   height: 5,
+                                            // ),
+                                            bannerImagesList.isEmpty
+                                                ? SizedBox()
+                                                : Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 15),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          color:
+                                                              Colors.grey[50]),
+                                                      child: ImageSlideshow(
+                                                        width: double.infinity,
+                                                        height: 180,
+                                                        initialPage: 0,
+                                                        indicatorColor:
+                                                            Colors.black,
+                                                        indicatorBackgroundColor:
+                                                            Colors.grey,
+                                                        children:
+                                                            bannerImagesList
+                                                                .map(
+                                                                    (e) =>
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.only(bottom: 22),
+                                                                          child:
+                                                                              SizedBox(
+                                                                            height:
+                                                                                140,
+                                                                            width:
+                                                                                MediaQuery.of(context).size.width / 0.5,
+                                                                            child:
+                                                                                ClipRRect(borderRadius: BorderRadius.circular(10), child: cacheImage(e['mobile_banner'].toString())),
+                                                                          ),
+                                                                        ))
+                                                                .toList(),
+                                                        onPageChanged:
+                                                            (value) {},
+                                                        autoPlayInterval: 4000,
+                                                        isLoop: true,
+                                                      ),
                                                     ),
                                                   ),
-                                                  Padding(
-                                                      padding: const EdgeInsets
-                                                              .fromLTRB(
-                                                          15, 0, 15, 10),
-                                                      child:
-                                                          SingleChildScrollView(
-                                                        scrollDirection:
-                                                            Axis.horizontal,
-                                                        child: Row(
-                                                            children:
-                                                                recentOrderItems
-                                                                    .map((e) {
-                                                          bool inStock =
-                                                              e['is_stock'] == 1
-                                                                  ? false
-                                                                  : true;
-
-                                                          String disccount =
-                                                              e['discount_percentage']
-                                                                  .toString();
-
-                                                          // if (temp
-                                                          //             .split(".")[
-                                                          //                 0]
-                                                          //             .toString() ==
-                                                          //         "0" &&
-                                                          //     temp
-                                                          //             .split(
-                                                          //                 ".")[1]
-                                                          //             .toString() ==
-                                                          //         "00") {
-                                                          //   disccount = "0";
-                                                          // } else if (temp
-                                                          //         .split(".")[1]
-                                                          //         .toString() ==
-                                                          //     "00") {
-                                                          //   disccount = temp
-                                                          //       .split(".")[0]
-                                                          //       .toString();
-                                                          // } else {
-                                                          //   disccount = temp;
-                                                          // }
-                                                          // return Text("data");
-                                                          return singleProductDesign(
-                                                              context,
-                                                              e,
-                                                              inStock,
-                                                              controller,
-                                                              recentOrderItems,
-                                                              dynamicLinks,
-                                                              disccount,
-                                                              true);
-                                                        }).toList()),
-                                                      )),
-                                                  Divider(
-                                                    color: Colors.grey[200],
-                                                    thickness: 10,
+                                            // SizedBox(
+                                            //   height: 20,
+                                            // ),
+                                            Divider(
+                                              color: Colors.grey[200],
+                                              thickness: 10,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.all(15),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Shop by category",
+                                                    style:
+                                                        GoogleFonts.montserrat(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
                                                   ),
-                                                ]),
-                                      carouselsList.isEmpty
-                                          ? SizedBox()
-                                          : Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: carouselsList.map((e) {
-                                                if (e['type'].toString() ==
-                                                    "banner_carousel") {
-                                                  List items = e['items'];
-
-                                                  return items.isEmpty
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  categoryList.isEmpty
+                                                      ? Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Text(
+                                                              "No products category available"),
+                                                        )
+                                                      : seeMore
+                                                          ? categoryList
+                                                                      .length >
+                                                                  8
+                                                              ? allCategoryGrid(
+                                                                  categoryList
+                                                                      .sublist(
+                                                                          0, 8),
+                                                                  context,
+                                                                  unitHeightValue)
+                                                              : allCategoryGrid(
+                                                                  categoryList.sublist(
+                                                                      0,
+                                                                      categoryList
+                                                                          .length),
+                                                                  context,
+                                                                  unitHeightValue)
+                                                          : allCategoryGrid(
+                                                              categoryList,
+                                                              context,
+                                                              unitHeightValue),
+                                                  categoryList.isEmpty
                                                       ? SizedBox()
-                                                      : Column(
-                                                          children: [
-                                                            SizedBox(
-                                                              height: 10,
-                                                            ),
-                                                            InkWell(
+                                                      : categoryList.length <= 8
+                                                          ? SizedBox()
+                                                          : InkWell(
                                                               onTap: () {
-                                                                if (e['banner_items'] ==
-                                                                    true) {
-                                                                  Navigator.push(
-                                                                      context,
-                                                                      MaterialPageRoute(
-                                                                          builder: (context) => BannerProductsView(
-                                                                                id: e['id'].toString(),
-                                                                              )));
-                                                                }
+                                                                setState(() {
+                                                                  seeMore =
+                                                                      !seeMore;
+                                                                });
                                                               },
-                                                              child: Padding(
-                                                                padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                    horizontal:
-                                                                        15),
-                                                                child:
-                                                                    Container(
+                                                              child: Container(
                                                                   decoration: BoxDecoration(
+                                                                      color: Colors
+                                                                              .teal[
+                                                                          100],
                                                                       borderRadius:
                                                                           BorderRadius.circular(
-                                                                              10),
-                                                                      color: Colors
-                                                                              .grey[
-                                                                          50]),
-                                                                  child: ImageSlideshow(
-                                                                      width: double.infinity,
-                                                                      height: 180,
-                                                                      initialPage: 0,
-                                                                      indicatorColor: items.length == 1 ? Colors.white : Colors.black,
-                                                                      indicatorBackgroundColor: Colors.grey,
-                                                                      children: items
-                                                                          .map((e) => Padding(
-                                                                                padding: const EdgeInsets.only(bottom: 22),
-                                                                                child: SizedBox(
-                                                                                  height: 140,
-                                                                                  width: MediaQuery.of(context).size.width / 0.5,
-                                                                                  child: ClipRRect(borderRadius: BorderRadius.circular(10), child: cacheImage(e['mobile_banner'].toString())),
-                                                                                ),
-                                                                              ))
-                                                                          .toList(),
-                                                                      onPageChanged: (value) {},
-                                                                      autoPlayInterval: 4000,
-                                                                      isLoop: items.length == 1 ? false : true),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        );
-                                                } else {
-                                                  List items = e['items'];
-
-                                                  return Column(
+                                                                              10)),
+                                                                  child:
+                                                                      Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.all(
+                                                                            12),
+                                                                    child: Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Text(
+                                                                            seeMore
+                                                                                ? "Show more categories"
+                                                                                : "Show less categories",
+                                                                            style:
+                                                                                TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                                                        seeMore
+                                                                            ? Icon(
+                                                                                Icons.keyboard_arrow_down,
+                                                                                size: 15,
+                                                                              )
+                                                                            : Icon(
+                                                                                Icons.keyboard_arrow_up,
+                                                                                size: 15,
+                                                                              )
+                                                                      ],
+                                                                    ),
+                                                                  )),
+                                                            )
+                                                ],
+                                              ),
+                                            ),
+                                            Divider(
+                                              color: Colors.grey[200],
+                                              thickness: 10,
+                                            ),
+                                            recentOrderItems.isEmpty
+                                                ? SizedBox()
+                                                : Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(15),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              e['carousel_name']
-                                                                  .toString(),
-                                                              style: GoogleFonts
-                                                                  .montserrat(
-                                                                      fontSize:
-                                                                          16,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w800),
-                                                            ),
-                                                            Text(
-                                                              items.length
-                                                                      .toString() +
-                                                                  " products",
-                                                              style: GoogleFonts.montserrat(
-                                                                  decoration:
-                                                                      TextDecoration
-                                                                          .underline,
-                                                                  fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400),
-                                                            ),
-                                                          ],
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(15),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                "Recent Orders"
+                                                                    .toString(),
+                                                                style: GoogleFonts.montserrat(
+                                                                    fontSize:
+                                                                        16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w800),
+                                                              ),
+                                                              Text(
+                                                                recentOrderItems
+                                                                        .length
+                                                                        .toString() +
+                                                                    " products",
+                                                                style: GoogleFonts.montserrat(
+                                                                    decoration:
+                                                                        TextDecoration
+                                                                            .underline,
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400),
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .fromLTRB(
-                                                                15, 0, 15, 10),
-                                                        child:
-                                                            SingleChildScrollView(
-                                                          scrollDirection:
-                                                              Axis.horizontal,
-                                                          child: Row(
-                                                              children: items
-                                                                  .map((e) {
-                                                            bool inStock =
-                                                                e['is_stock'] ==
-                                                                        1
-                                                                    ? false
-                                                                    : true;
+                                                        Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .fromLTRB(
+                                                                    15,
+                                                                    0,
+                                                                    15,
+                                                                    10),
+                                                            child:
+                                                                SingleChildScrollView(
+                                                              scrollDirection:
+                                                                  Axis.horizontal,
+                                                              child: Row(
+                                                                  children:
+                                                                      recentOrderItems
+                                                                          .map(
+                                                                              (e) {
+                                                                bool inStock =
+                                                                    e['is_stock'] ==
+                                                                            1
+                                                                        ? false
+                                                                        : true;
 
-                                                            String disccount =
-                                                                "";
-                                                            String temp =
-                                                                e['item_discount']
-                                                                    .toString()
-                                                                    .split(
-                                                                        "%")[0];
+                                                                String
+                                                                    disccount =
+                                                                    e['discount_percentage']
+                                                                        .toString();
 
-                                                            if (temp
-                                                                        .split(".")[
-                                                                            0]
-                                                                        .toString() ==
-                                                                    "0" &&
-                                                                temp
-                                                                        .split(
-                                                                            ".")[1]
-                                                                        .toString() ==
-                                                                    "00") {
-                                                              disccount = "0";
-                                                            } else if (temp
-                                                                    .split(
-                                                                        ".")[1]
-                                                                    .toString() ==
-                                                                "00") {
-                                                              disccount = temp
-                                                                  .split(".")[0]
-                                                                  .toString();
-                                                            } else {
-                                                              disccount = temp;
-                                                            }
-                                                            return singleProductDesign(
-                                                                context,
-                                                                e,
-                                                                inStock,
-                                                                controller,
-                                                                items,
-                                                                dynamicLinks,
-                                                                disccount,
-                                                                true);
-                                                          }).toList()),
+                                                                // if (temp
+                                                                //             .split(".")[
+                                                                //                 0]
+                                                                //             .toString() ==
+                                                                //         "0" &&
+                                                                //     temp
+                                                                //             .split(
+                                                                //                 ".")[1]
+                                                                //             .toString() ==
+                                                                //         "00") {
+                                                                //   disccount = "0";
+                                                                // } else if (temp
+                                                                //         .split(".")[1]
+                                                                //         .toString() ==
+                                                                //     "00") {
+                                                                //   disccount = temp
+                                                                //       .split(".")[0]
+                                                                //       .toString();
+                                                                // } else {
+                                                                //   disccount = temp;
+                                                                // }
+                                                                // return Text("data");
+                                                                return singleProductDesign(
+                                                                    context,
+                                                                    e,
+                                                                    inStock,
+                                                                    controller,
+                                                                    recentOrderItems,
+                                                                    dynamicLinks,
+                                                                    disccount,
+                                                                    true);
+                                                              }).toList()),
+                                                            )),
+                                                        Divider(
+                                                          color:
+                                                              Colors.grey[200],
+                                                          thickness: 10,
                                                         ),
+                                                      ]),
+                                            isLoadingCarosole
+                                                ? Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        vertical: 50),
+                                                    child: loadingProducts(
+                                                        "Loading..."),
+                                                  )
+                                                : carouselsList.isEmpty
+                                                    ? SizedBox()
+                                                    : Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: carouselsList
+                                                            .map((e) {
+                                                          if (e['type']
+                                                                  .toString() ==
+                                                              "banner_carousel") {
+                                                            List items =
+                                                                e['items'];
+
+                                                            return items.isEmpty
+                                                                ? SizedBox()
+                                                                : Column(
+                                                                    children: [
+                                                                      SizedBox(
+                                                                        height:
+                                                                            10,
+                                                                      ),
+                                                                      InkWell(
+                                                                        onTap:
+                                                                            () {
+                                                                          if (e['banner_items'] ==
+                                                                              true) {
+                                                                            Navigator.push(
+                                                                                context,
+                                                                                MaterialPageRoute(
+                                                                                    builder: (context) => BannerProductsView(
+                                                                                          id: e['id'].toString(),
+                                                                                        )));
+                                                                          }
+                                                                        },
+                                                                        child:
+                                                                            Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.symmetric(horizontal: 15),
+                                                                          child:
+                                                                              Container(
+                                                                            decoration:
+                                                                                BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.grey[50]),
+                                                                            child: ImageSlideshow(
+                                                                                width: double.infinity,
+                                                                                height: 180,
+                                                                                initialPage: 0,
+                                                                                indicatorColor: items.length == 1 ? Colors.white : Colors.black,
+                                                                                indicatorBackgroundColor: Colors.grey,
+                                                                                children: items
+                                                                                    .map((e) => Padding(
+                                                                                          padding: const EdgeInsets.only(bottom: 22),
+                                                                                          child: SizedBox(
+                                                                                            height: 140,
+                                                                                            width: MediaQuery.of(context).size.width / 0.5,
+                                                                                            child: ClipRRect(borderRadius: BorderRadius.circular(10), child: cacheImage(e['mobile_banner'].toString())),
+                                                                                          ),
+                                                                                        ))
+                                                                                    .toList(),
+                                                                                onPageChanged: (value) {},
+                                                                                autoPlayInterval: 4000,
+                                                                                isLoop: items.length == 1 ? false : true),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                          } else {
+                                                            List items =
+                                                                e['items'];
+
+                                                            return Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(15),
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        e['carousel_name']
+                                                                            .toString(),
+                                                                        style: GoogleFonts.montserrat(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.w800),
+                                                                      ),
+                                                                      Text(
+                                                                        items.length.toString() +
+                                                                            " products",
+                                                                        style: GoogleFonts.montserrat(
+                                                                            decoration: TextDecoration
+                                                                                .underline,
+                                                                            fontSize:
+                                                                                12,
+                                                                            fontWeight:
+                                                                                FontWeight.w400),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .fromLTRB(
+                                                                          15,
+                                                                          0,
+                                                                          15,
+                                                                          10),
+                                                                  child:
+                                                                      SingleChildScrollView(
+                                                                    scrollDirection:
+                                                                        Axis.horizontal,
+                                                                    child: Row(
+                                                                        children:
+                                                                            items.map((e) {
+                                                                      bool inStock = e['is_stock'] ==
+                                                                              1
+                                                                          ? false
+                                                                          : true;
+
+                                                                      String
+                                                                          disccount =
+                                                                          "";
+                                                                      String temp = e[
+                                                                              'item_discount']
+                                                                          .toString()
+                                                                          .split(
+                                                                              "%")[0];
+
+                                                                      if (temp.split(".")[0].toString() ==
+                                                                              "0" &&
+                                                                          temp.split(".")[1].toString() ==
+                                                                              "00") {
+                                                                        disccount =
+                                                                            "0";
+                                                                      } else if (temp
+                                                                              .split(".")[1]
+                                                                              .toString() ==
+                                                                          "00") {
+                                                                        disccount = temp
+                                                                            .split(".")[0]
+                                                                            .toString();
+                                                                      } else {
+                                                                        disccount =
+                                                                            temp;
+                                                                      }
+                                                                      return singleProductDesign(
+                                                                          context,
+                                                                          e,
+                                                                          inStock,
+                                                                          controller,
+                                                                          items,
+                                                                          dynamicLinks,
+                                                                          disccount,
+                                                                          true);
+                                                                    }).toList()),
+                                                                  ),
+                                                                ),
+                                                                items.indexOf(
+                                                                            e) ==
+                                                                        items.length -
+                                                                            2
+                                                                    ? SizedBox()
+                                                                    : Divider(
+                                                                        color: Colors
+                                                                            .grey[200],
+                                                                        thickness:
+                                                                            10,
+                                                                      ),
+                                                              ],
+                                                            );
+                                                          }
+                                                        }).toList(),
                                                       ),
-                                                      items.indexOf(e) ==
-                                                              items.length - 2
-                                                          ? SizedBox()
-                                                          : Divider(
-                                                              color: Colors
-                                                                  .grey[200],
-                                                              thickness: 10,
-                                                            ),
-                                                    ],
-                                                  );
-                                                }
-                                              }).toList(),
-                                            ),
-                                      Container(
-                                        height: 300,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[200],
-                                          // image: DecorationImage(
-                                          //     alignment: Alignment(0.6, -0.15),
-                                          //     scale: 10,
-                                          //     image: AssetImage(
-                                          //       "assets/emoji1.png",
-                                          //     ))
-                                        ),
-                                        child: Padding(
-                                          padding: EdgeInsets.fromLTRB(
-                                              18, 20, 20, 20),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text("didn't find\nwhat you were",
-                                                  textAlign: TextAlign.left,
-                                                  style: GoogleFonts.montserrat(
-                                                      fontSize:
-                                                          unitHeightValue * 2.3,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Colors.grey[400])),
-                                              Row(
-                                                children: [
-                                                  Text("looking for?",
-                                                      textAlign: TextAlign.left,
-                                                      style: GoogleFonts
-                                                          .montserrat(
-                                                              fontSize:
-                                                                  unitHeightValue *
-                                                                      2.3,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700,
-                                                              color: Colors
-                                                                  .grey[400])),
-                                                  SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Image.asset(
-                                                      "assets/emoji1.png",
-                                                      scale:
-                                                          unitHeightValue * 0.7)
-                                                ],
+                                            Container(
+                                              height: 300,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[200],
+                                                // image: DecorationImage(
+                                                //     alignment: Alignment(0.6, -0.15),
+                                                //     scale: 10,
+                                                //     image: AssetImage(
+                                                //       "assets/emoji1.png",
+                                                //     ))
                                               ),
-                                              SizedBox(
-                                                height: 20,
-                                              ),
-                                              Text(
-                                                  "Suggest something & we'll look into it",
-                                                  style: GoogleFonts.montserrat(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Colors.grey[400])),
-                                              SizedBox(
-                                                height: 20,
-                                              ),
-                                              InkWell(
-                                                onTap: () {
-                                                  suggestProductBottom();
-                                                },
-                                                child: Container(
-                                                  child: Text(
-                                                      "Suggest a Product",
-                                                      style: GoogleFonts
-                                                          .montserrat(
-                                                              fontSize: 13,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              color: Colors
-                                                                  .pink[700])),
-                                                  padding: EdgeInsets.all(10),
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.white70,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      border: Border.all(
-                                                          color: Colors.grey)),
+                                              child: Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    18, 20, 20, 20),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                        "didn't find\nwhat you were",
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                        style: GoogleFonts
+                                                            .montserrat(
+                                                                fontSize:
+                                                                    unitHeightValue *
+                                                                        2.3,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color:
+                                                                    Colors.grey[
+                                                                        400])),
+                                                    Row(
+                                                      children: [
+                                                        Text("looking for?",
+                                                            textAlign:
+                                                                TextAlign.left,
+                                                            style: GoogleFonts.montserrat(
+                                                                fontSize:
+                                                                    unitHeightValue *
+                                                                        2.3,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color:
+                                                                    Colors.grey[
+                                                                        400])),
+                                                        SizedBox(
+                                                          width: 5,
+                                                        ),
+                                                        Image.asset(
+                                                            "assets/emoji1.png",
+                                                            scale:
+                                                                unitHeightValue *
+                                                                    0.7)
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      height: 20,
+                                                    ),
+                                                    Text(
+                                                        "Suggest something & we'll look into it",
+                                                        style: GoogleFonts
+                                                            .montserrat(
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color:
+                                                                    Colors.grey[
+                                                                        400])),
+                                                    SizedBox(
+                                                      height: 20,
+                                                    ),
+                                                    InkWell(
+                                                      onTap: () {
+                                                        suggestProductBottom();
+                                                      },
+                                                      child: Container(
+                                                        child: Text(
+                                                            "Suggest a Product",
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                                    fontSize:
+                                                                        13,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    color: Colors
+                                                                            .pink[
+                                                                        700])),
+                                                        padding:
+                                                            EdgeInsets.all(10),
+                                                        decoration: BoxDecoration(
+                                                            color:
+                                                                Colors.white70,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            border: Border.all(
+                                                                color: Colors
+                                                                    .grey)),
+                                                      ),
+                                                    )
+                                                  ],
                                                 ),
-                                              )
-                                            ],
-                                          ),
+                                              ),
+                                            ),
+                                            viewModel.counterShowCart
+                                                ? SizedBox(
+                                                    height: 50,
+                                                  )
+                                                : SizedBox(),
+                                          ],
                                         ),
-                                      ),
-                                      viewModel.counterShowCart
-                                          ? SizedBox(
-                                              height: 50,
-                                            )
-                                          : SizedBox(),
-                                    ],
-                                  ),
-                                )
+                                      )
+                                    : Column(
+                                        children: [
+                                          // Container(
+                                          //     alignment: Alignment.center,
+                                          //     child: Text(
+                                          //         "Store is not associated with service area")),
+                                          Image.asset(
+                                            "assets/instadent service.jpg",
+                                            scale: 1,
+                                          ),
+                                        ],
+                                      )
+                              ],
+                            ),
+                          ),
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: viewModel.counterShowCart
+                                  ? bottomSheet()
+                                  : SizedBox())
                         ],
-                      ),
-                    ),
-                    Align(
-                        alignment: Alignment.bottomCenter,
-                        child: viewModel.counterShowCart
-                            ? bottomSheet()
-                            : SizedBox())
-                  ],
-                ));
+                      ));
           }),
         ),
       ),
     );
-  }
-
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
-  }
-
-  Future<void> _getAddress(value) async {
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(value.latitude, value.longitude);
-    Placemark place = placemarks[0];
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      pref.setString("pincode", place.postalCode.toString());
-      pref.setString("address_type", place.subLocality.toString());
-
-      pref.setString(
-          "defaultAddress",
-          place.subAdministrativeArea.toString() +
-              " ," +
-              place.name.toString() +
-              " ," +
-              place.subLocality.toString() +
-              " ," +
-              place.locality.toString() +
-              " ," +
-              place.postalCode.toString() +
-              " ," +
-              place.country.toString());
-      defaultAddress = pref.getString("defaultAddress").toString();
-      addressType = place.subLocality.toString();
-
-      List temp = [
-        {
-          "address_type": place.subLocality.toString(),
-          "address": defaultAddress,
-          "pincode": place.postalCode.toString()
-        }
-      ];
-      pref.setString("recent_address_list", jsonEncode(temp));
-      Provider.of<UpdateCartData>(context, listen: false).setDefaultAddress();
-    });
   }
 
   TextEditingController productName = TextEditingController();
@@ -1410,43 +1401,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 ]))));
   }
 
-  String getItemResponse = '';
-  int dataAccess = 0;
-  bool getAcess = false;
-  Future getAccessDetails() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String currentPincode = pref.getString("pincode").toString();
-    var url = URL + "pincode-estimate-delivery";
-    var body = {
-      "pincode": currentPincode,
-    };
-    var response = await http.post(
-      Uri.parse(url),
-      body: jsonEncode(body),
-      headers: {'Content-Type': 'application/json'},
-    );
+  // String getItemResponse = '';
+  // int dataAccess = 0;
+  // bool getAcess = false;
+  // Future getAccessDetails() async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   String currentPincode = pref.getString("pincode").toString();
+  //   var url = URL + "pincode-estimate-delivery";
+  //   var body = {
+  //     "pincode": currentPincode,
+  //   };
+  //   var response = await http.post(
+  //     Uri.parse(url),
+  //     body: jsonEncode(body),
+  //     headers: {'Content-Type': 'application/json'},
+  //   );
 
-    log("body---->"+body.toString());
+  //   log("body---->" + body.toString());
 
-    var result = jsonDecode(response.body);
-    dataAccess = result['ErrorCode'];
-    if (dataAccess == 0) {
-      getItemResponse =
-          result['ItemResponse']['delivery_expected_time'].toString();
-      log("item response--->$getItemResponse");
-      var snackBar = SnackBar(
-        content: Text(result['ErrorMessage']),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    } else {
-      setState(() {
-        getAcess = true;
-      });
+  //   var result = jsonDecode(response.body);
+  //   dataAccess = result['ErrorCode'];
+  //   if (dataAccess == 0) {
+  //     getItemResponse =
+  //         result['ItemResponse']['delivery_expected_time'].toString();
+  //     log("item response--->$getItemResponse");
+  //     var snackBar = SnackBar(
+  //       content: Text(result['ErrorMessage']),
+  //     );
+  //     // ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //   } else {
+  //     setState(() {
+  //       getAcess = true;
+  //     });
 
-      var snackBar = SnackBar(
-        content: Text(result['ErrorMessage']),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
-  }
+  //     var snackBar = SnackBar(
+  //       content: Text(result['ErrorMessage']),
+  //     );
+  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //   }
+  // }
 }

@@ -149,7 +149,16 @@ Future<void> showProdcutDetails(
     List productItems,
     FirebaseDynamicLinks dynamicLinks,
     bool show) async {
-  print(m);
+  // productItems.removeWhere((element) =>
+  //     element['product_id'].toString() == m['product_id'].toString());
+  // print(productItems.length.toString() + "----");
+
+  List similarProduct = [];
+  similarProduct.clear();
+  similarProduct.addAll(productItems);
+  similarProduct.removeWhere((element) =>
+      element['product_id'].toString() == m['product_id'].toString());
+
   String group_Data = m['group_price']
       .toString()
       .replaceAll("&#8377;", "₹")
@@ -161,7 +170,13 @@ Future<void> showProdcutDetails(
   double height = 220;
   double heightMain = 1.4;
 
-  String disccount = m['discount_percentage'].toString();
+  String disccount = "";
+  if (m.containsKey("discount_percentage")) {
+    disccount = m['discount_percentage'].toString();
+  } else {
+    disccount = "0";
+  }
+
   // String temp = m['item_discount'].toString().split("%")[0].toString();
 
   // if (temp.split(".")[0].toString() == "0" &&
@@ -688,7 +703,7 @@ Future<void> showProdcutDetails(
                             thickness: 0.9,
                             height: 30,
                           ),
-                          Text("Description",
+                          Text("Short Description",
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 15,
@@ -734,59 +749,75 @@ Future<void> showProdcutDetails(
                             thickness: 0.9,
                             height: 30,
                           ),
-                          Text("You may also like",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                  color: Colors.black)),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Padding(
-                              padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                    children: productItems.map((e) {
-                                  bool inStock =
-                                      e['is_stock'] == 1 ? false : true;
+                          similarProduct.isEmpty
+                              ? SizedBox()
+                              : Column(
+                                  children: [
+                                    Text("You may also like",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 15,
+                                            color: Colors.black)),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            15, 0, 15, 10),
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                              children: similarProduct.map((e) {
+                                            bool inStock = e['is_stock'] == 1
+                                                ? false
+                                                : true;
 
-                                  String disccount =
-                                      e['discount_percentage'].toString();
+                                            String disccount = "";
+                                            if (e.containsKey(
+                                                "discount_percentage")) {
+                                              disccount =
+                                                  e['discount_percentage']
+                                                      .toString();
+                                            } else {
+                                              disccount = "0";
+                                            }
 
-                                  // if (temp
-                                  //             .split(".")[
-                                  //                 0]
-                                  //             .toString() ==
-                                  //         "0" &&
-                                  //     temp
-                                  //             .split(
-                                  //                 ".")[1]
-                                  //             .toString() ==
-                                  //         "00") {
-                                  //   disccount = "0";
-                                  // } else if (temp
-                                  //         .split(".")[1]
-                                  //         .toString() ==
-                                  //     "00") {
-                                  //   disccount = temp
-                                  //       .split(".")[0]
-                                  //       .toString();
-                                  // } else {
-                                  //   disccount = temp;
-                                  // }
-                                  // return Text("data");
-                                  return singleProductDesign(
-                                      context,
-                                      e,
-                                      inStock,
-                                      controller,
-                                      productItems,
-                                      dynamicLinks,
-                                      disccount,
-                                      true);
-                                }).toList()),
-                              )),
+                                            // if (temp
+                                            //             .split(".")[
+                                            //                 0]
+                                            //             .toString() ==
+                                            //         "0" &&
+                                            //     temp
+                                            //             .split(
+                                            //                 ".")[1]
+                                            //             .toString() ==
+                                            //         "00") {
+                                            //   disccount = "0";
+                                            // } else if (temp
+                                            //         .split(".")[1]
+                                            //         .toString() ==
+                                            //     "00") {
+                                            //   disccount = temp
+                                            //       .split(".")[0]
+                                            //       .toString();
+                                            // } else {
+                                            //   disccount = temp;
+                                            // }
+                                            // return Text("data");
+
+                                            return singleProductDesign(
+                                                context,
+                                                e,
+                                                inStock,
+                                                controller,
+                                                similarProduct,
+                                                dynamicLinks,
+                                                disccount,
+                                                true);
+                                          }).toList()),
+                                        )),
+                                  ],
+                                ),
                         ]),
                   )),
             );
@@ -1491,7 +1522,7 @@ Widget loadingProducts(String message) {
 
 Future<String> createDynamicLink(FirebaseDynamicLinks dynamicLinks) async {
   final DynamicLinkParameters dynamicLinkParameters = DynamicLinkParameters(
-    uriPrefix: "https://instadent.page.link",
+    uriPrefix: "https://instadentapp.page.link",
     // socialMetaTagParameters: SocialMetaTagParameters(
     //   imageUrl: Uri.parse(
     //     "https://idcweb.techstreet.in/#/home",
@@ -1500,7 +1531,7 @@ Future<String> createDynamicLink(FirebaseDynamicLinks dynamicLinks) async {
     //   title: "lead",
     // ),
     link: Uri.parse(
-      "https://instadent.page.link/xEYL",
+      "https://instadentapp.page.link/jTpt",
     ),
     iosParameters: IOSParameters(
       bundleId: 'com.wlo.smartCollect',
@@ -1508,7 +1539,7 @@ Future<String> createDynamicLink(FirebaseDynamicLinks dynamicLinks) async {
       appStoreId: '1624261118',
     ),
     androidParameters: AndroidParameters(
-      packageName: "com.wlo.wlo_master",
+      packageName: "com.instadent.instadent",
     ),
   );
 

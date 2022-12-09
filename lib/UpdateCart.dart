@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:instadent/apis/cart_api.dart';
 import 'package:instadent/apis/login_api.dart';
+import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class UpdateCartData extends ChangeNotifier {
   String _totalItemCount = "0";
@@ -14,6 +18,9 @@ class UpdateCartData extends ChangeNotifier {
   String _defaultAddress = "";
   bool _listUpdate = false;
 
+  bool _servicable = false;
+  String _deliveryTime = "Not serviceable in this area";
+
   String get counter => _totalItemCount;
   String get counterPrice => _totalItemCost;
   bool get counterShowCart => _showCart;
@@ -21,6 +28,8 @@ class UpdateCartData extends ChangeNotifier {
   String get counterDefaultPinCode => _defaultPincode;
   String get counterDefaultAddress => _defaultAddress;
   bool get counterListUpdate => _listUpdate;
+  bool get counterServicable => _servicable;
+  String get counterDeliveryTime => _deliveryTime;
 
   Future<void> incrementCounter() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -71,6 +80,35 @@ class UpdateCartData extends ChangeNotifier {
 
   Future<void> changeSearchView(int index) async {
     DashboardState.currentTab = index;
+    notifyListeners();
+  }
+
+  Future<void> checkForServiceable() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String currentPincode = pref.getString("pincode").toString();
+    // print("currentPincode====" + currentPincode);
+    var url = URL + "pincode-estimate-delivery";
+    var body = {
+      "pincode": currentPincode,
+    };
+    var response = await http.post(
+      Uri.parse(url),
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
+    print("checjfor serviable");
+    print("pincode" + currentPincode);
+
+    print(response.body);
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      _deliveryTime = jsonDecode(response.body)['ItemResponse']
+              ['delivery_expected_time']
+          .toString();
+      _servicable = true;
+    } else {
+      _deliveryTime = "Not serviceable in this area";
+      _servicable = false;
+    }
     notifyListeners();
   }
 }

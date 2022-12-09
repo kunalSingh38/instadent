@@ -32,6 +32,7 @@ class _OffersScreenState extends State<OffersScreen> {
         setState(() {
           brandList.clear();
           brandList.addAll(value);
+          brandListCopy.clear();
           brandListCopy.addAll(value);
           brandList.sort((a, b) => a['name'].compareTo(b['name']));
           brandListCopy.sort((a, b) => a['name'].compareTo(b['name']));
@@ -43,7 +44,10 @@ class _OffersScreenState extends State<OffersScreen> {
         setState(() {
           brandList.clear();
           brandList.addAll(value);
+          brandListCopy.clear();
           brandListCopy.addAll(value);
+          brandList.sort((a, b) => a['name'].compareTo(b['name']));
+          brandListCopy.sort((a, b) => a['name'].compareTo(b['name']));
           isLoading = false;
         });
       });
@@ -133,264 +137,280 @@ class _OffersScreenState extends State<OffersScreen> {
             ),
             // bottomNavigationBar:
             //     viewModel.counterShowCart ? bottomSheet() : null,
-            body: RefreshIndicator(
-              onRefresh: () async {
-                setState(() {
-                  isLoading = true;
-                });
-                getBrandList();
-              },
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
-                    child: isLoading
-                        ? loadingProducts("Getting your InstaDent brands")
-                        : Column(
-                            children: [
-                              Card(
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    side: BorderSide(color: Color(0xFFEEEEEE))),
-                                child: TextFormField(
-                                  controller: searching,
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700),
-                                  onChanged: (value) {
-                                    if (value.isNotEmpty) {
-                                      List dummyListData = [];
+            body: !viewModel.counterServicable
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 31),
+                    child: Image.asset(
+                      "assets/instadent service.jpg",
+                      scale: 1,
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      getBrandList();
+                    },
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
+                          child: isLoading
+                              ? loadingProducts("Getting your InstaDent brands")
+                              : Column(
+                                  children: [
+                                    Card(
+                                      elevation: 5,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          side: BorderSide(
+                                              color: Color(0xFFEEEEEE))),
+                                      child: TextFormField(
+                                        controller: searching,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700),
+                                        onChanged: (value) {
+                                          if (value.isNotEmpty) {
+                                            List dummyListData = [];
 
-                                      brandListCopy.forEach((item) {
-                                        if (item['name']
-                                            .toString()
-                                            .toUpperCase()
-                                            .contains(value.toUpperCase())) {
-                                          dummyListData.add(item);
-                                        }
-                                      });
-                                      setState(() {
-                                        brandList.clear();
-                                        brandList.addAll(
-                                            dummyListData.toSet().toList());
-                                      });
-                                      return;
-                                    } else {
-                                      setState(() {
-                                        brandList.clear();
-                                        brandList.addAll(brandListCopy);
-                                      });
-                                    }
-                                  },
-                                  // autofocus: true,
-                                  decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      contentPadding: EdgeInsets.all(15),
-                                      focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.lightBlue),
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      hintText: "Search brands",
-                                      hintStyle: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w300),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(Icons.clear),
-                                        onPressed: () {
-                                          setState(() {
-                                            searching.clear();
-                                            brandList.clear();
-                                            brandList.addAll(brandListCopy);
-                                          });
+                                            brandListCopy.forEach((item) {
+                                              if (item['name']
+                                                  .toString()
+                                                  .toUpperCase()
+                                                  .contains(
+                                                      value.toUpperCase())) {
+                                                dummyListData.add(item);
+                                              }
+                                            });
+                                            setState(() {
+                                              brandList.clear();
+                                              brandList.addAll(dummyListData
+                                                  .toSet()
+                                                  .toList());
+                                            });
+                                            return;
+                                          } else {
+                                            setState(() {
+                                              brandList.clear();
+                                              brandList.addAll(brandListCopy);
+                                            });
+                                          }
                                         },
-                                      )),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Expanded(
-                                flex: 10,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      brandImageList.length == 0
-                                          ? SizedBox()
-                                          : Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 5),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                    color: Colors.grey[50]),
-                                                child: ImageSlideshow(
-                                                  width: double.infinity,
-                                                  height: 180,
-                                                  initialPage: 0,
-                                                  indicatorColor: Colors.blue,
-                                                  indicatorBackgroundColor:
-                                                      Colors.grey,
-                                                  children: brandImageList
-                                                      .map((e) => Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    bottom: 22),
-                                                            child: SizedBox(
-                                                              height: 140,
-                                                              width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width /
-                                                                  0.5,
-                                                              child: ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              20),
-                                                                  child: cacheImage(
-                                                                      e['mobile_banner']
-                                                                          .toString())),
-                                                            ),
-                                                          ))
-                                                      .toList(),
-                                                  onPageChanged: (value) {},
-                                                  autoPlayInterval: 3000,
-                                                  isLoop: true,
-                                                ),
-                                              ),
-                                            ),
-                                      brandList.length == 0
-                                          ? Center(
-                                              child: SingleChildScrollView(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Image.asset(
-                                                      "assets/noData.jpg",
-                                                      // scale: 0,
-                                                    ),
-                                                    Text(
-                                                      "No data found",
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            )
-                                          : Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 10),
-                                              child: GridView.count(
-                                                crossAxisCount: 4,
-                                                mainAxisSpacing: 0,
-                                                crossAxisSpacing: 10,
-                                                childAspectRatio: 0.6,
-                                                physics:
-                                                    ClampingScrollPhysics(),
-                                                scrollDirection: Axis.vertical,
-                                                shrinkWrap: true,
-                                                children: brandList
-                                                    .map((e) => InkWell(
-                                                          onTap: () {
-                                                            FocusScope.of(
-                                                                    context)
-                                                                .unfocus();
-                                                            Navigator.push(
-                                                                context,
-                                                                MaterialPageRoute(
-                                                                    builder: (context) =>
-                                                                        BrandProducts(
-                                                                            m: e)));
-                                                          },
-                                                          child: Column(
-                                                            children: [
-                                                              Expanded(
-                                                                  flex: 2,
-                                                                  child: Container(
-                                                                      width: MediaQuery.of(context).size.width,
-                                                                      decoration: BoxDecoration(
-                                                                        border: Border.all(
-                                                                            color:
-                                                                                Colors.grey,
-                                                                            width: 0.5),
+                                        // autofocus: true,
+                                        decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            contentPadding: EdgeInsets.all(15),
+                                            focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.lightBlue),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            hintText: "Search brands",
+                                            hintStyle: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w300),
+                                            suffixIcon: IconButton(
+                                              icon: Icon(Icons.clear),
+                                              onPressed: () {
+                                                setState(() {
+                                                  searching.clear();
+                                                  brandList.clear();
+                                                  brandList
+                                                      .addAll(brandListCopy);
+                                                });
+                                              },
+                                            )),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Expanded(
+                                      flex: 10,
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          children: [
+                                            brandImageList.length == 0
+                                                ? SizedBox()
+                                                : Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 5),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                          color:
+                                                              Colors.grey[50]),
+                                                      child: ImageSlideshow(
+                                                        width: double.infinity,
+                                                        height: 180,
+                                                        initialPage: 0,
+                                                        indicatorColor:
+                                                            Colors.blue,
+                                                        indicatorBackgroundColor:
+                                                            Colors.grey,
+                                                        children: brandImageList
+                                                            .map((e) => Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          22),
+                                                                  child:
+                                                                      SizedBox(
+                                                                    height: 140,
+                                                                    width: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                        0.5,
+                                                                    child: ClipRRect(
                                                                         borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                        color: Colors
-                                                                            .transparent,
-                                                                      ),
-                                                                      child: e['product_image'] == null
-                                                                          ? ClipRRect(
-                                                                              borderRadius: BorderRadius.circular(10),
-                                                                              child: Image.asset(
-                                                                                "assets/logo.png",
-                                                                                // fit: BoxFit.,
-                                                                              ),
-                                                                            )
-                                                                          : ClipRRect(borderRadius: BorderRadius.circular(10), child: cacheImage(e['product_image'].toString())))),
-                                                              SizedBox(
-                                                                height: 10,
-                                                              ),
-                                                              Expanded(
-                                                                  child: Text(
-                                                                e['name'] == ""
-                                                                    ? "No Name"
-                                                                    : e['name']
-                                                                        .toString(),
-                                                                softWrap: true,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                maxLines: 2,
-                                                                style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        unitHeightValue *
-                                                                            0.7),
-                                                              ))
-                                                            ],
+                                                                            BorderRadius.circular(
+                                                                                20),
+                                                                        child: cacheImage(
+                                                                            e['mobile_banner'].toString())),
+                                                                  ),
+                                                                ))
+                                                            .toList(),
+                                                        onPageChanged:
+                                                            (value) {},
+                                                        autoPlayInterval: 3000,
+                                                        isLoop: true,
+                                                      ),
+                                                    ),
+                                                  ),
+                                            brandList.length == 0
+                                                ? Center(
+                                                    child:
+                                                        SingleChildScrollView(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Image.asset(
+                                                            "assets/noData.jpg",
+                                                            // scale: 0,
                                                           ),
-                                                        ))
-                                                    .toList(),
-                                              ),
-                                            ),
-                                    ],
-                                  ),
+                                                          Text(
+                                                            "No data found",
+                                                            style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 10),
+                                                    child: GridView.count(
+                                                      crossAxisCount: 4,
+                                                      mainAxisSpacing: 0,
+                                                      crossAxisSpacing: 10,
+                                                      childAspectRatio: 0.6,
+                                                      physics:
+                                                          ClampingScrollPhysics(),
+                                                      scrollDirection:
+                                                          Axis.vertical,
+                                                      shrinkWrap: true,
+                                                      children: brandList
+                                                          .map((e) => InkWell(
+                                                                onTap: () {
+                                                                  FocusScope.of(
+                                                                          context)
+                                                                      .unfocus();
+                                                                  Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) =>
+                                                                              BrandProducts(m: e)));
+                                                                },
+                                                                child: Column(
+                                                                  children: [
+                                                                    Expanded(
+                                                                        flex: 2,
+                                                                        child: Container(
+                                                                            width: MediaQuery.of(context).size.width,
+                                                                            decoration: BoxDecoration(
+                                                                              border: Border.all(color: Colors.grey, width: 0.5),
+                                                                              borderRadius: BorderRadius.circular(10),
+                                                                              color: Colors.transparent,
+                                                                            ),
+                                                                            child: e['product_image'] == null
+                                                                                ? ClipRRect(
+                                                                                    borderRadius: BorderRadius.circular(10),
+                                                                                    child: Image.asset(
+                                                                                      "assets/logo.png",
+                                                                                      // fit: BoxFit.,
+                                                                                    ),
+                                                                                  )
+                                                                                : ClipRRect(borderRadius: BorderRadius.circular(10), child: cacheImage(e['product_image'].toString())))),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          10,
+                                                                    ),
+                                                                    Expanded(
+                                                                        child:
+                                                                            Text(
+                                                                      e['name'] ==
+                                                                              ""
+                                                                          ? "No Name"
+                                                                          : e['name']
+                                                                              .toString(),
+                                                                      softWrap:
+                                                                          true,
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                      maxLines:
+                                                                          2,
+                                                                      style: TextStyle(
+                                                                          fontWeight: FontWeight
+                                                                              .bold,
+                                                                          fontSize:
+                                                                              unitHeightValue * 0.7),
+                                                                    ))
+                                                                  ],
+                                                                ),
+                                                              ))
+                                                          .toList(),
+                                                    ),
+                                                  ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    viewModel.counterShowCart
+                                        ? SizedBox(
+                                            height: 55,
+                                          )
+                                        : SizedBox(),
+                                  ],
                                 ),
-                              ),
-                              viewModel.counterShowCart
-                                  ? SizedBox(
-                                      height: 55,
-                                    )
-                                  : SizedBox(),
-                            ],
-                          ),
-                  ),
-                  Align(
-                      alignment: Alignment.bottomCenter,
-                      child: viewModel.counterShowCart
-                          ? bottomSheet()
-                          : SizedBox())
-                ],
-              ),
-            ));
+                        ),
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: viewModel.counterShowCart
+                                ? bottomSheet()
+                                : SizedBox())
+                      ],
+                    ),
+                  ));
       }),
     );
   }

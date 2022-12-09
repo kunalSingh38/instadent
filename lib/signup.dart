@@ -326,12 +326,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 20,
                 ),
                 TextFormField(
-                  validator: (value) {
-                    if (value!.isEmpty)
-                      return "Required Field";
-                    else
-                      return null;
-                  },
+                  // validator: (value) {
+                  //   if (value!.isEmpty)
+                  //     return "Required Field";
+                  //   else
+                  //     return null;
+                  // },
                   controller: registrationNumber,
                   textCapitalization: TextCapitalization.characters,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
@@ -342,7 +342,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.circular(10)),
-                    labelText: "Dental Council Registration Number*",
+                    labelText: "Dental Council Registration Number",
                     labelStyle: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -398,7 +398,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             Expanded(
                                 flex: 10,
                                 child: Text(
-                                  "I used this number on whatsApp.",
+                                  "I use this number on whatsApp.",
                                   style: TextStyle(fontWeight: FontWeight.w700),
                                 )),
                             Expanded(

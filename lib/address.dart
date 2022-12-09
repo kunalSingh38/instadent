@@ -93,24 +93,24 @@ class _AddressListScreenState extends State<AddressListScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          actions: [
-            phoneNumber == "null"
-                ? SizedBox()
-                : TextButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AddUpdateAddressScreen(
-                                    update: false,
-                                    map: {},
-                                  ))).then((value) {
-                        getAddressList();
-                      });
-                    },
-                    icon: Icon(Icons.add),
-                    label: Text("ADD"))
-          ],
+          // actions: [
+          //   phoneNumber == "null"
+          //       ? SizedBox()
+          //       : TextButton.icon(
+          //           onPressed: () {
+          //             Navigator.push(
+          //                 context,
+          //                 MaterialPageRoute(
+          //                     builder: (context) => AddUpdateAddressScreen(
+          //                           update: false,
+          //                           map: {},
+          //                         ))).then((value) {
+          //               getAddressList();
+          //             });
+          //           },
+          //           icon: Icon(Icons.add),
+          //           label: Text("ADD"))
+          // ],
           leading: backIcon(context),
           elevation: 3,
           title: const Text(
@@ -464,7 +464,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                                 ),
                                                 Text(
                                                   capitalize(e['address']
-                                                          .toString() +
+                                                          .toString()
+                                                          .replaceAll(",", "") +
                                                       ", " +
                                                       e['pincode'].toString()),
                                                   maxLines: 2,
@@ -654,8 +655,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                               width: 5,
                                             ),
                                             Text(
-                                              capitalize(
-                                                  e['address'].toString()),
+                                              capitalize(e['address']
+                                                  .toString()
+                                                  .replaceAll(",", "")),
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                             ),
@@ -734,8 +736,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
       String pincode, String address, String address_type, String count) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (int.parse(count.toString()) > 0) {
-      print(pref.getString("pincode"));
-      print(pincode);
       if (pref.getString("pincode").toString() != pincode) {
         showDialog(
             context: context,
@@ -814,29 +814,55 @@ class _AddressListScreenState extends State<AddressListScreen> {
                   ],
                 ));
       } else {
+        print("test----------");
         // ScaffoldMessenger.of(context).showSnackBar(
         //   SnackBar(
         //       content: Text("You have selected same address"),
         //       duration: Duration(seconds: 1)),
         // );
         Navigator.of(context).pop();
+        print(pincode);
+        print(address);
+        print(address_type);
+        setState(() {
+          pref.setString("pincode", pincode.toString());
+          pref.setString("defaultAddress", address);
+          pref.setString("address_type", address_type);
+        });
+
+        Provider.of<UpdateCartData>(context, listen: false)
+            .setDefaultAddress()
+            .then((value) {
+          Provider.of<UpdateCartData>(context, listen: false)
+              .checkForServiceable();
+        });
       }
     } else {
       // Navigator.pop(context, true);
       // reloadApis();
+      print("test2----------");
+      setState(() {
+        pref.setString("pincode", pincode.toString());
+        pref.setString("defaultAddress", address);
+        pref.setString("address_type", address_type);
+      });
 
-      pref.setString("pincode", pincode.toString());
-      pref.setString("defaultAddress", address);
-      pref.setString("address_type", address_type);
+      print(pref.getString("token"));
 
-      log("Default Pin Code---->" + pref.getString('pincode').toString());
+      // log("Default Pin Code---->" + pref.getString('pincode').toString());
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(address_type.toString() + " set as default address."),
             duration: Duration(seconds: 1)),
       );
-      Provider.of<UpdateCartData>(context, listen: false).setDefaultAddress();
+      Provider.of<UpdateCartData>(context, listen: false)
+          .setDefaultAddress()
+          .then((value) {
+        Provider.of<UpdateCartData>(context, listen: false)
+            .checkForServiceable();
+      });
+
       setState(() {
         currentPincode = pincode.toString();
       });

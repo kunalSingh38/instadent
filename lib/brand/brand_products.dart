@@ -5,6 +5,7 @@ import 'package:instadent/apis/other_api.dart';
 import 'package:instadent/constants.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BrandProducts extends StatefulWidget {
   Map m = {};
@@ -20,17 +21,37 @@ class _BrandProductsState extends State<BrandProducts> {
   FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
 
   TextEditingController controller = TextEditingController();
+
+  getBrandProducts() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    if (pref.getBool("loggedIn") ?? false) {
+      OtherAPI()
+          .brandProductDataWithLogin(widget.m['id'].toString())
+          .then((value) {
+        setState(() {
+          isLoading = false;
+          productList.clear();
+          productList.addAll(value);
+        });
+      });
+    } else {
+      OtherAPI()
+          .brandProductDataWithoutLogin(widget.m['id'].toString())
+          .then((value) {
+        setState(() {
+          isLoading = false;
+          productList.clear();
+          productList.addAll(value);
+        });
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    OtherAPI().brandProductData(widget.m['id'].toString()).then((value) {
-      setState(() {
-        isLoading = false;
-        productList.clear();
-        productList.addAll(value);
-      });
-    });
+    getBrandProducts();
   }
 
   @override
@@ -90,7 +111,7 @@ class _BrandProductsState extends State<BrandProducts> {
                           child: Column(
                             children: [
                               allProductsList(productList, context, controller,
-                                  0.8, dynamicLinks),
+                                  0.7, dynamicLinks),
                               viewModel.counterShowCart
                                   ? SizedBox(
                                       height: 60,

@@ -7,6 +7,7 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/apis/cart_api.dart';
@@ -150,7 +151,43 @@ class _SearchScreenState extends State<SearchScreen> {
         }
       });
     }
-    print("Search 3");
+  }
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
   }
 
   late stt.SpeechToText _speech;
@@ -201,6 +238,7 @@ class _SearchScreenState extends State<SearchScreen> {
     _speech = stt.SpeechToText();
     recentSearchItems();
     myFocusNode = FocusNode();
+
     getFeaturedList();
     var keyboardVisibilityController = KeyboardVisibilityController();
 
@@ -231,378 +269,400 @@ class _SearchScreenState extends State<SearchScreen> {
         //   toolbarHeight: 50,
         // ),
 
-        appBar: AppBar(
-            bottom: _isListening
-                ? PreferredSize(
-                    preferredSize: Size(double.infinity, 1.0),
-                    child: LinearProgressIndicator(),
-                  )
-                : null,
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            toolbarHeight: 80,
-            title: Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  side: BorderSide(color: Color(0xFFEEEEEE))),
-              child: TextFormField(
-                focusNode: myFocusNode,
-                // autofocus: true,
-                controller: searchCont,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                onChanged: (val) async {
-                  searching();
-                },
-                onEditingComplete: () {
-                  // addRecentItems();
-                  searching();
-                  FocusScope.of(context).unfocus();
-                },
-                decoration: InputDecoration(
-                    // isCollapsed: true,
-                    isDense: true,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    contentPadding: EdgeInsets.all(5),
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.lightBlue),
-                        borderRadius: BorderRadius.circular(10)),
-                    hintText: searchHint,
-                    hintStyle: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w300),
-                    prefixIcon: InkWell(
-                      onTap: () {
-                        _listen();
-                      },
-                      child: Image.asset(
-                        "assets/mic.png",
-                        scale: 25,
-                      ),
-                    ),
-                    suffixIcon: InkWell(
-                        onTap: () {
-                          setState(() {
-                            searchCont.clear();
-                            searchResult.clear();
-                            myFocusNode.requestFocus();
-                            _isListening = false;
-                          });
-                        },
-                        child: Image.asset(
-                          "assets/clear.png",
-                          scale: 35,
-                        ))),
-              ),
-            )),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            _speech = stt.SpeechToText();
-            recentSearchItems();
-            myFocusNode = FocusNode();
-            getFeaturedList();
-            var keyboardVisibilityController = KeyboardVisibilityController();
+        appBar: !viewModel.counterServicable
+            ? AppBar(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                toolbarHeight: 80,
+              )
+            : AppBar(
+                bottom: _isListening
+                    ? PreferredSize(
+                        preferredSize: Size(double.infinity, 1.0),
+                        child: LinearProgressIndicator(),
+                      )
+                    : null,
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                toolbarHeight: 80,
+                title: Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: BorderSide(color: Color(0xFFEEEEEE))),
+                  child: TextFormField(
+                    focusNode: myFocusNode,
+                    // autofocus: true,
+                    controller: searchCont,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    onChanged: (val) async {
+                      searching();
+                    },
+                    onEditingComplete: () {
+                      // addRecentItems();
+                      searching();
+                      FocusScope.of(context).unfocus();
+                    },
+                    decoration: InputDecoration(
+                        // isCollapsed: true,
+                        isDense: true,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        contentPadding: EdgeInsets.all(5),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.lightBlue),
+                            borderRadius: BorderRadius.circular(10)),
+                        hintText: searchHint,
+                        hintStyle: TextStyle(
+                            color: Colors.black,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w300),
+                        prefixIcon: InkWell(
+                          onTap: () {
+                            _listen();
+                          },
+                          child: Image.asset(
+                            "assets/mic.png",
+                            scale: 25,
+                          ),
+                        ),
+                        suffixIcon: InkWell(
+                            onTap: () {
+                              setState(() {
+                                searchCont.clear();
+                                searchResult.clear();
+                                myFocusNode.requestFocus();
+                                _isListening = false;
+                              });
+                            },
+                            child: Image.asset(
+                              "assets/clear.png",
+                              scale: 35,
+                            ))),
+                  ),
+                )),
+        body: !viewModel.counterServicable
+            ? Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Image.asset(
+                  "assets/instadent service.jpg",
+                  scale: 1,
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: () async {
+                  _speech = stt.SpeechToText();
+                  recentSearchItems();
+                  myFocusNode = FocusNode();
+                  getFeaturedList();
+                  var keyboardVisibilityController =
+                      KeyboardVisibilityController();
 
-            keyboardSubscription =
-                keyboardVisibilityController.onChange.listen((bool visible) {
-              if (!visible) {
-                addRecentItems();
-              }
-            });
-            keyboardSubscription.cancel();
-          },
-          child: Stack(
-            children: [
-              SafeArea(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      searchResult.length == 0
-                          ? Column(
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    suggestProductBottom();
-                                  },
-                                  child: Container(
-                                    height: 50,
-                                    width: MediaQuery.of(context).size.width /
-                                        1.12,
-                                    decoration: BoxDecoration(
-                                        color: Colors.teal[100],
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: Center(
-                                      child: Text(
-                                        "Didn't find your product. Click to Suggest.",
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                )
-                              ],
-                            )
-                          : SizedBox(),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  keyboardSubscription = keyboardVisibilityController.onChange
+                      .listen((bool visible) {
+                    if (!visible) {
+                      addRecentItems();
+                    }
+                  });
+                  keyboardSubscription.cancel();
+                },
+                child: Stack(
+                  children: [
+                    SafeArea(
+                      child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            items.length == 0
-                                ? SizedBox()
-                                : Column(
+                            searchResult.length == 0
+                                ? Column(
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(Icons.history),
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Text(
-                                                "Recent searches",
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            ],
-                                          ),
-                                          InkWell(
+                                      InkWell(
+                                        onTap: () {
+                                          suggestProductBottom();
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              1.12,
+                                          decoration: BoxDecoration(
+                                              color: Colors.teal[100],
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Center(
                                             child: Text(
-                                              "Clear",
+                                              "Didn't find your product. Click to Suggest.",
                                               style: TextStyle(
-                                                  color: Colors.blue,
-                                                  fontWeight: FontWeight.bold),
+                                                  color: Colors.black),
                                             ),
-                                            onTap: () async {
-                                              SharedPreferences prefs =
-                                                  await SharedPreferences
-                                                      .getInstance();
-                                              setState(() {
-                                                items.clear();
-                                                prefs.remove("recentSearch");
-                                                searchResult.clear();
-                                                searchCont.text = "";
-                                              });
-                                            },
                                           ),
-                                        ],
+                                        ),
                                       ),
                                       SizedBox(
                                         height: 10,
-                                      ),
-                                      items.length == 0
-                                          ? SizedBox()
-                                          : SizedBox(
-                                              height: 35,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              child: ListView.separated(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                itemCount: items.length,
-                                                separatorBuilder:
-                                                    (BuildContext context,
-                                                            int index) =>
-                                                        const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                itemBuilder:
-                                                    (BuildContext context,
-                                                        int index) {
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        searchCont.clear();
-                                                        searchCont.text =
-                                                            items[index]
-                                                                .toString();
-                                                        myFocusNode
-                                                            .requestFocus();
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                        decoration: BoxDecoration(
-                                                            border: Border.all(
-                                                                color: Colors
-                                                                    .grey),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10)),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(8.0),
-                                                          child: Text(
-                                                            items[index]
-                                                                .toString(),
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .grey[700]),
-                                                          ),
-                                                        )),
-                                                  );
-                                                },
-                                              )),
+                                      )
                                     ],
-                                  ),
+                                  )
+                                : SizedBox(),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                              child: Column(
+                                children: [
+                                  items.length == 0
+                                      ? SizedBox()
+                                      : Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Icon(Icons.history),
+                                                    SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Text(
+                                                      "Recent searches",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  ],
+                                                ),
+                                                InkWell(
+                                                  child: Text(
+                                                    "Clear",
+                                                    style: TextStyle(
+                                                        color: Colors.blue,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  onTap: () async {
+                                                    SharedPreferences prefs =
+                                                        await SharedPreferences
+                                                            .getInstance();
+                                                    setState(() {
+                                                      items.clear();
+                                                      prefs.remove(
+                                                          "recentSearch");
+                                                      searchResult.clear();
+                                                      searchCont.text = "";
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            items.length == 0
+                                                ? SizedBox()
+                                                : SizedBox(
+                                                    height: 35,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    child: ListView.separated(
+                                                      scrollDirection:
+                                                          Axis.horizontal,
+                                                      itemCount: items.length,
+                                                      separatorBuilder:
+                                                          (BuildContext context,
+                                                                  int index) =>
+                                                              const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      itemBuilder:
+                                                          (BuildContext context,
+                                                              int index) {
+                                                        return InkWell(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              searchCont
+                                                                  .clear();
+                                                              searchCont
+                                                                  .text = items[
+                                                                      index]
+                                                                  .toString();
+                                                              myFocusNode
+                                                                  .requestFocus();
+                                                            });
+                                                          },
+                                                          child: Container(
+                                                              decoration: BoxDecoration(
+                                                                  border: Border.all(
+                                                                      color: Colors
+                                                                          .grey),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10)),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child: Text(
+                                                                  items[index]
+                                                                      .toString(),
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                              .grey[
+                                                                          700]),
+                                                                ),
+                                                              )),
+                                                        );
+                                                      },
+                                                    )),
+                                          ],
+                                        ),
+                                ],
+                              ),
+                            ),
+                            searchResult.length == 0
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15),
+                                    child: Row(
+                                      children: [
+                                        Image.asset(
+                                          "assets/feature.png",
+                                          scale: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(
+                                          "Featured Products",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 14),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                : SizedBox(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Consumer<UpdateCartData>(
+                                builder: (context, viewModel, child) {
+                              return isLoading
+                                  ? Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : searchResult.length == 0
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: GridView.count(
+                                            crossAxisCount: 4,
+                                            mainAxisSpacing: 10,
+                                            crossAxisSpacing: 10,
+                                            childAspectRatio: 0.6,
+                                            physics: ClampingScrollPhysics(),
+                                            scrollDirection: Axis.vertical,
+                                            shrinkWrap: true,
+                                            children: featureProducts
+                                                .map((e) => InkWell(
+                                                      onTap: () {
+                                                        print(e);
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        bool inStock =
+                                                            e['is_stock'] == 1
+                                                                ? false
+                                                                : true;
+                                                        showProdcutDetails(
+                                                            context,
+                                                            e,
+                                                            inStock,
+                                                            controller,
+                                                            featureProducts,
+                                                            dynamicLinks,
+                                                            false);
+                                                      },
+                                                      child: Column(
+                                                        children: [
+                                                          Expanded(
+                                                              flex: 2,
+                                                              child: Container(
+                                                                  width: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    border: Border.all(
+                                                                        color: Colors
+                                                                            .grey,
+                                                                        width:
+                                                                            0.9),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10),
+                                                                    color: Colors
+                                                                        .tealAccent[50],
+                                                                  ),
+                                                                  child: ClipRRect(
+                                                                      borderRadius: BorderRadius.circular(10),
+                                                                      child: e['product_image'].toString() == "0"
+                                                                          ? Image.asset(
+                                                                              "assets/no_image.jpeg",
+                                                                            )
+                                                                          : cacheImage(e['product_image'].toString())))),
+                                                          SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                          Expanded(
+                                                              child: Text(
+                                                            e['product_name'] ==
+                                                                    ""
+                                                                ? "No Name"
+                                                                : e['product_name']
+                                                                    .toString(),
+                                                            softWrap: true,
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 2,
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 12),
+                                                          ))
+                                                        ],
+                                                      ),
+                                                    ))
+                                                .toList(),
+                                          ),
+                                        )
+                                      : allProductsList(searchResult, context,
+                                          controller, 0.7, dynamicLinks);
+                            }),
+                            viewModel.counterShowCart
+                                ? SizedBox(
+                                    height: 60,
+                                  )
+                                : SizedBox(),
                           ],
                         ),
                       ),
-                      searchResult.length == 0
-                          ? Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    "assets/feature.png",
-                                    scale: 20,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "Featured Products",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14),
-                                  )
-                                ],
-                              ),
-                            )
-                          : SizedBox(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Consumer<UpdateCartData>(
-                          builder: (context, viewModel, child) {
-                        return isLoading
-                            ? Center(
-                                child: CircularProgressIndicator(),
-                              )
-                            : searchResult.length == 0
-                                ? Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: GridView.count(
-                                      crossAxisCount: 4,
-                                      mainAxisSpacing: 10,
-                                      crossAxisSpacing: 10,
-                                      childAspectRatio: 0.6,
-                                      physics: ClampingScrollPhysics(),
-                                      scrollDirection: Axis.vertical,
-                                      shrinkWrap: true,
-                                      children: featureProducts
-                                          .map((e) => InkWell(
-                                                onTap: () {
-                                                  print(e);
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                  bool inStock =
-                                                      e['is_stock'] == 1
-                                                          ? false
-                                                          : true;
-                                                  showProdcutDetails(
-                                                      context,
-                                                      e,
-                                                      inStock,
-                                                      controller,
-                                                      featureProducts,
-                                                      dynamicLinks,
-                                                      false);
-                                                },
-                                                child: Column(
-                                                  children: [
-                                                    Expanded(
-                                                        flex: 2,
-                                                        child: Container(
-                                                            width:
-                                                                MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              border: Border.all(
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  width: 0.9),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                              color: Colors
-                                                                  .tealAccent[50],
-                                                            ),
-                                                            child: ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10),
-                                                                child: e['product_image']
-                                                                            .toString() ==
-                                                                        "0"
-                                                                    ? Image
-                                                                        .asset(
-                                                                        "assets/no_image.jpeg",
-                                                                      )
-                                                                    : cacheImage(
-                                                                        e['product_image']
-                                                                            .toString())))),
-                                                    SizedBox(
-                                                      height: 10,
-                                                    ),
-                                                    Expanded(
-                                                        child: Text(
-                                                      e['product_name'] == ""
-                                                          ? "No Name"
-                                                          : e['product_name']
-                                                              .toString(),
-                                                      softWrap: true,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 12),
-                                                    ))
-                                                  ],
-                                                ),
-                                              ))
-                                          .toList(),
-                                    ),
-                                  )
-                                : allProductsList(searchResult, context,
-                                    controller, 0.8, dynamicLinks);
-                      }),
-                      viewModel.counterShowCart
-                          ? SizedBox(
-                              height: 60,
-                            )
-                          : SizedBox(),
-                    ],
-                  ),
+                    ),
+                    Align(
+                        alignment: Alignment.bottomCenter,
+                        child: viewModel.counterShowCart
+                            ? bottomSheet()
+                            : SizedBox()),
+                  ],
                 ),
               ),
-              Align(
-                  alignment: Alignment.bottomCenter,
-                  child:
-                      viewModel.counterShowCart ? bottomSheet() : SizedBox()),
-            ],
-          ),
-        ),
       );
     });
   }

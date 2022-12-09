@@ -205,7 +205,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 .userLogin(loginPhone.text.toString())
                                 .then((value) {
                               if (value['ErrorCode'] == 100) {
-                                print(value);
                                 Navigator.of(context, rootNavigator: true)
                                     .pop();
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -213,12 +212,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                       content: Text("OTP Sent".toString()),
                                       duration: Duration(seconds: 1)),
                                 );
+
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => OTPScreen(
                                             phoneNumber:
-                                                loginPhone.text.toString())));
+                                                loginPhone.text.toString(),
+                                            otp: value['Response']['otp']
+                                                .toString())));
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

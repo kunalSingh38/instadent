@@ -22,14 +22,31 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print(widget.m);
     setState(() {
       items.clear();
       items.addAll(widget.m['items']);
+      items.forEach((element) {
+        setState(() {
+          element['showReturnButton'] = true;
+        });
+      });
 
       returnItems.clear();
       returnItems.addAll(widget.m['returnItem']);
     });
+
+    if (returnItems.isNotEmpty) {
+      for (var i = 0; i < returnItems.length; i++) {
+        for (var j = 0; j < items.length; j++) {
+          if (returnItems[i]['id'].toString() == items[j]['id'].toString()) {
+            setState(() {
+              items[j]['showReturnButton'] = false;
+            });
+          }
+        }
+      }
+    }
+    print(items);
   }
 
   @override
@@ -144,7 +161,7 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Items Details",
+                    "All Items Details",
                     textAlign: TextAlign.left,
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
@@ -215,42 +232,42 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                                                                 .toString()) ==
                                                             0
                                                         ? SizedBox()
-                                                        : InkWell(
-                                                            onTap: () {
-                                                              Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder: (context) =>
-                                                                          ReturnItemScreen(
-                                                                            m: widget.m,
-                                                                            index:
-                                                                                items.indexOf(e),
-                                                                          )));
-                                                            },
-                                                            child: Container(
-                                                              decoration: BoxDecoration(
-                                                                  color: Colors
-                                                                      .teal,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10)),
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        8.0),
-                                                                child: Text(
-                                                                  "Return",
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          16,
+                                                        : e['showReturnButton']
+                                                            ? InkWell(
+                                                                onTap: () {
+                                                                  Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) => ReturnItemScreen(
+                                                                                m: widget.m,
+                                                                                index: items.indexOf(e),
+                                                                              )));
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  decoration: BoxDecoration(
                                                                       color: Colors
-                                                                          .white),
+                                                                          .teal,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10)),
+                                                                  child:
+                                                                      Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.all(
+                                                                            8.0),
+                                                                    child: Text(
+                                                                      "Return",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              16,
+                                                                          color:
+                                                                              Colors.white),
+                                                                    ),
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                            ),
-                                                          ),
+                                                              )
+                                                            : SizedBox(),
                                                   ],
                                                 ),
                                               ],

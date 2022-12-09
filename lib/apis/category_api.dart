@@ -18,7 +18,7 @@ class CategoryAPI {
         'Content-Type': 'application/json'
       },
     );
-    log("---->"+jsonDecode(response.body)['Response']['category'][0].toString());
+
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['category'];
     }
@@ -47,7 +47,7 @@ class CategoryAPI {
           // 'Authorization': 'Bearer ' + pref.getString("token").toString(),
           'Content-Type': 'application/json'
         },
-               body: jsonEncode({"category_id": id.toString(), "pincode": pincode}));
+        body: jsonEncode({"category_id": id.toString(), "pincode": pincode}));
 
     print(jsonEncode({"category_id": id.toString()}));
     // if (['ErrorCode'] == 0) {
@@ -131,6 +131,7 @@ class CategoryAPI {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({"pincode": pref.getString("pincode").toString()}));
+
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response'];
     }
@@ -147,7 +148,8 @@ class CategoryAPI {
         'Authorization': 'Bearer ' + pref.getString("token").toString(),
       },
     );
-
+    print("with feature");
+    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['ItemResponse']['data'];
     }
@@ -162,7 +164,7 @@ class CategoryAPI {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({"pincode": pref.getString("pincode").toString()}));
-    print(response.body);
+
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['data'];
     }

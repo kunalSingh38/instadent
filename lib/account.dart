@@ -11,10 +11,12 @@ import 'package:instadent/dashboard.dart';
 import 'package:instadent/main.dart';
 import 'package:instadent/policy_view.dart';
 import 'package:instadent/signup.dart';
+import 'package:launch_review/launch_review.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -62,7 +64,7 @@ class _AccountScreenState extends State<AccountScreen> {
       "data": "https://idcweb.techstreet.in/#/terms-and-condition"
     },
     {"title": "Rate us on Play Store", "id": "2", "icon": "star.png"},
-    {"title": "Contact Us", "id": "4", "icon": "contact.png"},
+    {"title": "Callback Request", "id": "4", "icon": "contact.png"},
     {"title": "Logout", "id": "3", "icon": "logout.png"}
   ];
 
@@ -311,7 +313,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                               await FlutterShare.share(
                                                 title: 'InstaDent App',
                                                 linkUrl:
-                                                    'https://play.google.com/store/apps/details?id=com.tayal.tayalFintech',
+                                                    'https://play.google.com/store/apps/details?id=com.instadent.instadent',
                                               );
                                               break;
                                           }
@@ -471,6 +473,16 @@ class _AccountScreenState extends State<AccountScreen> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     ContactUsScreen()));
+                                        break;
+
+                                      case "2":
+                                        // await launchUrl(Uri.parse(
+                                        //     "https://play.google.com/store/apps/details?id=com.instadent.instadent"));
+                                        LaunchReview.launch(
+                                            androidAppId:
+                                                "com.instadent.instadent",
+                                            iOSAppId: "");
+
                                         break;
                                     }
                                   },

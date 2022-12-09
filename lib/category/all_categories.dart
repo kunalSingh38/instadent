@@ -169,58 +169,70 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
               ),
               // bottomNavigationBar:
               //     viewModel.counterShowCart ? bottomSheet() : null,
-              body: ListView(
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.8,
-                    child: Stack(
+              body: !viewModel.counterServicable
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 21),
+                      child: Image.asset(
+                        "assets/instadent service.jpg",
+                        scale: 1,
+                      ),
+                    )
+                  : ListView(
                       children: [
-                        isLoading
-                            ? loadingProducts("Getting your InstaDent products")
-                            : Padding(
-                                padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
-                                child: categoryList.isEmpty
-                                    ? Center(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset("assets/noData.jpg"),
-                                            Text(
-                                              "No data found",
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    : SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            allCategoryGrid(categoryList,
-                                                context, unitHeightValue),
-                                            viewModel.counterShowCart
-                                                ? SizedBox(
-                                                    height: 60,
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          child: Stack(
+                            children: [
+                              isLoading
+                                  ? loadingProducts(
+                                      "Getting your InstaDent products")
+                                  : Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(15, 20, 15, 0),
+                                      child: categoryList.isEmpty
+                                          ? Center(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Image.asset(
+                                                      "assets/noData.jpg"),
+                                                  Text(
+                                                    "No data found",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   )
-                                                : SizedBox(),
-                                          ],
-                                        ),
-                                      ),
-                              ),
-                        Align(
-                            alignment: Alignment.bottomCenter,
-                            child: viewModel.counterShowCart
-                                ? bottomSheet()
-                                : SizedBox())
+                                                ],
+                                              ),
+                                            )
+                                          : SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  allCategoryGrid(categoryList,
+                                                      context, unitHeightValue),
+                                                  viewModel.counterShowCart
+                                                      ? SizedBox(
+                                                          height: 60,
+                                                        )
+                                                      : SizedBox(),
+                                                ],
+                                              ),
+                                            ),
+                                    ),
+                              Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: viewModel.counterShowCart
+                                      ? bottomSheet()
+                                      : SizedBox())
+                            ],
+                          ),
+                        ),
                       ],
-                    ),
-                  ),
-                ],
-              ));
+                    ));
         }),
       ),
     );

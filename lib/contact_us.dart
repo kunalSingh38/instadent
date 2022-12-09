@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/apis/other_api.dart';
 import 'package:instadent/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,6 +22,20 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   TextEditingController phone = TextEditingController();
   TextEditingController subject = TextEditingController();
   TextEditingController content = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    LoginAPI().getCustomerDetails().then((value) {
+      setState(() {
+        name.text = value['username'].toString();
+        email.text = value['email'].toString();
+        phone.text = value['mobile'].toString();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -225,36 +240,36 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                TextFormField(
-                  validator: (value) {
-                    if (value!.isEmpty)
-                      return "Required Field";
-                    else
-                      return null;
-                  },
-                  controller: subject,
+                // TextFormField(
+                //   validator: (value) {
+                //     if (value!.isEmpty)
+                //       return "Required Field";
+                //     else
+                //       return null;
+                //   },
+                //   controller: subject,
 
-                  // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  // keyboardType: TextInputType.phone,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    contentPadding: EdgeInsets.all(10),
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black),
-                        borderRadius: BorderRadius.circular(10)),
-                    labelText: "Subject",
-                    counterText: "",
-                    labelStyle: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w300),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
+                //   // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                //   // keyboardType: TextInputType.phone,
+                //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                //   decoration: InputDecoration(
+                //     border: OutlineInputBorder(
+                //         borderRadius: BorderRadius.circular(10)),
+                //     contentPadding: EdgeInsets.all(10),
+                //     focusedBorder: OutlineInputBorder(
+                //         borderSide: BorderSide(color: Colors.black),
+                //         borderRadius: BorderRadius.circular(10)),
+                //     labelText: "Subject",
+                //     counterText: "",
+                //     labelStyle: TextStyle(
+                //         color: Colors.black,
+                //         fontSize: 16,
+                //         fontWeight: FontWeight.w300),
+                //   ),
+                // ),
+                // SizedBox(
+                //   height: 10,
+                // ),
                 TextFormField(
                   maxLines: 4,
                   validator: (value) {
@@ -275,7 +290,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.circular(10)),
-                    labelText: "Content",
+                    labelText: "Describe your issue",
                     counterText: "",
                     labelStyle: TextStyle(
                         color: Colors.black,

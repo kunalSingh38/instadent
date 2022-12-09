@@ -214,6 +214,9 @@ class _GoogleMapForAddressState extends State<GoogleMapForAddress> {
                                 backgroundColor: MaterialStateProperty.all(
                                     Colors.teal[800])),
                             onPressed: () {
+                              print(locatlity);
+                              print(address);
+                              print(pincode);
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
