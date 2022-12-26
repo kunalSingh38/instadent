@@ -204,7 +204,7 @@ class _SearchScreenState extends State<SearchScreen> {
             listing = val;
           });
         },
-        onError: (val) => print('onError: $val'),
+        onError: (val) {},
       );
       if (available) {
         setState(() => _isListening = true);

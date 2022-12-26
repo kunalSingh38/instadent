@@ -128,17 +128,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void reloadApis() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    pinCode = prefs.getString('pincode').toString();
-    print("pincode--->$pinCode");
+    print(prefs.getString("token"));
     setState(() {
       defaultAddress = prefs.getString("defaultAddress").toString();
       addressType = prefs.getString("subLocality").toString();
+      pinCode = prefs.getString('pincode').toString();
     });
-    // if (pinCode == null || pinCode == "" || pinCode == "null") {
-    //   // getAddressList();
-    // } else {
+
     Provider.of<UpdateCartData>(context, listen: false).checkForServiceable();
-    // }
 
     OtherAPI().homePageBanner("header").then((value) {
       setState(() {
@@ -236,111 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ));
-        // showDialog(
-        //     context: context,
-        //     builder: (context) => Container(
-        //         height: MediaQuery.of(context).size.height * 0.4,
-        //         width: MediaQuery.of(context).size.width,
-        //         child: Stack(
-        //           children: [
-        //             Dialog(
-        //               backgroundColor: Colors.white,
-        //               child: SizedBox(
-        //                 height: MediaQuery.of(context).size.height * 0.06,
-        //                 width: MediaQuery.of(context).size.width * 0.99,
-        //                 child: Column(
-        //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                   children: [
-        //                     SizedBox(
-        //                       height:
-        //                           MediaQuery.of(context).size.height * 0.055,
-        //                     ),
-        //                     Container(
-        //                       height:
-        //                           MediaQuery.of(context).size.height * 0.055,
-        //                       decoration: BoxDecoration(
-        //                           image: DecorationImage(image: topImage)),
-        //                     ),
-        //                     Text("Thanks for visiting",
-        //                         style: TextStyle(
-        //                             color: Colors.teal,
-        //                             fontWeight: FontWeight.w500)),
-        //                     Container(
-        //                       alignment: Alignment.center,
-        //                       width: MediaQuery.of(context).size.width,
-        //                       child: Text(
-        //                         "Please confirm if you want to exit?",
-        //                         style: TextStyle(
-        //                             color: Colors.grey[700],
-        //                             fontSize: 13,
-        //                             fontWeight: FontWeight.w600),
-        //                         maxLines: 1,
-        //                       ),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               ),
-        //               // actionsAlignment: MainAxisAlignment.spaceAround,
-        //               // actionsPadding: EdgeInsets.only(bottom: 10),
-        //               // actions: [
-        //               //   Container(
-        //               //     height: MediaQuery.of(context).size.height * 0.04,
-        //               //     width: MediaQuery.of(context).size.width * 0.3,
-        //               //     decoration: BoxDecoration(
-        //               //         color: Colors.grey[200],
-        //               //         borderRadius: BorderRadius.circular(5)),
-        //               //     child: TextButton(
-        //               //         onPressed: () {
-        //               //           Navigator.of(context).pop();
-        //               //         },
-        //               //         child: Text(
-        //               //           "Cancel",
-        //               //           style: TextStyle(color: Colors.black),
-        //               //         )),
-        //               //   ),
-        //               //   Container(
-        //               //     height: MediaQuery.of(context).size.height * 0.044,
-        //               //     width: MediaQuery.of(context).size.width * 0.3,
-        //               //     decoration: BoxDecoration(
-        //               //         color: Colors.blue[800],
-        //               //         borderRadius: BorderRadius.circular(5)),
-        //               //     child: TextButton(
-        //               //         onPressed: () {
-        //               //           SystemNavigator.pop();
-        //               //         },
-        //               //         child: Text(
-        //               //           "Confirm",
-        //               //           style: TextStyle(color: Colors.white),
-        //               //         )),
-        //               //   ),
-        //               // ],
-        //             ),
-        //             Positioned(
-        //               left: MediaQuery.of(context).size.width * 0.37,
-        //               top: MediaQuery.of(context).size.height * 0.27,
-        //               child: Container(
-        //                 alignment: Alignment.center,
-        //                 height: 100,
-        //                 width: 100,
-        //                 decoration: BoxDecoration(
-        //                   borderRadius: BorderRadius.circular(100),
-        //                   color: Colors.white,
-        //                 ),
-        //                 child: Column(
-        //                   mainAxisAlignment: MainAxisAlignment.center,
-        //                   children: [
-        //                     Container(
-        //                       height: 80,
-        //                       width: 80,
-        //                       decoration: BoxDecoration(
-        //                           image: DecorationImage(image: bottomText)),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               ),
-        //             ),
-        //           ],
-        //         )));
+
         return true;
       },
       child: RefreshIndicator(
@@ -349,18 +242,17 @@ class _HomeScreenState extends State<HomeScreen> {
             isLoadingAllCategory = true;
           });
           reloadApis();
+          // _determinePosition().then(
+          //   (value) {
+          //     _getAddress(value).then((value) {
+
+          //     });
+          //   },
+          // );
         },
         child: SafeArea(
           child: Consumer<UpdateCartData>(builder: (context, viewModel, child) {
             return Scaffold(
-                // appBar: showSearch
-                //     ? AppBar(
-                //         toolbarHeight: 60,
-                //         backgroundColor: Colors.white,
-                //         elevation: 8,
-                //         title: onlySearch(),
-                //       )
-                //     : null,
                 extendBodyBehindAppBar: true,
                 body: isLoadingAllCategory
                     ? loadingProducts("Please Wait...")
@@ -1401,43 +1293,65 @@ class _HomeScreenState extends State<HomeScreen> {
                 ]))));
   }
 
-  // String getItemResponse = '';
-  // int dataAccess = 0;
-  // bool getAcess = false;
-  // Future getAccessDetails() async {
-  //   SharedPreferences pref = await SharedPreferences.getInstance();
-  //   String currentPincode = pref.getString("pincode").toString();
-  //   var url = URL + "pincode-estimate-delivery";
-  //   var body = {
-  //     "pincode": currentPincode,
-  //   };
-  //   var response = await http.post(
-  //     Uri.parse(url),
-  //     body: jsonEncode(body),
-  //     headers: {'Content-Type': 'application/json'},
-  //   );
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
 
-  //   log("body---->" + body.toString());
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
 
-  //   var result = jsonDecode(response.body);
-  //   dataAccess = result['ErrorCode'];
-  //   if (dataAccess == 0) {
-  //     getItemResponse =
-  //         result['ItemResponse']['delivery_expected_time'].toString();
-  //     log("item response--->$getItemResponse");
-  //     var snackBar = SnackBar(
-  //       content: Text(result['ErrorMessage']),
-  //     );
-  //     // ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  //   } else {
-  //     setState(() {
-  //       getAcess = true;
-  //     });
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
 
-  //     var snackBar = SnackBar(
-  //       content: Text(result['ErrorMessage']),
-  //     );
-  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  //   }
-  // }
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<void> _getAddress(value) async {
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(value.latitude, value.longitude);
+    Placemark place = placemarks[0];
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      pref.setString("pincode", place.postalCode.toString());
+      pref.setString("address_type", place.subLocality.toString());
+
+      pref.setString("defaultAddress",
+          "${place.subAdministrativeArea} ,${place.name} ,${place.subLocality} ,${place.locality} ,${place.postalCode} ,${place.country}");
+      pref.setString("subLocality", place.subLocality.toString());
+      List temp = [
+        {
+          "address_type": place.subLocality.toString(),
+          "address":
+              "${place.subAdministrativeArea} ,${place.name} ,${place.subLocality} ,${place.locality} ,${place.postalCode} ,${place.country}",
+          "pincode": place.postalCode.toString()
+        }
+      ];
+      pref.setString("recent_address_list", jsonEncode(temp));
+      Provider.of<UpdateCartData>(context, listen: false).setDefaultAddress();
+    });
+  }
 }

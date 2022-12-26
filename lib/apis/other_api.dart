@@ -60,6 +60,7 @@ class OtherAPI {
         'Content-Type': 'application/json'
       },
     );
+    print(response.body);
     return jsonDecode(response.body);
   }
 
@@ -104,6 +105,7 @@ class OtherAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode({"brand_id": brandId.toString()}));
+    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response']['brand_products_list'];
     }

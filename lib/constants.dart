@@ -210,616 +210,636 @@ Future<void> showProdcutDetails(
               builder: (BuildContext context, StateSetter setState) {
             return SizedBox(
               height: MediaQuery.of(context).size.height / heightMain,
-              child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: SingleChildScrollView(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            height: height,
-                            child: multipleImages.length > 0
-                                ? ListView(
-                                    scrollDirection: Axis.horizontal,
-                                    children: multipleImages
-                                        .map((e) => InkWell(
-                                              onTap: () {
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ZoomImages(
-                                                              images:
-                                                                  multipleImages,
-                                                              selectedIndex:
-                                                                  multipleImages
-                                                                      .indexOf(
-                                                                          e),
-                                                            )));
-                                              },
-                                              child: Card(
-                                                  elevation: 8,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20.0),
-                                                  ),
-                                                  child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20),
-                                                      child: SizedBox(
-                                                        height: 200,
-                                                        width: 220,
-                                                        child: cacheImage(
-                                                            e['image']
-                                                                .toString()),
-                                                      ))),
-                                            ))
-                                        .toList(),
-                                  )
-                                : Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
-                                    ),
-                                    elevation: 8,
-                                    child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: cacheImage(
-                                            m['product_image'].toString())),
-                                  ),
-                          ),
-                          Divider(),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 60),
+                      child: SingleChildScrollView(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Expanded(
-                                flex: 6,
-                                child: Text(m['product_name'].toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18)),
-                              ),
-                              Expanded(
-                                  child: InkWell(
-                                onTap: () async {
-                                  await createDynamicLink(dynamicLinks)
-                                      .then((value) async {
-                                    await FlutterShare.share(
-                                        title: m['product_name'].toString(),
-                                        // text: 'Example share text',
-                                        linkUrl: value,
-                                        chooserTitle:
-                                            m['product_name'].toString(),
-                                        text: "InstaDent Product");
-                                  });
-                                },
-                                child: CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor: Colors.grey,
-                                  child: CircleAvatar(
-                                    radius: 19,
-                                    backgroundColor: Colors.white,
-                                    child: Image.asset(
-                                      "assets/share2.png",
-                                      scale: 2.5,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                              ))
-                            ],
-                          ),
-                          SizedBox(
-                            height: 12,
-                          ),
-                          m['packing_info'] == null
-                              ? SizedBox()
-                              : Column(
-                                  children: [
-                                    Text(m['packing_info'].toString()),
-                                    SizedBox(
-                                      height: 12,
-                                    ),
-                                  ],
-                                ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Row(
-                                  children: [
-                                    Text(
-                                        "₹ " +
-                                            double.parse(m['discount_price']
-                                                    .toString())
-                                                .toStringAsFixed(0),
-                                        style: TextStyle(
-                                            color: Colors.green[800],
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 18)),
-                                    SizedBox(
-                                      width: 8,
-                                    ),
-                                    double.parse(m['discount_price'].toString())
-                                                .toStringAsFixed(0) ==
-                                            removeNull(m['mrp'].toString())
-                                        ? SizedBox()
-                                        : Text(
-                                            "₹ " +
-                                                removeNull(m['mrp'].toString()),
-                                            style: TextStyle(
-                                                decoration:
-                                                    TextDecoration.lineThrough,
-                                                fontWeight: FontWeight.w400,
-                                                color: Colors.grey,
-                                                fontSize: 14)),
-                                    SizedBox(
-                                      width: 8,
-                                    ),
-                                    disccount == "0"
-                                        ? SizedBox()
-                                        : Container(
-                                            width: 65,
-                                            decoration: BoxDecoration(
-                                                color: Colors.teal,
-                                                borderRadius:
-                                                    BorderRadius.circular(5)),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(5.0),
-                                              child: Text(
-                                                double.parse(disccount
-                                                            .toString())
-                                                        .toStringAsFixed(0) +
-                                                    "% OFF",
-                                                style: TextStyle(
-                                                    fontSize: 12.5,
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                            ),
-                                          ),
-                                  ],
-                                ),
-                              ),
-                              show
-                                  ? SizedBox()
-                                  : Expanded(
-                                      child: Align(
-                                        alignment: Alignment.centerRight,
-                                        child: inStock
-                                            ? Container(
-                                                width: 75,
-                                                height: 28,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[350],
-                                                    border: Border.all(
-                                                        color: Colors.black),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          8, 2, 8, 2),
-                                                  child: Center(
-                                                    child: Text(
-                                                      "Out of Stock",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                          fontSize: 9,
-                                                          color: Colors.black,
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                    ),
-                                                  ),
-                                                ))
-                                            : Container(
-                                                width: 75,
-                                                height: 28,
-                                                decoration: BoxDecoration(
-                                                    color: m['quantity'] > 0
-                                                        ? Colors.teal[400]
-                                                        : Colors.teal[50],
-                                                    border: Border.all(
-                                                        color:
-                                                            Color(0xFF004D40)),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: m['quantity'] > 0
-                                                    ? Stack(
-                                                        children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .fromLTRB(
-                                                                        8,
-                                                                        4,
-                                                                        2,
-                                                                        4),
-                                                                child: Text(
-                                                                  "-",
-                                                                  style:
-                                                                      textStyle1,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                m['quantity']
-                                                                    .toString(),
-                                                                style:
-                                                                    textStyle1,
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .fromLTRB(
-                                                                        2,
-                                                                        4,
-                                                                        8,
-                                                                        4),
-                                                                child: Text(
-                                                                  "+",
-                                                                  style:
-                                                                      textStyle1,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Expanded(
-                                                                  child:
-                                                                      InkWell(
-                                                                onTap:
-                                                                    () async {
-                                                                  await setQunatity(
-                                                                      productItems
-                                                                          .indexOf(
-                                                                              m),
-                                                                      false,
-                                                                      productItems,
-                                                                      context);
-                                                                },
-                                                                child:
-                                                                    Container(
-                                                                  color: Colors
-                                                                      .transparent,
-                                                                ),
-                                                              )),
-                                                              Expanded(
-                                                                  child:
-                                                                      InkWell(
-                                                                onTap:
-                                                                    () async {
-                                                                  setState(() {
-                                                                    controller
-                                                                        .clear();
-                                                                  });
-                                                                  await manuallyUpdateQuantity(
-                                                                      productItems
-                                                                          .indexOf(
-                                                                              m),
-                                                                      productItems,
-                                                                      context,
-                                                                      controller);
-                                                                },
-                                                                child: Container(
-                                                                    color: Colors
-                                                                        .transparent),
-                                                              )),
-                                                              Expanded(
-                                                                  child:
-                                                                      InkWell(
-                                                                onTap:
-                                                                    () async {
-                                                                  await setQunatity(
-                                                                      productItems
-                                                                          .indexOf(
-                                                                              m),
-                                                                      true,
-                                                                      productItems,
-                                                                      context);
-                                                                },
-                                                                child: Container(
-                                                                    color: Colors
-                                                                        .transparent),
-                                                              ))
-                                                            ],
-                                                          )
-                                                        ],
-                                                      )
-                                                    : InkWell(
-                                                        onTap: () async {
-                                                          await setQunatity(
-                                                              productItems
-                                                                  .indexOf(m),
-                                                              true,
-                                                              productItems,
-                                                              context);
-                                                        },
-                                                        child: Stack(
-                                                          alignment: Alignment
-                                                              .topRight,
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .fromLTRB(
-                                                                      8,
-                                                                      2,
-                                                                      8,
-                                                                      2),
-                                                              child: Center(
-                                                                child: Text(
-                                                                  "ADD",
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color: Colors
-                                                                              .teal[
-                                                                          900]),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(5.0),
-                                                              child: Icon(
-                                                                Icons.add,
-                                                                color: Colors
-                                                                    .teal[900],
-                                                                size: 10,
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ),
+                              SizedBox(
+                                height: height,
+                                child: multipleImages.length > 0
+                                    ? ListView(
+                                        scrollDirection: Axis.horizontal,
+                                        children: multipleImages
+                                            .map((e) => InkWell(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    ZoomImages(
+                                                                      images:
+                                                                          multipleImages,
+                                                                      selectedIndex:
+                                                                          multipleImages
+                                                                              .indexOf(e),
+                                                                    )));
+                                                  },
+                                                  child: Card(
+                                                      elevation: 8,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20.0),
                                                       ),
-                                              ),
+                                                      child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                          child: SizedBox(
+                                                            height: 200,
+                                                            width: 220,
+                                                            child: cacheImage(e[
+                                                                    'image']
+                                                                .toString()),
+                                                          ))),
+                                                ))
+                                            .toList(),
+                                      )
+                                    : Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                        ),
+                                        elevation: 8,
+                                        child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            child: cacheImage(
+                                                m['product_image'].toString())),
+                                      ),
+                              ),
+                              Divider(),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 6,
+                                    child: Text(m['product_name'].toString(),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18)),
+                                  ),
+                                  Expanded(
+                                      child: InkWell(
+                                    onTap: () async {
+                                      await createDynamicLink(dynamicLinks)
+                                          .then((value) async {
+                                        await FlutterShare.share(
+                                            title: m['product_name'].toString(),
+                                            // text: 'Example share text',
+                                            linkUrl: value,
+                                            chooserTitle:
+                                                m['product_name'].toString(),
+                                            text: "InstaDent Product");
+                                      });
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: Colors.grey,
+                                      child: CircleAvatar(
+                                        radius: 19,
+                                        backgroundColor: Colors.white,
+                                        child: Image.asset(
+                                          "assets/share2.png",
+                                          scale: 2.5,
+                                          color: Colors.grey,
+                                        ),
                                       ),
                                     ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          data.length == 0
-                              ? SizedBox()
-                              : Column(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: data
-                                          .map(
-                                            (e) => Column(
-                                              children: [
-                                                Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.blue,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Text(
-                                                        e.toString(),
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color:
-                                                                Colors.white),
-                                                      )),
-                                                ),
-                                                SizedBox(
-                                                  height: 2,
-                                                )
-                                              ],
-                                            ),
-                                          )
-                                          .toList(),
-                                    ),
-                                    SizedBox(
-                                      height: 12,
-                                    ),
-                                  ],
-                                ),
-                          m['warranty_month'].toString() != "0"
-                              ? Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Warranty Duration",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 17)),
-                                        Text(
-                                            m['warranty_month'].toString() +
-                                                " Months",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 15,
-                                            )),
-                                      ],
-                                    ),
-                                  ],
-                                )
-                              : SizedBox(),
-                          m['expiry_date'] == null || m['expiry_date'] == ""
-                              ? SizedBox()
-                              : Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Expiry Date",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 17)),
-                                        Text(m['expiry_date'].toString(),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 15,
-                                            )),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                          Divider(
-                            thickness: 0.9,
-                            height: 30,
-                          ),
-                          Text("Short Description",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                  color: Colors.black)),
-                          SizedBox(
-                            height: 2,
-                          ),
-                          Text(m['short_description'].toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                  color: Colors.grey)),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: otherDetails.map((e) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(e['title'].toString(),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 15,
-                                          color: Colors.black)),
-                                  SizedBox(
-                                    height: 2,
-                                  ),
-                                  Text(e['description'].toString(),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 15,
-                                          color: Colors.grey)),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
+                                  ))
                                 ],
-                              );
-                            }).toList(),
-                          ),
-                          Divider(
-                            thickness: 0.9,
-                            height: 30,
-                          ),
-                          similarProduct.isEmpty
-                              ? SizedBox()
-                              : Column(
-                                  children: [
-                                    Text("You may also like",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 15,
-                                            color: Colors.black)),
-                                    SizedBox(
-                                      height: 10,
+                              ),
+                              SizedBox(
+                                height: 12,
+                              ),
+                              m['packing_info'] == null
+                                  ? SizedBox()
+                                  : Column(
+                                      children: [
+                                        Text(m['packing_info'].toString()),
+                                        SizedBox(
+                                          height: 12,
+                                        ),
+                                      ],
                                     ),
-                                    Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            15, 0, 15, 10),
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: Row(
-                                              children: similarProduct.map((e) {
-                                            bool inStock = e['is_stock'] == 1
-                                                ? false
-                                                : true;
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                            "₹ " +
+                                                double.parse(m['discount_price']
+                                                        .toString())
+                                                    .toStringAsFixed(0),
+                                            style: TextStyle(
+                                                color: Colors.green[800],
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 18)),
+                                        SizedBox(
+                                          width: 8,
+                                        ),
+                                        double.parse(m['discount_price']
+                                                        .toString())
+                                                    .toStringAsFixed(0) ==
+                                                removeNull(m['mrp'].toString())
+                                            ? SizedBox()
+                                            : Text(
+                                                "₹ " +
+                                                    removeNull(
+                                                        m['mrp'].toString()),
+                                                style: TextStyle(
+                                                    decoration: TextDecoration
+                                                        .lineThrough,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: Colors.grey,
+                                                    fontSize: 14)),
+                                        SizedBox(
+                                          width: 8,
+                                        ),
+                                        disccount == "0"
+                                            ? SizedBox()
+                                            : Container(
+                                                width: 65,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.teal,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5)),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Text(
+                                                    double.parse(disccount
+                                                                .toString())
+                                                            .toStringAsFixed(
+                                                                0) +
+                                                        "% OFF",
+                                                    style: TextStyle(
+                                                        fontSize: 12.5,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                ),
+                                              ),
+                                      ],
+                                    ),
+                                  ),
+                                  show
+                                      ? SizedBox()
+                                      : Expanded(
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            child: inStock
+                                                ? Container(
+                                                    width: 75,
+                                                    height: 28,
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.grey[350],
+                                                        border: Border.all(
+                                                            color:
+                                                                Colors.black),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10)),
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                          .fromLTRB(8, 2, 8, 2),
+                                                      child: Center(
+                                                        child: Text(
+                                                          "Out of Stock",
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                              fontSize: 9,
+                                                              color:
+                                                                  Colors.black,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600),
+                                                        ),
+                                                      ),
+                                                    ))
+                                                : Container(
+                                                    width: 75,
+                                                    height: 28,
+                                                    decoration: BoxDecoration(
+                                                        color: m['quantity'] > 0
+                                                            ? Colors.teal[400]
+                                                            : Colors.teal[50],
+                                                        border: Border.all(
+                                                            color: Color(
+                                                                0xFF004D40)),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10)),
+                                                    child: m['quantity'] > 0
+                                                        ? Stack(
+                                                            children: [
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                children: [
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.fromLTRB(
+                                                                            8,
+                                                                            4,
+                                                                            2,
+                                                                            4),
+                                                                    child: Text(
+                                                                      "-",
+                                                                      style:
+                                                                          textStyle1,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    m['quantity']
+                                                                        .toString(),
+                                                                    style:
+                                                                        textStyle1,
+                                                                  ),
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.fromLTRB(
+                                                                            2,
+                                                                            4,
+                                                                            8,
+                                                                            4),
+                                                                    child: Text(
+                                                                      "+",
+                                                                      style:
+                                                                          textStyle1,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                children: [
+                                                                  Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                    onTap:
+                                                                        () async {
+                                                                      await setQunatity(
+                                                                          productItems
+                                                                              .indexOf(m),
+                                                                          false,
+                                                                          productItems,
+                                                                          context);
+                                                                    },
+                                                                    child:
+                                                                        Container(
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                    ),
+                                                                  )),
+                                                                  Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                    onTap:
+                                                                        () async {
+                                                                      setState(
+                                                                          () {
+                                                                        controller
+                                                                            .clear();
+                                                                      });
+                                                                      await manuallyUpdateQuantity(
+                                                                          productItems
+                                                                              .indexOf(m),
+                                                                          productItems,
+                                                                          context,
+                                                                          controller);
+                                                                    },
+                                                                    child: Container(
+                                                                        color: Colors
+                                                                            .transparent),
+                                                                  )),
+                                                                  Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                    onTap:
+                                                                        () async {
+                                                                      await setQunatity(
+                                                                          productItems
+                                                                              .indexOf(m),
+                                                                          true,
+                                                                          productItems,
+                                                                          context);
+                                                                    },
+                                                                    child: Container(
+                                                                        color: Colors
+                                                                            .transparent),
+                                                                  ))
+                                                                ],
+                                                              )
+                                                            ],
+                                                          )
+                                                        : InkWell(
+                                                            onTap: () async {
+                                                              await setQunatity(
+                                                                  productItems
+                                                                      .indexOf(
+                                                                          m),
+                                                                  true,
+                                                                  productItems,
+                                                                  context);
+                                                            },
+                                                            child: Stack(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .topRight,
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .fromLTRB(
+                                                                          8,
+                                                                          2,
+                                                                          8,
+                                                                          2),
+                                                                  child: Center(
+                                                                    child: Text(
+                                                                      "ADD",
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          color:
+                                                                              Colors.teal[900]),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          5.0),
+                                                                  child: Icon(
+                                                                    Icons.add,
+                                                                    color: Colors
+                                                                            .teal[
+                                                                        900],
+                                                                    size: 10,
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+                                                          ),
+                                                  ),
+                                          ),
+                                        ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              data.length == 0
+                                  ? SizedBox()
+                                  : Column(
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: data
+                                              .map(
+                                                (e) => Column(
+                                                  children: [
+                                                    Container(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.blue,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(5)),
+                                                      child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Text(
+                                                            e.toString(),
+                                                            style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color: Colors
+                                                                    .white),
+                                                          )),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 2,
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                              .toList(),
+                                        ),
+                                        SizedBox(
+                                          height: 12,
+                                        ),
+                                      ],
+                                    ),
+                              m['warranty_month'].toString() != "0"
+                                  ? Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text("Warranty Duration",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 17)),
+                                            Text(
+                                                m['warranty_month'].toString() +
+                                                    " Months",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 15,
+                                                )),
+                                          ],
+                                        ),
+                                      ],
+                                    )
+                                  : SizedBox(),
+                              m['expiry_date'] == null || m['expiry_date'] == ""
+                                  ? SizedBox()
+                                  : Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text("Expiry Date",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 17)),
+                                            Text(m['expiry_date'].toString(),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 15,
+                                                )),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                              Divider(
+                                thickness: 0.9,
+                                height: 30,
+                              ),
+                              Text("Short Description",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15,
+                                      color: Colors.black)),
+                              SizedBox(
+                                height: 2,
+                              ),
+                              Text(m['short_description'].toString(),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15,
+                                      color: Colors.grey)),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: otherDetails.map((e) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(e['title'].toString(),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 15,
+                                              color: Colors.black)),
+                                      SizedBox(
+                                        height: 2,
+                                      ),
+                                      Text(e['description'].toString(),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 15,
+                                              color: Colors.grey)),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                              Divider(
+                                thickness: 0.9,
+                                height: 30,
+                              ),
+                              similarProduct.isEmpty
+                                  ? SizedBox()
+                                  : Column(
+                                      children: [
+                                        Text("You may also like",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 15,
+                                                color: Colors.black)),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                15, 0, 15, 10),
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Row(
+                                                  children:
+                                                      similarProduct.map((e) {
+                                                bool inStock =
+                                                    e['is_stock'] == 1
+                                                        ? false
+                                                        : true;
 
-                                            String disccount = "";
-                                            if (e.containsKey(
-                                                "discount_percentage")) {
-                                              disccount =
-                                                  e['discount_percentage']
-                                                      .toString();
-                                            } else {
-                                              disccount = "0";
-                                            }
+                                                String disccount = "";
+                                                if (e.containsKey(
+                                                    "discount_percentage")) {
+                                                  disccount =
+                                                      e['discount_percentage']
+                                                          .toString();
+                                                } else {
+                                                  disccount = "0";
+                                                }
 
-                                            // if (temp
-                                            //             .split(".")[
-                                            //                 0]
-                                            //             .toString() ==
-                                            //         "0" &&
-                                            //     temp
-                                            //             .split(
-                                            //                 ".")[1]
-                                            //             .toString() ==
-                                            //         "00") {
-                                            //   disccount = "0";
-                                            // } else if (temp
-                                            //         .split(".")[1]
-                                            //         .toString() ==
-                                            //     "00") {
-                                            //   disccount = temp
-                                            //       .split(".")[0]
-                                            //       .toString();
-                                            // } else {
-                                            //   disccount = temp;
-                                            // }
-                                            // return Text("data");
+                                                // if (temp
+                                                //             .split(".")[
+                                                //                 0]
+                                                //             .toString() ==
+                                                //         "0" &&
+                                                //     temp
+                                                //             .split(
+                                                //                 ".")[1]
+                                                //             .toString() ==
+                                                //         "00") {
+                                                //   disccount = "0";
+                                                // } else if (temp
+                                                //         .split(".")[1]
+                                                //         .toString() ==
+                                                //     "00") {
+                                                //   disccount = temp
+                                                //       .split(".")[0]
+                                                //       .toString();
+                                                // } else {
+                                                //   disccount = temp;
+                                                // }
+                                                // return Text("data");
 
-                                            return singleProductDesign(
-                                                context,
-                                                e,
-                                                inStock,
-                                                controller,
-                                                similarProduct,
-                                                dynamicLinks,
-                                                disccount,
-                                                true);
-                                          }).toList()),
-                                        )),
-                                  ],
-                                ),
-                        ]),
-                  )),
+                                                return singleProductDesign(
+                                                    context,
+                                                    e,
+                                                    inStock,
+                                                    controller,
+                                                    similarProduct,
+                                                    dynamicLinks,
+                                                    disccount,
+                                                    true);
+                                              }).toList()),
+                                            )),
+                                      ],
+                                    ),
+                            ]),
+                      )),
+                  bottomSheet()
+                ],
+              ),
             );
           }));
 }
@@ -1304,7 +1324,7 @@ Future setQunatity(
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Adding....".toString()),
-        duration: Duration(seconds: 10),
+        duration: Duration(seconds: 1),
       ),
     );
     print("loggedin");
@@ -1319,14 +1339,31 @@ Future setQunatity(
       print(m);
 
       CartAPI().addToCart(m).then((value) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        Provider.of<UpdateCartData>(context, listen: false)
-            .incrementCounter()
-            .then((value) {
+        if (value) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           Provider.of<UpdateCartData>(context, listen: false)
-              .showCartorNot()
-              .then((value1) {});
-        });
+              .incrementCounter()
+              .then((value) {
+            Provider.of<UpdateCartData>(context, listen: false)
+                .showCartorNot()
+                .then((value1) {});
+          });
+        } else {
+          productItems[index]['quantity'] = productItems[index]['quantity'] - 1;
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          Provider.of<UpdateCartData>(context, listen: false)
+              .incrementCounter()
+              .then((value) {
+            Provider.of<UpdateCartData>(context, listen: false)
+                .showCartorNot()
+                .then((value1) {});
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text("Out of Stock".toString()),
+                duration: Duration(seconds: 1)),
+          );
+        }
       });
     } else {
       productItems[index]['quantity'] = productItems[index]['quantity'] - 1;
@@ -1338,16 +1375,33 @@ Future setQunatity(
       };
       print(m);
       CartAPI().addToCart(m).then((value) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        Provider.of<UpdateCartData>(context, listen: false)
-            .incrementCounter()
-            .then((value) {
+        if (value) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           Provider.of<UpdateCartData>(context, listen: false)
-              .showCartorNot()
+              .incrementCounter()
               .then((value) {
-            // Navigator.of(context).pop();
+            Provider.of<UpdateCartData>(context, listen: false)
+                .showCartorNot()
+                .then((value) {
+              // Navigator.of(context).pop();
+            });
           });
-        });
+        } else {
+          productItems[index]['quantity'] = productItems[index]['quantity'] + 1;
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          Provider.of<UpdateCartData>(context, listen: false)
+              .incrementCounter()
+              .then((value) {
+            Provider.of<UpdateCartData>(context, listen: false)
+                .showCartorNot()
+                .then((value1) {});
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text("Out of Stock".toString()),
+                duration: Duration(seconds: 1)),
+          );
+        }
       });
     }
   } else {
@@ -1449,7 +1503,7 @@ Future<void> manuallyUpdateQuantity(int index, List productItems,
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text("Adding....".toString()),
-                                duration: Duration(seconds: 10),
+                                duration: Duration(seconds: 1),
                               ),
                             );
                             productItems[index]['quantity'] =
@@ -1470,25 +1524,50 @@ Future<void> manuallyUpdateQuantity(int index, List productItems,
                             print(m);
                             //
                             CartAPI().addToCart(m).then((value) {
-                              ScaffoldMessenger.of(context)
-                                  .hideCurrentSnackBar();
-                              Provider.of<UpdateCartData>(context,
-                                      listen: false)
-                                  .incrementCounter()
-                                  .then((value) {
+                              if (value) {
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
                                 Provider.of<UpdateCartData>(context,
                                         listen: false)
-                                    .showCartorNot()
+                                    .incrementCounter()
                                     .then((value) {
-                                  Navigator.of(context).pop();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                            Text("Cart Updated".toString()),
-                                        duration: Duration(seconds: 1)),
-                                  );
+                                  Provider.of<UpdateCartData>(context,
+                                          listen: false)
+                                      .showCartorNot()
+                                      .then((value) {
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content:
+                                              Text("Cart Updated".toString()),
+                                          duration: Duration(seconds: 1)),
+                                    );
+                                  });
                                 });
-                              });
+                              } else {
+                                productItems[index]['quantity'] = 0;
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
+                                Provider.of<UpdateCartData>(context,
+                                        listen: false)
+                                    .incrementCounter()
+                                    .then((value) {
+                                  Provider.of<UpdateCartData>(context,
+                                          listen: false)
+                                      .showCartorNot()
+                                      .then((value1) {});
+                                });
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text("Out of Stock. "
+                                              .toString() +
+                                          "Current stock is " +
+                                          productItems[index]['current_stock']
+                                              .toString()),
+                                      duration: Duration(seconds: 2)),
+                                );
+                              }
                             });
                           },
                           child: Text(

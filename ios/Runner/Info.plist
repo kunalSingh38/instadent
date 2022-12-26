@@ -54,11 +54,15 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Need location when in use</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
-<array>
+    <array>
         <string>itms-beta</string>
         <string>itms</string>
-</array>
-<false/>
+    </array>
+    <key>NSCameraUsageDescription</key>
+    <string>camera</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>photos</string>
 </dict>
 </plist>

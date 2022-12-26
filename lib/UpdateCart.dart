@@ -17,7 +17,8 @@ class UpdateCartData extends ChangeNotifier {
   String _defaultPincode = "";
   String _defaultAddress = "";
   bool _listUpdate = false;
-
+  String _deliveryAddress = "Please select delivery address";
+  bool _deliveryAddressSelected = false;
   bool _servicable = false;
   String _deliveryTime = "Not serviceable in this area";
 
@@ -30,6 +31,8 @@ class UpdateCartData extends ChangeNotifier {
   bool get counterListUpdate => _listUpdate;
   bool get counterServicable => _servicable;
   String get counterDeliveryTime => _deliveryTime;
+  String get counterDeliveryAddress => _deliveryAddress;
+  bool get counterDeliveryAddressSelected => _deliveryAddressSelected;
 
   Future<void> incrementCounter() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -47,6 +50,7 @@ class UpdateCartData extends ChangeNotifier {
           _totalItemCount = "0";
           _totalItemCost = "0";
           _showCart = false;
+          _deliveryAddressSelected = false;
           notifyListeners();
         }
       });
@@ -61,10 +65,12 @@ class UpdateCartData extends ChangeNotifier {
         notifyListeners();
       } else {
         _showCart = false;
+        _deliveryAddressSelected = false;
         notifyListeners();
       }
     } else {
       _showCart = false;
+      _deliveryAddressSelected = false;
       notifyListeners();
     }
     return true;
@@ -86,7 +92,6 @@ class UpdateCartData extends ChangeNotifier {
   Future<void> checkForServiceable() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String currentPincode = pref.getString("pincode").toString();
-    // print("currentPincode====" + currentPincode);
     var url = URL + "pincode-estimate-delivery";
     var body = {
       "pincode": currentPincode,
@@ -96,10 +101,7 @@ class UpdateCartData extends ChangeNotifier {
       body: jsonEncode(body),
       headers: {'Content-Type': 'application/json'},
     );
-    print("checjfor serviable");
-    print("pincode" + currentPincode);
 
-    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       _deliveryTime = jsonDecode(response.body)['ItemResponse']
               ['delivery_expected_time']
@@ -109,6 +111,12 @@ class UpdateCartData extends ChangeNotifier {
       _deliveryTime = "Not serviceable in this area";
       _servicable = false;
     }
+    notifyListeners();
+  }
+
+  Future<void> setDeliveryAddress(String address) async {
+    _deliveryAddress = address;
+    _deliveryAddressSelected = true;
     notifyListeners();
   }
 }

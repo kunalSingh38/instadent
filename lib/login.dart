@@ -9,6 +9,7 @@ import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/otp.dart';
 import 'package:instadent/policy_view.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
@@ -21,7 +22,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController loginPhone = TextEditingController();
-
+  String appVersion = "";
   void getPhoneNumber() async {
     SmsAutoFill _autoFill = SmsAutoFill();
     var completePhoneNumber = _autoFill.hint;
@@ -31,6 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
           loginPhone.text = value.toString().substring(3);
         });
       }
+    });
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      appVersion = packageInfo.version.toString();
     });
   }
 
@@ -51,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
           child: Stack(
-        alignment: Alignment.topRight,
+        // alignment: Alignment.topRight,
         children: [
           Container(
             constraints: BoxConstraints.expand(),
@@ -64,31 +69,34 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             )),
           ),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: InkWell(
-              onTap: () {
-                Provider.of<UpdateCartData>(context, listen: false)
-                    .showCartorNot();
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => Dashboard()),
-                    (route) => false);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Text(
-                    "Skip Login",
-                    style: TextStyle(fontSize: 12, color: Colors.white),
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: InkWell(
+                onTap: () {
+                  Provider.of<UpdateCartData>(context, listen: false)
+                      .showCartorNot();
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => Dashboard()),
+                      (route) => false);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Text(
+                      "Skip Login",
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
                   ),
                 ),
               ),
             ),
-          )
+          ),
         ],
       )),
       bottomSheet: Container(
@@ -239,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ))),
               ),
               SizedBox(
-                height: 40,
+                height: 20,
               ),
               Text(
                 "By continuing, you agree to our",
@@ -257,8 +265,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => Policy_View(
-                                  policy: "Terms & Condition".toString(),
-                                  data: "term_condition.html".toString())));
+                                  policy: "Term of service".toString(),
+                                  data:
+                                      "https://idcweb.techstreet.in/#/terms-and-condition"
+                                          .toString())));
                     },
                     child: Text(
                       "Term of service",
@@ -276,7 +286,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           MaterialPageRoute(
                               builder: (context) => Policy_View(
                                   policy: "Privacy Policy".toString(),
-                                  data: "privacy.html".toString())));
+                                  data:
+                                      "https://idcweb.techstreet.in/#/privacy-policy"
+                                          .toString())));
                     },
                     child: Text(
                       "Privacy Policy",
@@ -284,7 +296,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ],
-              )
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text("Ver:" + appVersion)
             ],
           ),
         ),

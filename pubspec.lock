@@ -8,6 +8,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  alt_sms_autofill:
+    dependency: "direct main"
+    description:
+      name: alt_sms_autofill
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   animate_icons:
     dependency: "direct main"
     description:
@@ -162,6 +169,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.2"
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.17.2"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -555,13 +569,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  html:
+    dependency: transitive
+    description:
+      name: html
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.15.1"
   http:
     dependency: transitive
     description:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.4"
+    version: "0.13.5"
   http_parser:
     dependency: transitive
     description:
@@ -695,6 +716,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  new_version_plus:
+    dependency: "direct main"
+    description:
+      name: new_version_plus
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   octo_image:
     dependency: transitive
     description:
@@ -1254,5 +1282,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.17.0 <3.0.0"
+  dart: ">=2.17.6 <3.0.0"
   flutter: ">=3.0.0"

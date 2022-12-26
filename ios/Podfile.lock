@@ -1,0 +1,362 @@
+PODS:
+  - alt_sms_autofill (0.0.1):
+    - Flutter
+  - connectivity (0.0.1):
+    - Flutter
+    - Reachability
+  - Firebase/Analytics (10.0.0):
+    - Firebase/Core
+  - Firebase/Core (10.0.0):
+    - Firebase/CoreOnly
+    - FirebaseAnalytics (~> 10.0.0)
+  - Firebase/CoreOnly (10.0.0):
+    - FirebaseCore (= 10.0.0)
+  - Firebase/DynamicLinks (10.0.0):
+    - Firebase/CoreOnly
+    - FirebaseDynamicLinks (~> 10.0.0)
+  - Firebase/Messaging (10.0.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 10.0.0)
+  - firebase_analytics (10.0.2):
+    - Firebase/Analytics (= 10.0.0)
+    - firebase_core
+    - Flutter
+  - firebase_core (2.1.0):
+    - Firebase/CoreOnly (= 10.0.0)
+    - Flutter
+  - firebase_dynamic_links (5.0.2):
+    - Firebase/DynamicLinks (= 10.0.0)
+    - firebase_core
+    - Flutter
+  - firebase_messaging (14.0.2):
+    - Firebase/Messaging (= 10.0.0)
+    - firebase_core
+    - Flutter
+  - FirebaseAnalytics (10.0.0):
+    - FirebaseAnalytics/AdIdSupport (= 10.0.0)
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/MethodSwizzler (~> 7.8)
+    - GoogleUtilities/Network (~> 7.8)
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - FirebaseAnalytics/AdIdSupport (10.0.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleAppMeasurement (= 10.0.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/MethodSwizzler (~> 7.8)
+    - GoogleUtilities/Network (~> 7.8)
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - FirebaseCore (10.0.0):
+    - FirebaseCoreInternal (~> 10.0)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Logger (~> 7.8)
+  - FirebaseCoreInternal (10.3.0):
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
+  - FirebaseDynamicLinks (10.0.0):
+    - FirebaseCore (~> 10.0)
+  - FirebaseInstallations (10.3.0):
+    - FirebaseCore (~> 10.0)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - PromisesObjC (~> 2.1)
+  - FirebaseMessaging (10.0.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleDataTransport (~> 9.2)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Reachability (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - Flutter (1.0.0)
+  - flutter_downloader (0.0.1):
+    - Flutter
+  - flutter_keyboard_visibility (0.0.1):
+    - Flutter
+  - flutter_local_notifications (0.0.1):
+    - Flutter
+  - flutter_share (0.0.1):
+    - Flutter
+  - fluttertoast (0.0.2):
+    - Flutter
+    - Toast
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
+  - geocoding (1.0.5):
+    - Flutter
+  - geolocator_apple (1.2.0):
+    - Flutter
+  - google_maps_flutter_ios (0.0.1):
+    - Flutter
+    - GoogleMaps
+  - GoogleAppMeasurement (10.0.0):
+    - GoogleAppMeasurement/AdIdSupport (= 10.0.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/MethodSwizzler (~> 7.8)
+    - GoogleUtilities/Network (~> 7.8)
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleAppMeasurement/AdIdSupport (10.0.0):
+    - GoogleAppMeasurement/WithoutAdIdSupport (= 10.0.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/MethodSwizzler (~> 7.8)
+    - GoogleUtilities/Network (~> 7.8)
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleAppMeasurement/WithoutAdIdSupport (10.0.0):
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/MethodSwizzler (~> 7.8)
+    - GoogleUtilities/Network (~> 7.8)
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleDataTransport (9.2.0):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleMaps (5.2.0):
+    - GoogleMaps/Maps (= 5.2.0)
+  - GoogleMaps/Base (5.2.0)
+  - GoogleMaps/Maps (5.2.0):
+    - GoogleMaps/Base
+  - GoogleUtilities/AppDelegateSwizzler (7.10.0):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
+  - GoogleUtilities/Environment (7.10.0):
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/Logger (7.10.0):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/MethodSwizzler (7.10.0):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/Network (7.10.0):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (7.10.0)"
+  - GoogleUtilities/Reachability (7.10.0):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/UserDefaults (7.10.0):
+    - GoogleUtilities/Logger
+  - image_picker_ios (0.0.1):
+    - Flutter
+  - launch_review (0.0.1):
+    - Flutter
+  - modal_progress_hud_nsn (0.0.1):
+    - Flutter
+  - nanopb (2.30909.0):
+    - nanopb/decode (= 2.30909.0)
+    - nanopb/encode (= 2.30909.0)
+  - nanopb/decode (2.30909.0)
+  - nanopb/encode (2.30909.0)
+  - open_filex (0.0.2):
+    - Flutter
+  - otp_autofill (0.0.1):
+    - Flutter
+  - package_info_plus (0.4.5):
+    - Flutter
+  - path_provider_ios (0.0.1):
+    - Flutter
+  - permission_handler_apple (9.0.4):
+    - Flutter
+  - PromisesObjC (2.1.1)
+  - razorpay-pod (1.3.0)
+  - razorpay_flutter (1.1.10):
+    - Flutter
+    - razorpay-pod
+  - Reachability (3.2)
+  - shared_preferences_ios (0.0.1):
+    - Flutter
+  - sms_autofill (0.0.1):
+    - Flutter
+  - speech_to_text (0.0.1):
+    - Flutter
+    - Try
+  - sqflite (0.0.2):
+    - Flutter
+    - FMDB (>= 2.7.5)
+  - Toast (4.0.0)
+  - Try (2.1.1)
+  - url_launcher_ios (0.0.1):
+    - Flutter
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+  - wifi_info_flutter (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - alt_sms_autofill (from `.symlinks/plugins/alt_sms_autofill/ios`)
+  - connectivity (from `.symlinks/plugins/connectivity/ios`)
+  - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
+  - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - firebase_dynamic_links (from `.symlinks/plugins/firebase_dynamic_links/ios`)
+  - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_downloader (from `.symlinks/plugins/flutter_downloader/ios`)
+  - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
+  - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - flutter_share (from `.symlinks/plugins/flutter_share/ios`)
+  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - geocoding (from `.symlinks/plugins/geocoding/ios`)
+  - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
+  - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - launch_review (from `.symlinks/plugins/launch_review/ios`)
+  - modal_progress_hud_nsn (from `.symlinks/plugins/modal_progress_hud_nsn/ios`)
+  - open_filex (from `.symlinks/plugins/open_filex/ios`)
+  - otp_autofill (from `.symlinks/plugins/otp_autofill/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - razorpay_flutter (from `.symlinks/plugins/razorpay_flutter/ios`)
+  - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
+  - sms_autofill (from `.symlinks/plugins/sms_autofill/ios`)
+  - speech_to_text (from `.symlinks/plugins/speech_to_text/ios`)
+  - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
+  - wifi_info_flutter (from `.symlinks/plugins/wifi_info_flutter/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Firebase
+    - FirebaseAnalytics
+    - FirebaseCore
+    - FirebaseCoreInternal
+    - FirebaseDynamicLinks
+    - FirebaseInstallations
+    - FirebaseMessaging
+    - FMDB
+    - GoogleAppMeasurement
+    - GoogleDataTransport
+    - GoogleMaps
+    - GoogleUtilities
+    - nanopb
+    - PromisesObjC
+    - razorpay-pod
+    - Reachability
+    - Toast
+    - Try
+
+EXTERNAL SOURCES:
+  alt_sms_autofill:
+    :path: ".symlinks/plugins/alt_sms_autofill/ios"
+  connectivity:
+    :path: ".symlinks/plugins/connectivity/ios"
+  firebase_analytics:
+    :path: ".symlinks/plugins/firebase_analytics/ios"
+  firebase_core:
+    :path: ".symlinks/plugins/firebase_core/ios"
+  firebase_dynamic_links:
+    :path: ".symlinks/plugins/firebase_dynamic_links/ios"
+  firebase_messaging:
+    :path: ".symlinks/plugins/firebase_messaging/ios"
+  Flutter:
+    :path: Flutter
+  flutter_downloader:
+    :path: ".symlinks/plugins/flutter_downloader/ios"
+  flutter_keyboard_visibility:
+    :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
+  flutter_local_notifications:
+    :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  flutter_share:
+    :path: ".symlinks/plugins/flutter_share/ios"
+  fluttertoast:
+    :path: ".symlinks/plugins/fluttertoast/ios"
+  geocoding:
+    :path: ".symlinks/plugins/geocoding/ios"
+  geolocator_apple:
+    :path: ".symlinks/plugins/geolocator_apple/ios"
+  google_maps_flutter_ios:
+    :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
+  launch_review:
+    :path: ".symlinks/plugins/launch_review/ios"
+  modal_progress_hud_nsn:
+    :path: ".symlinks/plugins/modal_progress_hud_nsn/ios"
+  open_filex:
+    :path: ".symlinks/plugins/open_filex/ios"
+  otp_autofill:
+    :path: ".symlinks/plugins/otp_autofill/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
+  path_provider_ios:
+    :path: ".symlinks/plugins/path_provider_ios/ios"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
+  razorpay_flutter:
+    :path: ".symlinks/plugins/razorpay_flutter/ios"
+  shared_preferences_ios:
+    :path: ".symlinks/plugins/shared_preferences_ios/ios"
+  sms_autofill:
+    :path: ".symlinks/plugins/sms_autofill/ios"
+  speech_to_text:
+    :path: ".symlinks/plugins/speech_to_text/ios"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
+  wifi_info_flutter:
+    :path: ".symlinks/plugins/wifi_info_flutter/ios"
+
+SPEC CHECKSUMS:
+  alt_sms_autofill: 6c623529a8de6a2a9297358bdb7dab3d8ad693e4
+  connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
+  Firebase: 1b810f3d0c0532e27a48f1961f8c0400a668a2cf
+  firebase_analytics: 913637c11a0baf049802dd30ca56d9fa843e96c0
+  firebase_core: 9f457751caed72a30d23be90eb72de6ccbd1f9b0
+  firebase_dynamic_links: c7bd5910d4d13d24ae5ad0a72ea1cf2c984443e3
+  firebase_messaging: 169ae56e5d64013d605b954b43e1b928a9170471
+  FirebaseAnalytics: 9921a52739f4ab66099da31b6e0243db78a3ac0a
+  FirebaseCore: 97f48a3a567a72b8d4daa0f03c3aadb78df4e995
+  FirebaseCoreInternal: 29b76f784d607df8b2a1259d73c3f04f1210137b
+  FirebaseDynamicLinks: 37dcd9f082b9c5ea9eb5826e82aef58bbd6fd5c1
+  FirebaseInstallations: e2f26126089dcf41e215f7b8925af8d953c7d602
+  FirebaseMessaging: 8916bf5edb1dbfac74665a181e4d1ab3a78a08a2
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  flutter_downloader: b7301ae057deadd4b1650dc7c05375f10ff12c39
+  flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
+  flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
+  flutter_share: 4be0208963c60b537e6255ed2ce1faae61cd9ac2
+  fluttertoast: 16fbe6039d06a763f3533670197d01fc73459037
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  geocoding: 32cfcdb16d38d907caaba65e2e42ad10d38bee58
+  geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
+  google_maps_flutter_ios: 66201f392bf62d500f07670a30488a247b9bb5b9
+  GoogleAppMeasurement: 7e48a3249792ac35d6f18f107f63f199a7e9d0ce
+  GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
+  GoogleMaps: 025272d5876d3b32604e5c080dc25eaf68764693
+  GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
+  image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
+  launch_review: 75d5a956ba8eaa493e9c9d4bf4c05e505e8d5ed0
+  modal_progress_hud_nsn: f6fb744cd060653d66ed8f325360ef3650eb2fde
+  nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
+  open_filex: 6e26e659846ec990262224a12ef1c528bb4edbe4
+  otp_autofill: 93bcc21475705d35445927cb9aef24e818bbf083
+  package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
+  path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
+  permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
+  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  razorpay-pod: ebc78907f756ace307e3fa4270ff684ebb9e291b
+  razorpay_flutter: 84b3bfd206ae9c9c2a9ba585524a1b3d8102b6c1
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
+  sms_autofill: c461043483362c3f1709ee76eaae6eb570b31686
+  speech_to_text: b43a7d99aef037bd758ed8e45d79bbac035d2dfe
+  sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
+  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+  Try: 5ef669ae832617b3cee58cb2c6f99fb767a4ff96
+  url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
+  webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
+  wifi_info_flutter: 55d4c2469034f5b5c38063ccefa62f708a503a2b
+
+PODFILE CHECKSUM: 4e8f8b2be68aeea4c0d5beb6ff1e79fface1d048
+
+COCOAPODS: 1.11.3

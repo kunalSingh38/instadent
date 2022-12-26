@@ -259,13 +259,20 @@ class _SubCategoriesScreenState extends State<SubCategoriesScreen> {
                                                               Expanded(
                                                                   flex: 2,
                                                                   child:
-                                                                      SkeletonItem(
-                                                                    child: CircleAvatar(
-                                                                        maxRadius: 30,
-                                                                        backgroundColor: Colors.red,
-                                                                        backgroundImage: AssetImage(
-                                                                          "assets/no_image.jpeg",
-                                                                        )),
+                                                                      Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            15),
+                                                                    child:
+                                                                        SkeletonItem(
+                                                                      child: CircleAvatar(
+                                                                          maxRadius: 32,
+                                                                          backgroundColor: Colors.red,
+                                                                          backgroundImage: AssetImage(
+                                                                            "assets/no_image.jpeg",
+                                                                          )),
+                                                                    ),
                                                                   )),
                                                               SizedBox(
                                                                 height: 5,

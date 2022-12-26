@@ -30,9 +30,10 @@ class CartAPI {
         'Content-Type': 'application/json'
       },
     );
-
+    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
-      return int.parse(jsonDecode(response.body)['Response'].toString());
+      return int.parse(
+          jsonDecode(response.body)['Response']['badge'].toString());
     }
     return 0;
   }
@@ -45,10 +46,12 @@ class CartAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode(m));
-    // if (jsonDecode(response.body)['ErrorCode'] == 0) {
-    //   return int.parse(jsonDecode(response.body)['Response'].toString());
-    // }
-    return true;
+    print(response.body);
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<bool> emptyCart() async {
@@ -75,7 +78,9 @@ class CartAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode({"cart_id": id.toString()}));
+
     print(response.body);
+    print(jsonEncode({"cart_id": id.toString()}));
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return true;
     }

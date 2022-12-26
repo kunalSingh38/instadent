@@ -27,6 +27,7 @@ class LoginAPI {
       Uri.parse(URL + "verify/otp"),
       body: {"phone": phone, "otp": otp.toString(), "fcm": fcm.toString()},
     );
+    print({"phone": phone, "otp": otp.toString(), "fcm": fcm.toString()});
     log(phone + "---" + otp);
     log(response.body);
 

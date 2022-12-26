@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_final_fields, prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings
+// ignore_for_file: prefer_final_fields, prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, use_build_context_synchronously
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -10,6 +10,7 @@ import 'package:instadent/add_update_address.dart';
 import 'package:instadent/address.dart';
 import 'package:instadent/constants.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GoogleMapForAddress extends StatefulWidget {
   String lat = "";
@@ -88,6 +89,20 @@ class _GoogleMapForAddressState extends State<GoogleMapForAddress> {
   String address = "";
   String pincode = "";
   bool isLoading = false;
+  bool loggedIn = false;
+  checkforlogin() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    if (pref.getBool("loggedIn") ?? false) {
+      setState(() {
+        loggedIn = true;
+      });
+    } else {
+      setState(() {
+        loggedIn = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -96,6 +111,7 @@ class _GoogleMapForAddressState extends State<GoogleMapForAddress> {
       latitude = double.parse(widget.lat);
       longitude = double.parse(widget.long);
     });
+    checkforlogin();
   }
 
   @override
@@ -213,23 +229,37 @@ class _GoogleMapForAddressState extends State<GoogleMapForAddress> {
                                 )),
                                 backgroundColor: MaterialStateProperty.all(
                                     Colors.teal[800])),
-                            onPressed: () {
-                              print(locatlity);
-                              print(address);
-                              print(pincode);
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          AddressListScreen(m: {
-                                            "address_type":
-                                                locatlity.toString(),
-                                            "address": address.toString(),
-                                            "pincode": pincode.toString()
-                                          })));
+                            onPressed: () async {
+                              if (loggedIn) {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            AddUpdateAddressScreen(
+                                                update: false,
+                                                map: {
+                                                  "address_type":
+                                                      locatlity.toString(),
+                                                  "address": address.toString(),
+                                                  "pincode": pincode.toString()
+                                                })));
+                              } else {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            AddressListScreen(m: {
+                                              "address_type":
+                                                  locatlity.toString(),
+                                              "address": address.toString(),
+                                              "pincode": pincode.toString()
+                                            })));
+                              }
                             },
                             child: Text(
-                              "CONFIRM LOCATION",
+                              loggedIn
+                                  ? "Enter Complete Address"
+                                  : "Select Address",
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 16,

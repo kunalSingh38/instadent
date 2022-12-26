@@ -81,7 +81,7 @@ class CategoryAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode({"search": searchData.toString()}));
-
+    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0 &&
         jsonDecode(response.body)['ItemResponse'] != null) {
       return jsonDecode(response.body)['ItemResponse'];

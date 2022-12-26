@@ -2,8 +2,10 @@
 
 import 'dart:async';
 
+import 'package:alt_sms_autofill/alt_sms_autofill.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
@@ -25,37 +27,38 @@ class _OTPScreenState extends State<OTPScreen> {
 
   TextEditingController otpControll = TextEditingController();
 
-  void listenSMS() async {
-    _otpInteractor = OTPInteractor();
-    _otpInteractor
-        .getAppSignature()
-        //ignore: avoid_print
-        .then((value) => print('signature - $value'));
+  // void listenSMS() async {
+  //   _otpInteractor = OTPInteractor();
+  //   _otpInteractor
+  //       .getAppSignature()
+  //       //ignore: avoid_print
+  //       .then((value) => print('signature - $value'));
 
-    controller = OTPTextEditController(
-      codeLength: 4,
-      autoStop: true,
-      //ignore: avoid_print
-      onCodeReceive: (code) => print('Your Application receive code - $code'),
-      otpInteractor: _otpInteractor,
-    )..startListenUserConsent(
-        (code) {
-          String OTP = code!.replaceAll(new RegExp(r'[^0-9]'), '');
+  //   controller = OTPTextEditController(
+  //     codeLength: 4,
+  //     autoStop: true,
+  //     //ignore: avoid_print
+  //     onCodeReceive: (code) => print('Your Application receive code - $code'),
+  //     otpInteractor: _otpInteractor,
+  //   )..startListenUserConsent(
+  //       (code) {
+  //         print(code);
+  //         String OTP = code!.replaceAll(new RegExp(r'[^0-9]'), '');
+  //         print(OTP.toString());
 
-          setState(() {
-            otpControll.text = "";
-            otpControll.text = OTP.toString();
-          });
-
-          submit();
-          final exp = RegExp(r'(\d{4})');
-          return exp.stringMatch(code) ?? '';
-        },
-        // strategies: [
-        //   // SampleStrategy(),
-        // ],
-      );
-  }
+  //         setState(() {
+  //           otpControll.text = "";
+  //           otpControll.text = OTP.toString();
+  //         });
+  //         submit();
+  //         final exp = RegExp(r'(\d{4})');
+  //         return exp.stringMatch(code) ?? '';
+  //       },
+  //       // strategies: [
+  //       //   // SampleStrategy(),
+  //       // ],
+  //     );
+  // }
 
   void submit() async {
     showLaoding(context);
@@ -63,13 +66,14 @@ class _OTPScreenState extends State<OTPScreen> {
         .otpVerify(widget.phoneNumber.toString(), otpControll.text.toString(),
             fcmToken)
         .then((value) {
-      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.of(context).pop();
       if (value) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text("Logged In"),
               duration: Duration(microseconds: 500)),
         );
+
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => Dashboard()),
@@ -92,6 +96,26 @@ class _OTPScreenState extends State<OTPScreen> {
     });
   }
 
+  String? _commingSms = 'Unknown';
+
+  Future<void> initSmsListener() async {
+    String? commingSms;
+    try {
+      commingSms = await AltSmsAutofill().listenForSms;
+      // ignore: nullable_type_in_catch_clause
+    } on PlatformException {
+      commingSms = 'Failed to get Sms.';
+    }
+    if (!mounted) return;
+
+    setState(() {
+      _commingSms = commingSms!.replaceAll(new RegExp(r'[^0-9]'), '');
+      otpControll.text = "";
+      otpControll.text = _commingSms.toString();
+    });
+    // print(_commingSms);
+  }
+
   String fcmToken = "";
   @override
   void initState() {
@@ -104,9 +128,8 @@ class _OTPScreenState extends State<OTPScreen> {
         print(fcmToken);
       });
     });
-    // listenSMS();
     print(widget.otp);
-    // listenSMS();
+
     if (widget.phoneNumber.toString() == "9650484070") {
       setState(() {
         otpControll.text = widget.otp.toString();
@@ -114,6 +137,9 @@ class _OTPScreenState extends State<OTPScreen> {
       Timer(Duration(seconds: 2), () {
         submit();
       });
+    } else {
+      // listenSMS();
+      initSmsListener();
     }
   }
 
@@ -198,6 +224,7 @@ class _OTPScreenState extends State<OTPScreen> {
                     );
                     // listenSMS();
                     // submit();
+                    initSmsListener();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

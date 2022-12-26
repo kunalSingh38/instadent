@@ -11,6 +11,7 @@ import 'package:instadent/category/all_categories.dart';
 import 'package:instadent/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentMenthosScreen extends StatefulWidget {
   String totalPayment;
@@ -29,6 +30,34 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
   bool placingOrder = false;
   String email = "";
   String phoneNumber = "";
+  bool isLoading = true;
+  List cartData = [];
+  bool outofstock = false;
+
+  getData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    if (pref.getBool("loggedIn") ?? false) {
+      CartAPI().cartData().then((value) {
+        setState(() {
+          isLoading = false;
+        });
+        if (value.isNotEmpty) {
+          if (value['items'].length > 0) {
+            List temp = value['items'];
+            temp.forEach((element) {
+              if (element['is_stock'] == 0) {
+                setState(() {
+                  outofstock = true;
+                });
+              }
+            });
+          }
+        }
+        print(outofstock.toString() + " ---items are out of stock");
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -49,7 +78,6 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
           placingOrder = true;
         });
         CartAPI().placePendingOrder(widget.orderId).then((value) {
-          print(value);
           if (value['ErrorCode'] == 0) {
             openCheckout(value['Response']['razorpay_order']['id'].toString());
           } else {
@@ -61,6 +89,7 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
           }
         });
       }
+      getData();
     });
   }
 
@@ -72,7 +101,8 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
 
   void openCheckout(String orderId) async {
     var options = {
-      'key': 'rzp_test_rmwv0ZpcpVrzrz',
+      // 'key': 'rzp_test_rmwv0ZpcpVrzrz',
+      'key': 'rzp_live_bXcp9inxQER7yv',
       'name': 'InstaDent',
       'order_id': orderId,
       'description': '',
@@ -83,7 +113,7 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
     try {
       _razorpay.open(options);
     } catch (e) {
-      debugPrint('Error: e');
+      //print('Error: e');
     }
   }
 
@@ -161,22 +191,43 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
                   padding: const EdgeInsets.all(10),
                   child: InkWell(
                     onTap: () {
-                      setState(() {
-                        placingOrder = true;
-                      });
-                      CartAPI().placeOrder().then((value) {
-                        print(value);
-                        if (value['ErrorCode'] == 0) {
-                          openCheckout(value['Response']['razorpay_order']['id']
-                              .toString());
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Order place failed. Try again."),
-                            ),
-                          );
-                        }
-                      });
+                      if (outofstock) {
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: Text("Items are Out of Stock"),
+                                  content: Text(
+                                    "Some items in your cart are out of stock. Please go back and remove the item from the cart to continue.",
+                                    textAlign: TextAlign.left,
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("Go back"))
+                                  ],
+                                ));
+                      } else {
+                        setState(() {
+                          placingOrder = true;
+                        });
+                        CartAPI().placeOrder().then((value) {
+                          print(value);
+                          if (value['ErrorCode'] == 0) {
+                            openCheckout(value['Response']['razorpay_order']
+                                    ['id']
+                                .toString());
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Order place failed. Try again."),
+                              ),
+                            );
+                          }
+                        });
+                      }
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,25 +289,45 @@ class _PaymentMenthosScreenState extends State<PaymentMenthosScreen> {
                   padding: const EdgeInsets.all(10),
                   child: InkWell(
                     onTap: () {
-                      setState(() {
-                        placingOrder = true;
-                      });
-                      CartAPI().cashOnDelivery().then((value) {
-                        if (value['ErrorCode'] == 0) {
-                          setState(() {
-                            placingOrder = false;
-                          });
+                      if (outofstock) {
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: Text("Items are Out of Stock"),
+                                  content: Text(
+                                    "Some items in your cart are out of stock. Please go back and remove the item from the cart to continue.",
+                                    textAlign: TextAlign.left,
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("Go back"))
+                                  ],
+                                ));
+                      } else {
+                        setState(() {
+                          placingOrder = true;
+                        });
+                        CartAPI().cashOnDelivery().then((value) {
+                          if (value['ErrorCode'] == 0) {
+                            setState(() {
+                              placingOrder = false;
+                            });
 
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OrderPlacedScreen(
-                                      orderId: value['Response']['order_id']
-                                          .toString())));
-                          Provider.of<UpdateCartData>(context, listen: false)
-                              .changeSearchView(0);
-                        }
-                      });
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => OrderPlacedScreen(
+                                        orderId: value['Response']['order_id']
+                                            .toString())));
+                            Provider.of<UpdateCartData>(context, listen: false)
+                                .changeSearchView(0);
+                          }
+                        });
+                      }
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

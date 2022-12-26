@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -15,6 +16,8 @@ import 'package:instadent/PushNotificationService.dart';
 import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/login.dart';
+import 'package:new_version_plus/new_version_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,7 +26,7 @@ void main() async {
   await PushNotificationService().setupInteractedMessage();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) async {
-    runApp(const MyApp());
+    runApp(MyApp());
     RemoteMessage? initialMessage =
         await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
@@ -34,13 +37,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
-
-  // static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  // static FirebaseAnalyticsObserver observer =
-  //     FirebaseAnalyticsObserver(analytics: analytics);
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<UpdateCartData>(
@@ -69,104 +67,140 @@ class _SplashScreenState extends State<SplashScreen> {
     return pref.getBool("loggedIn") ?? false;
   }
 
-  bool fetchingLocation = false;
+  basicStatusCheck(NewVersionPlus newVersion) {
+    newVersion.showAlertIfNecessary(context: context);
+  }
+
+  advancedStatusCheck(NewVersionPlus newVersion) async {
+    final status = await newVersion.getVersionStatus();
+    if (status != null) {
+      debugPrint(status.releaseNotes);
+      debugPrint(status.appStoreLink);
+      debugPrint(status.localVersion);
+      debugPrint(status.storeVersion);
+      debugPrint(status.canUpdate.toString());
+      newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status,
+        dialogTitle: 'Custom Title',
+        dialogText: 'Custom Text',
+      );
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    Timer(Duration(seconds: 4), () async {
-      if (await Geolocator.isLocationServiceEnabled()) {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                child: SizedBox(
-                    height: 180,
-                    child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                "assets/location_loading.gif",
-                                scale: 5,
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                "Getting your location",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500, fontSize: 16),
-                              )
-                            ])))));
-        _determinePosition().then((value) {
-          _getAddress(value).then((value) {
-            Navigator.of(context).pop();
-            checkLoggedIn().then((value) {
-              if (value) {
-                Provider.of<UpdateCartData>(context, listen: false)
-                    .incrementCounter();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Dashboard()),
-                );
-              } else {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (BuildContext context) => LoginScreen()));
-              }
-            });
-          });
-        });
-      } else {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                child: SizedBox(
-                    height: 180,
-                    child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                                "Location services are disabled. Please enable location and restart your app."
-                                    .toString()),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  Navigator.of(context).pop();
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  setState(() {
-                                    DashboardState.currentTab = 0;
-                                  });
+    final newVersion = NewVersionPlus(
+      iOSId: 'com.google.Vespa',
+      androidId: 'com.instadent.instadent',
+    );
+    print(newVersion.getVersionStatus().then((value) {
+      print(value!.storeVersion.toString());
+    }));
 
-                                  await prefs.clear().then((value) {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pushAndRemoveUntil(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    SplashScreen()),
-                                            (route) => false);
-                                  });
-                                  Provider.of<UpdateCartData>(context,
-                                          listen: false)
-                                      .showCartorNot();
-                                },
-                                child: Text("Restart App"))
-                          ],
-                        )))));
-      }
-    });
-    // }
+    // You can let the plugin handle fetching the status and showing a dialog,
+    // or you can fetch the status and display your own dialog, or no dialog.
+    const simpleBehavior = true;
+
+    if (simpleBehavior) {
+      basicStatusCheck(newVersion);
+    }
+
+    // Timer(Duration(seconds: 4), () async {
+    //   if (await Geolocator.isLocationServiceEnabled()) {
+    //     showDialog(
+    //         context: context,
+    //         barrierDismissible: false,
+    //         builder: (context) => Dialog(
+    //             shape: RoundedRectangleBorder(
+    //                 borderRadius: BorderRadius.all(Radius.circular(15))),
+    //             child: SizedBox(
+    //                 height: 180,
+    //                 child: Padding(
+    //                     padding: const EdgeInsets.all(15),
+    //                     child: Column(
+    //                         crossAxisAlignment: CrossAxisAlignment.center,
+    //                         mainAxisAlignment: MainAxisAlignment.center,
+    //                         children: [
+    //                           Image.asset(
+    //                             "assets/location_loading.gif",
+    //                             scale: 5,
+    //                           ),
+    //                           SizedBox(
+    //                             height: 10,
+    //                           ),
+    //                           Text(
+    //                             "Getting your location",
+    //                             style: TextStyle(
+    //                                 fontWeight: FontWeight.w500, fontSize: 16),
+    //                           )
+    //                         ])))));
+    //     _determinePosition().then((value) {
+    //       _getAddress(value).then((value) {
+    //         Navigator.of(context).pop();
+    //         checkLoggedIn().then((value) {
+    //           if (value) {
+    //             Provider.of<UpdateCartData>(context, listen: false)
+    //                 .incrementCounter();
+    //             Navigator.pushReplacement(
+    //               context,
+    //               MaterialPageRoute(builder: (context) => Dashboard()),
+    //             );
+    //           } else {
+    //             Navigator.of(context).pushReplacement(MaterialPageRoute(
+    //                 builder: (BuildContext context) => LoginScreen()));
+    //           }
+    //         });
+    //       });
+    //     });
+    //   } else {
+    //     showDialog(
+    //         context: context,
+    //         barrierDismissible: false,
+    //         builder: (context) => Dialog(
+    //             shape: RoundedRectangleBorder(
+    //                 borderRadius: BorderRadius.all(Radius.circular(15))),
+    //             child: SizedBox(
+    //                 height: 180,
+    //                 child: Padding(
+    //                     padding: const EdgeInsets.all(15),
+    //                     child: Column(
+    //                       crossAxisAlignment: CrossAxisAlignment.center,
+    //                       mainAxisAlignment: MainAxisAlignment.center,
+    //                       children: [
+    //                         Text(
+    //                             "Location services are disabled. Please enable location and restart your app."
+    //                                 .toString()),
+    //                         ElevatedButton(
+    //                             onPressed: () async {
+    //                               Navigator.of(context).pop();
+    //                               SharedPreferences prefs =
+    //                                   await SharedPreferences.getInstance();
+    //                               setState(() {
+    //                                 DashboardState.currentTab = 0;
+    //                               });
+
+    //                               await prefs.clear().then((value) {
+    //                                 Navigator.of(context, rootNavigator: true)
+    //                                     .pushAndRemoveUntil(
+    //                                         MaterialPageRoute(
+    //                                             builder: (context) =>
+    //                                                 SplashScreen()),
+    //                                         (route) => false);
+    //                               });
+    //                               Provider.of<UpdateCartData>(context,
+    //                                       listen: false)
+    //                                   .showCartorNot();
+    //                             },
+    //                             child: Text("Restart App"))
+    //                       ],
+    //                     )))));
+    //   }
+    // });
+    // // }
   }
 
   @override

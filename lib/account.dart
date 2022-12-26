@@ -84,7 +84,7 @@ class _AccountScreenState extends State<AccountScreen> {
       phoneNumber = prefs.getString("userPhoneNo").toString();
       appVersion = packageInfo.version.toString();
     });
-    print("Account 5");
+    //print("Account 5");
   }
 
   bool tap = false;

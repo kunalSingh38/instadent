@@ -220,118 +220,118 @@ class _AddressListScreenState extends State<AddressListScreen> {
                           ),
                         ),
                       ),
-                      Divider(
-                        thickness: 8,
-                        color: Colors.grey[300],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 55, top: 20, bottom: 20, right: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "RECENT SEARCHES",
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey),
-                            ),
-                            InkWell(
-                              onTap: () async {
-                                SharedPreferences pref =
-                                    await SharedPreferences.getInstance();
-                                pref.remove("recent_address_list");
-                                setState(() {
-                                  recentSearch.clear();
-                                });
-                              },
-                              child: Text(
-                                "CLEAR",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[700]),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      recentSearch.length == 0
-                          ? SizedBox()
-                          : Column(
-                              children: recentSearch
-                                  .toSet()
-                                  .toList()
-                                  .map(
-                                    (e) => InkWell(
-                                      onTap: () async {
-                                        setDefaultAddress(
-                                            e['pincode'].toString(),
-                                            e['address'].toString(),
-                                            e['address_type'].toString(),
-                                            viewModel.counter.toString());
-                                      },
-                                      child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 10),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                  child: currentPincode ==
-                                                          e['pincode']
-                                                              .toString()
-                                                      ? Image.asset(
-                                                          "assets/placeholder_1.png",
-                                                          scale: 20,
-                                                        )
-                                                      : Image.asset(
-                                                          "assets/placeholder.png",
-                                                          scale: 20,
-                                                        )),
-                                              Expanded(
-                                                  flex: 6,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        e['address_type']
-                                                            .toString(),
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600),
-                                                      ),
-                                                      SizedBox(
-                                                        width: 5,
-                                                      ),
-                                                      Text(
-                                                        capitalize(e['address']
-                                                            .toString()),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                      recentSearch.indexOf(e) ==
-                                                              recentSearch
-                                                                      .length -
-                                                                  1
-                                                          ? SizedBox()
-                                                          : Divider(
-                                                              thickness: 0.9,
-                                                              height: 40,
-                                                            ),
-                                                    ],
-                                                  )),
-                                            ],
-                                          )),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
+                      // Divider(
+                      //   thickness: 8,
+                      //   color: Colors.grey[300],
+                      // ),
+                      // Padding(
+                      //   padding: EdgeInsets.only(
+                      //       left: 55, top: 20, bottom: 20, right: 20),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     children: [
+                      //       Text(
+                      //         "RECENT SEARCHES",
+                      //         style: TextStyle(
+                      //             fontSize: 12,
+                      //             fontWeight: FontWeight.w500,
+                      //             color: Colors.grey),
+                      //       ),
+                      //       InkWell(
+                      //         onTap: () async {
+                      //           SharedPreferences pref =
+                      //               await SharedPreferences.getInstance();
+                      //           pref.remove("recent_address_list");
+                      //           setState(() {
+                      //             recentSearch.clear();
+                      //           });
+                      //         },
+                      //         child: Text(
+                      //           "CLEAR",
+                      //           style: TextStyle(
+                      //               fontSize: 12,
+                      //               fontWeight: FontWeight.w500,
+                      //               color: Colors.grey[700]),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      // recentSearch.length == 0
+                      //     ? SizedBox()
+                      //     : Column(
+                      //         children: recentSearch
+                      //             .toSet()
+                      //             .toList()
+                      //             .map(
+                      //               (e) => InkWell(
+                      //                 onTap: () async {
+                      //                   setDefaultAddress(
+                      //                       e['pincode'].toString(),
+                      //                       e['address'].toString(),
+                      //                       e['address_type'].toString(),
+                      //                       viewModel.counter.toString());
+                      //                 },
+                      //                 child: Padding(
+                      //                     padding:
+                      //                         const EdgeInsets.only(bottom: 10),
+                      //                     child: Row(
+                      //                       children: [
+                      //                         Expanded(
+                      //                             child: currentPincode ==
+                      //                                     e['pincode']
+                      //                                         .toString()
+                      //                                 ? Image.asset(
+                      //                                     "assets/placeholder_1.png",
+                      //                                     scale: 20,
+                      //                                   )
+                      //                                 : Image.asset(
+                      //                                     "assets/placeholder.png",
+                      //                                     scale: 20,
+                      //                                   )),
+                      //                         Expanded(
+                      //                             flex: 6,
+                      //                             child: Column(
+                      //                               crossAxisAlignment:
+                      //                                   CrossAxisAlignment
+                      //                                       .start,
+                      //                               children: [
+                      //                                 Text(
+                      //                                   e['address_type']
+                      //                                       .toString(),
+                      //                                   style: TextStyle(
+                      //                                       fontSize: 14,
+                      //                                       fontWeight:
+                      //                                           FontWeight
+                      //                                               .w600),
+                      //                                 ),
+                      //                                 SizedBox(
+                      //                                   width: 5,
+                      //                                 ),
+                      //                                 Text(
+                      //                                   capitalize(e['address']
+                      //                                       .toString()),
+                      //                                   maxLines: 2,
+                      //                                   overflow: TextOverflow
+                      //                                       .ellipsis,
+                      //                                 ),
+                      //                                 recentSearch.indexOf(e) ==
+                      //                                         recentSearch
+                      //                                                 .length -
+                      //                                             1
+                      //                                     ? SizedBox()
+                      //                                     : Divider(
+                      //                                         thickness: 0.9,
+                      //                                         height: 40,
+                      //                                       ),
+                      //                               ],
+                      //                             )),
+                      //                       ],
+                      //                     )),
+                      //               ),
+                      //             )
+                      //             .toList(),
+                      //       ),
                     ],
                   ),
                 )
@@ -434,8 +434,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Expanded(
-                                            child: currentPincode ==
-                                                    e['pincode'].toString()
+                                            child: e['is_default'] == 1
                                                 ? Image.asset(
                                                     "assets/placeholder_1.png",
                                                     scale: 20,
@@ -567,156 +566,158 @@ class _AddressListScreenState extends State<AddressListScreen> {
                             )
                             .toList(),
                       ),
-                      Divider(
-                        color: Colors.black,
-                        thickness: 1,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 55, top: 20, bottom: 20, right: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "RECENT SEARCHES",
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey),
-                            ),
-                            InkWell(
-                              onTap: () async {
-                                SharedPreferences pref =
-                                    await SharedPreferences.getInstance();
-                                pref.remove("recent_address_list");
-                                setState(() {
-                                  recentSearch.clear();
-                                });
-                              },
-                              child: Text(
-                                "CLEAR",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[700]),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        children: recentSearch.toSet().toList().map((e) {
-                          bool showAddAddressToSavedAddress = addressList
-                                      .where((element) =>
-                                          element['pincode'].toString() ==
-                                          e['pincode'].toString())
-                                      .toList()
-                                      .length !=
-                                  0
-                              ? true
-                              : false;
+                      // Divider(
+                      //   color: Colors.black,
+                      //   thickness: 1,
+                      // ),
+                      // Padding(
+                      //   padding: EdgeInsets.only(
+                      //       left: 55, top: 20, bottom: 20, right: 20),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     children: [
+                      //       Text(
+                      //         "RECENT SEARCHES",
+                      //         style: TextStyle(
+                      //             fontSize: 12,
+                      //             fontWeight: FontWeight.w500,
+                      //             color: Colors.grey),
+                      //       ),
+                      //       InkWell(
+                      //         onTap: () async {
+                      //           SharedPreferences pref =
+                      //               await SharedPreferences.getInstance();
+                      //           pref.remove("recent_address_list");
+                      //           setState(() {
+                      //             recentSearch.clear();
+                      //           });
+                      //         },
+                      //         child: Text(
+                      //           "CLEAR",
+                      //           style: TextStyle(
+                      //               fontSize: 12,
+                      //               fontWeight: FontWeight.w500,
+                      //               color: Colors.grey[700]),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      // Column(
+                      //   children: recentSearch.toSet().toList().map((e) {
+                      //     bool showAddAddressToSavedAddress = addressList
+                      //                 .where((element) =>
+                      //                     element['pincode'].toString() ==
+                      //                     e['pincode'].toString())
+                      //                 .toList()
+                      //                 .length !=
+                      //             0
+                      //         ? true
+                      //         : false;
 
-                          return InkWell(
-                            onTap: () async {
-                              setDefaultAddress(
-                                  e['pincode'].toString(),
-                                  e['address'].toString(),
-                                  e['address_type'].toString(),
-                                  viewModel.counter.toString());
-                            },
-                            child: Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                        child: currentPincode ==
-                                                e['pincode'].toString()
-                                            ? Image.asset(
-                                                "assets/placeholder_1.png",
-                                                scale: 20,
-                                              )
-                                            : Image.asset(
-                                                "assets/placeholder.png",
-                                                scale: 20,
-                                              )),
-                                    Expanded(
-                                        flex: 6,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              e['address_type'].toString(),
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                            SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(
-                                              capitalize(e['address']
-                                                  .toString()
-                                                  .replaceAll(",", "")),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child:
-                                                  !showAddAddressToSavedAddress
-                                                      ? Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  right: 20),
-                                                          child: ElevatedButton(
-                                                              style:
-                                                                  ButtonStyle(
-                                                                      shape: MaterialStateProperty.all<
-                                                                              RoundedRectangleBorder>(
-                                                                          RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(18.0),
-                                                                      )),
-                                                                      backgroundColor:
-                                                                          MaterialStateProperty.all(Colors.blue[
-                                                                              900])),
-                                                              onPressed:
-                                                                  () async {
-                                                                Navigator.push(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                        builder: (context) =>
-                                                                            AddUpdateAddressScreen(
-                                                                              update: false,
-                                                                              map: e,
-                                                                            ))).then(
-                                                                    (value) {
-                                                                  getAddressList();
-                                                                });
-                                                                // LoginAPI()
-                                                                //     .addAddress(m);
-                                                              },
-                                                              child: Text(
-                                                                  "Add to saved addresses")),
-                                                        )
-                                                      : SizedBox(),
-                                            ),
-                                            recentSearch.indexOf(e) ==
-                                                    recentSearch.length - 1
-                                                ? SizedBox()
-                                                : Divider(
-                                                    thickness: 0.9,
-                                                    height: 40,
-                                                  ),
-                                          ],
-                                        )),
-                                  ],
-                                )),
-                          );
-                        }).toList(),
-                      ),
+                      //     return InkWell(
+                      //       onTap: () async {
+                      //         setDefaultAddress(
+                      //             e['pincode'].toString(),
+                      //             e['address'].toString(),
+                      //             e['address_type'].toString(),
+                      //             viewModel.counter.toString());
+                      //       },
+                      //       child: Padding(
+                      //           padding: const EdgeInsets.only(bottom: 10),
+                      //           child: Row(
+                      //             children: [
+                      //               Expanded(
+                      //                   child:
+                      //                       //  currentPincode ==
+                      //                       //         e['pincode'].toString()
+                      //                       //     ? Image.asset(
+                      //                       //         "assets/placeholder_1.png",
+                      //                       //         scale: 20,
+                      //                       //       )
+                      //                       //     :
+                      //                       Image.asset(
+                      //                 "assets/placeholder.png",
+                      //                 scale: 20,
+                      //               )),
+                      //               Expanded(
+                      //                   flex: 6,
+                      //                   child: Column(
+                      //                     crossAxisAlignment:
+                      //                         CrossAxisAlignment.start,
+                      //                     children: [
+                      //                       Text(
+                      //                         e['address_type'].toString(),
+                      //                         style: TextStyle(
+                      //                             fontSize: 14,
+                      //                             fontWeight: FontWeight.w600),
+                      //                       ),
+                      //                       SizedBox(
+                      //                         width: 5,
+                      //                       ),
+                      //                       Text(
+                      //                         capitalize(e['address']
+                      //                             .toString()
+                      //                             .replaceAll(",", "")),
+                      //                         maxLines: 2,
+                      //                         overflow: TextOverflow.ellipsis,
+                      //                       ),
+                      //                       Align(
+                      //                         alignment: Alignment.centerRight,
+                      //                         child:
+                      //                             !showAddAddressToSavedAddress
+                      //                                 ? Padding(
+                      //                                     padding:
+                      //                                         const EdgeInsets
+                      //                                                 .only(
+                      //                                             right: 20),
+                      //                                     child: ElevatedButton(
+                      //                                         style:
+                      //                                             ButtonStyle(
+                      //                                                 shape: MaterialStateProperty.all<
+                      //                                                         RoundedRectangleBorder>(
+                      //                                                     RoundedRectangleBorder(
+                      //                                                   borderRadius:
+                      //                                                       BorderRadius.circular(18.0),
+                      //                                                 )),
+                      //                                                 backgroundColor:
+                      //                                                     MaterialStateProperty.all(Colors.blue[
+                      //                                                         900])),
+                      //                                         onPressed:
+                      //                                             () async {
+                      //                                           Navigator.push(
+                      //                                               context,
+                      //                                               MaterialPageRoute(
+                      //                                                   builder: (context) =>
+                      //                                                       AddUpdateAddressScreen(
+                      //                                                         update: false,
+                      //                                                         map: e,
+                      //                                                       ))).then(
+                      //                                               (value) {
+                      //                                             getAddressList();
+                      //                                           });
+                      //                                           // LoginAPI()
+                      //                                           //     .addAddress(m);
+                      //                                         },
+                      //                                         child: Text(
+                      //                                             "Add to saved addresses")),
+                      //                                   )
+                      //                                 : SizedBox(),
+                      //                       ),
+                      //                       recentSearch.indexOf(e) ==
+                      //                               recentSearch.length - 1
+                      //                           ? SizedBox()
+                      //                           : Divider(
+                      //                               thickness: 0.9,
+                      //                               height: 40,
+                      //                             ),
+                      //                     ],
+                      //                   )),
+                      //             ],
+                      //           )),
+                      //     );
+                      //   }).toList(),
+                      // ),
                     ],
                   ),
                 );
@@ -835,6 +836,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
             .then((value) {
           Provider.of<UpdateCartData>(context, listen: false)
               .checkForServiceable();
+          Provider.of<UpdateCartData>(context, listen: false)
+              .setDeliveryAddress(
+                  address_type + ", " + address + ", " + pincode);
         });
       }
     } else {
@@ -861,6 +865,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
           .then((value) {
         Provider.of<UpdateCartData>(context, listen: false)
             .checkForServiceable();
+        Provider.of<UpdateCartData>(context, listen: false)
+            .setDeliveryAddress(address_type + ", " + address + ", " + pincode);
       });
 
       setState(() {

@@ -250,43 +250,46 @@ class _ReturnItemScreenState extends State<ReturnItemScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                Column(
-                  children: returnQuestions
-                      .map((e) => InkWell(
-                            onTap: () {
-                              setState(() {
-                                verticalGroupValue = e.toString();
-                              });
-                            },
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    width: 20,
-                                    child: Radio(
-                                        value: e.toString(),
-                                        groupValue: verticalGroupValue,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            verticalGroupValue = val.toString();
-                                          });
-                                        }),
+                returnQuestions.isEmpty
+                    ? Text("No question available")
+                    : Column(
+                        children: returnQuestions
+                            .map((e) => InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      verticalGroupValue = e.toString();
+                                    });
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: SizedBox(
+                                          height: 40,
+                                          width: 20,
+                                          child: Radio(
+                                              value: e.toString(),
+                                              groupValue: verticalGroupValue,
+                                              onChanged: (val) {
+                                                setState(() {
+                                                  verticalGroupValue =
+                                                      val.toString();
+                                                });
+                                              }),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 6,
+                                        child: Text(e.toString(),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                color: Colors.black,
+                                                fontSize: 14)),
+                                      )
+                                    ],
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 6,
-                                  child: Text(e.toString(),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black,
-                                          fontSize: 14)),
-                                )
-                              ],
-                            ),
-                          ))
-                      .toList(),
-                ),
+                                ))
+                            .toList(),
+                      ),
                 SizedBox(
                   height: 20,
                 ),
