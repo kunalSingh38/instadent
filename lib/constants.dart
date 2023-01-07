@@ -1327,7 +1327,7 @@ Future setQunatity(
         duration: Duration(seconds: 1),
       ),
     );
-    print("loggedin");
+    //print("loggedin");
     if (action) {
       productItems[index]['quantity'] = productItems[index]['quantity'] + 1;
       Map m = {
@@ -1336,7 +1336,7 @@ Future setQunatity(
         "quantity": productItems[index]['quantity'].toString(),
         "product_id": productItems[index]['product_id'].toString()
       };
-      print(m);
+      //print(m);
 
       CartAPI().addToCart(m).then((value) {
         if (value) {
@@ -1373,7 +1373,7 @@ Future setQunatity(
         "quantity": productItems[index]['quantity'].toString(),
         "product_id": productItems[index]['product_id'].toString()
       };
-      print(m);
+      //print(m);
       CartAPI().addToCart(m).then((value) {
         if (value) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -1521,7 +1521,7 @@ Future<void> manuallyUpdateQuantity(int index, List productItems,
                               "product_id":
                                   productItems[index]['product_id'].toString()
                             };
-                            print(m);
+                            //print(m);
                             //
                             CartAPI().addToCart(m).then((value) {
                               if (value) {
@@ -1624,6 +1624,6 @@ Future<String> createDynamicLink(FirebaseDynamicLinks dynamicLinks) async {
 
   final ShortDynamicLink shortLink =
       await dynamicLinks.buildShortLink(dynamicLinkParameters);
-  print(shortLink.shortUrl.toString());
+  //print(shortLink.shortUrl.toString());
   return shortLink.shortUrl.toString();
 }

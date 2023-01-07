@@ -151,7 +151,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           total = value['total'].toString();
           isDelivered = value['order_status'] == "Delivered" ? true : false;
           deliverTo = capitalize(value['deliver_to'].toString());
-          deliveryChanges = value['deliver_charge'].toString();
+          deliveryChanges = value['delivery_charge'].toString();
           subTotal = value['total_price'].toString();
         });
       }

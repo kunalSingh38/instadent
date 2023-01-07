@@ -11,6 +11,7 @@ import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
 import 'package:instadent/signup.dart';
 import 'package:otp_autofill/otp_autofill.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -99,20 +100,23 @@ class _OTPScreenState extends State<OTPScreen> {
   String? _commingSms = 'Unknown';
 
   Future<void> initSmsListener() async {
-    String? commingSms;
-    try {
-      commingSms = await AltSmsAutofill().listenForSms;
-      // ignore: nullable_type_in_catch_clause
-    } on PlatformException {
-      commingSms = 'Failed to get Sms.';
-    }
-    if (!mounted) return;
+    if (await Permission.sms.request().isGranted) {
+      String? commingSms;
+      try {
+        commingSms = await AltSmsAutofill().listenForSms;
+        // ignore: nullable_type_in_catch_clause
+      } on PlatformException {
+        commingSms = 'Failed to get Sms.';
+      }
+      if (!mounted) return;
 
-    setState(() {
-      _commingSms = commingSms!.replaceAll(new RegExp(r'[^0-9]'), '');
-      otpControll.text = "";
-      otpControll.text = _commingSms.toString();
-    });
+      setState(() {
+        _commingSms = commingSms!.replaceAll(new RegExp(r'[^0-9]'), '');
+        otpControll.text = "";
+        otpControll.text = _commingSms.toString();
+      });
+    }
+
     // print(_commingSms);
   }
 
@@ -125,10 +129,10 @@ class _OTPScreenState extends State<OTPScreen> {
       setState(() {
         fcmToken = "";
         fcmToken = value.toString();
-        print(fcmToken);
+        //print(fcmToken);
       });
     });
-    print(widget.otp);
+    //print(widget.otp);
 
     if (widget.phoneNumber.toString() == "9650484070") {
       setState(() {
@@ -215,7 +219,7 @@ class _OTPScreenState extends State<OTPScreen> {
                     .userLogin(widget.phoneNumber.toString())
                     .then((value) {
                   if (value['ErrorCode'] == 100) {
-                    print(value);
+                    //print(value);
                     Navigator.of(context, rootNavigator: true).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

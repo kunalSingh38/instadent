@@ -35,8 +35,8 @@ class _OrderPlacedScreenState extends State<OrderPlacedScreen> {
       setState(() {
         items.clear();
         items.addAll(value["items"]);
-        deliverCharge =
-            double.parse(value["deliver_charge"].toString()).toStringAsFixed(0);
+        deliverCharge = double.parse(value["delivery_charge"].toString())
+            .toStringAsFixed(0);
         totalAmount =
             double.parse(value["total_price"].toString()).toStringAsFixed(0);
         total = double.parse(value["total"].toString()).toStringAsFixed(0);

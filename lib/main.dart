@@ -67,140 +67,140 @@ class _SplashScreenState extends State<SplashScreen> {
     return pref.getBool("loggedIn") ?? false;
   }
 
-  basicStatusCheck(NewVersionPlus newVersion) {
-    newVersion.showAlertIfNecessary(context: context);
-  }
+  // basicStatusCheck(NewVersionPlus newVersion) {
+  //   newVersion.showAlertIfNecessary(context: context);
+  // }
 
-  advancedStatusCheck(NewVersionPlus newVersion) async {
-    final status = await newVersion.getVersionStatus();
-    if (status != null) {
-      debugPrint(status.releaseNotes);
-      debugPrint(status.appStoreLink);
-      debugPrint(status.localVersion);
-      debugPrint(status.storeVersion);
-      debugPrint(status.canUpdate.toString());
-      newVersion.showUpdateDialog(
-        context: context,
-        versionStatus: status,
-        dialogTitle: 'Custom Title',
-        dialogText: 'Custom Text',
-      );
-    }
-  }
+  // advancedStatusCheck(NewVersionPlus newVersion) async {
+  //   final status = await newVersion.getVersionStatus();
+  //   if (status != null) {
+  //     debugPrint(status.releaseNotes);
+  //     debugPrint(status.appStoreLink);
+  //     debugPrint(status.localVersion);
+  //     debugPrint(status.storeVersion);
+  //     debugPrint(status.canUpdate.toString());
+  //     newVersion.showUpdateDialog(
+  //       context: context,
+  //       versionStatus: status,
+  //       dialogTitle: 'Custom Title',
+  //       dialogText: 'Custom Text',
+  //     );
+  //   }
+  // }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    final newVersion = NewVersionPlus(
-      iOSId: 'com.google.Vespa',
-      androidId: 'com.instadent.instadent',
-    );
-    print(newVersion.getVersionStatus().then((value) {
-      print(value!.storeVersion.toString());
-    }));
+    // final newVersion = NewVersionPlus(
+    //   iOSId: 'com.google.Vespa',
+    //   androidId: 'com.instadent.instadent',
+    // );
+    // print(newVersion.getVersionStatus().then((value) {
+    //   print(value!.storeVersion.toString());
+    // }));
 
-    // You can let the plugin handle fetching the status and showing a dialog,
-    // or you can fetch the status and display your own dialog, or no dialog.
-    const simpleBehavior = true;
+    // // You can let the plugin handle fetching the status and showing a dialog,
+    // // or you can fetch the status and display your own dialog, or no dialog.
+    // const simpleBehavior = true;
 
-    if (simpleBehavior) {
-      basicStatusCheck(newVersion);
-    }
+    // if (simpleBehavior) {
+    //   basicStatusCheck(newVersion);
+    // }
 
-    // Timer(Duration(seconds: 4), () async {
-    //   if (await Geolocator.isLocationServiceEnabled()) {
-    //     showDialog(
-    //         context: context,
-    //         barrierDismissible: false,
-    //         builder: (context) => Dialog(
-    //             shape: RoundedRectangleBorder(
-    //                 borderRadius: BorderRadius.all(Radius.circular(15))),
-    //             child: SizedBox(
-    //                 height: 180,
-    //                 child: Padding(
-    //                     padding: const EdgeInsets.all(15),
-    //                     child: Column(
-    //                         crossAxisAlignment: CrossAxisAlignment.center,
-    //                         mainAxisAlignment: MainAxisAlignment.center,
-    //                         children: [
-    //                           Image.asset(
-    //                             "assets/location_loading.gif",
-    //                             scale: 5,
-    //                           ),
-    //                           SizedBox(
-    //                             height: 10,
-    //                           ),
-    //                           Text(
-    //                             "Getting your location",
-    //                             style: TextStyle(
-    //                                 fontWeight: FontWeight.w500, fontSize: 16),
-    //                           )
-    //                         ])))));
-    //     _determinePosition().then((value) {
-    //       _getAddress(value).then((value) {
-    //         Navigator.of(context).pop();
-    //         checkLoggedIn().then((value) {
-    //           if (value) {
-    //             Provider.of<UpdateCartData>(context, listen: false)
-    //                 .incrementCounter();
-    //             Navigator.pushReplacement(
-    //               context,
-    //               MaterialPageRoute(builder: (context) => Dashboard()),
-    //             );
-    //           } else {
-    //             Navigator.of(context).pushReplacement(MaterialPageRoute(
-    //                 builder: (BuildContext context) => LoginScreen()));
-    //           }
-    //         });
-    //       });
-    //     });
-    //   } else {
-    //     showDialog(
-    //         context: context,
-    //         barrierDismissible: false,
-    //         builder: (context) => Dialog(
-    //             shape: RoundedRectangleBorder(
-    //                 borderRadius: BorderRadius.all(Radius.circular(15))),
-    //             child: SizedBox(
-    //                 height: 180,
-    //                 child: Padding(
-    //                     padding: const EdgeInsets.all(15),
-    //                     child: Column(
-    //                       crossAxisAlignment: CrossAxisAlignment.center,
-    //                       mainAxisAlignment: MainAxisAlignment.center,
-    //                       children: [
-    //                         Text(
-    //                             "Location services are disabled. Please enable location and restart your app."
-    //                                 .toString()),
-    //                         ElevatedButton(
-    //                             onPressed: () async {
-    //                               Navigator.of(context).pop();
-    //                               SharedPreferences prefs =
-    //                                   await SharedPreferences.getInstance();
-    //                               setState(() {
-    //                                 DashboardState.currentTab = 0;
-    //                               });
+    Timer(Duration(seconds: 4), () async {
+      if (await Geolocator.isLocationServiceEnabled()) {
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => Dialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                child: SizedBox(
+                    height: 180,
+                    child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/location_loading.gif",
+                                scale: 5,
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Getting your location",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500, fontSize: 16),
+                              )
+                            ])))));
+        _determinePosition().then((value) {
+          _getAddress(value).then((value) {
+            Navigator.of(context).pop();
+            checkLoggedIn().then((value) {
+              if (value) {
+                Provider.of<UpdateCartData>(context, listen: false)
+                    .incrementCounter();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Dashboard()),
+                );
+              } else {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (BuildContext context) => LoginScreen()));
+              }
+            });
+          });
+        });
+      } else {
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => Dialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                child: SizedBox(
+                    height: 180,
+                    child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                                "Location services are disabled. Please enable location and restart your app."
+                                    .toString()),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  Navigator.of(context).pop();
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  setState(() {
+                                    DashboardState.currentTab = 0;
+                                  });
 
-    //                               await prefs.clear().then((value) {
-    //                                 Navigator.of(context, rootNavigator: true)
-    //                                     .pushAndRemoveUntil(
-    //                                         MaterialPageRoute(
-    //                                             builder: (context) =>
-    //                                                 SplashScreen()),
-    //                                         (route) => false);
-    //                               });
-    //                               Provider.of<UpdateCartData>(context,
-    //                                       listen: false)
-    //                                   .showCartorNot();
-    //                             },
-    //                             child: Text("Restart App"))
-    //                       ],
-    //                     )))));
-    //   }
-    // });
-    // // }
+                                  await prefs.clear().then((value) {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pushAndRemoveUntil(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SplashScreen()),
+                                            (route) => false);
+                                  });
+                                  Provider.of<UpdateCartData>(context,
+                                          listen: false)
+                                      .showCartorNot();
+                                },
+                                child: Text("Restart App"))
+                          ],
+                        )))));
+      }
+    });
+    // }
   }
 
   @override

@@ -64,5 +64,9 @@
     <string>camera</string>
 	<key>NSPhotoLibraryUsageDescription</key>
     <string>photos</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>microphone</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>speech</string>
 </dict>
 </plist>

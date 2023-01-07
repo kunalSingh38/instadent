@@ -67,7 +67,7 @@ class _GoogleMapForAddressState extends State<GoogleMapForAddress> {
     List<Placemark> placemarks =
         await placemarkFromCoordinates(value.latitude, value.longitude);
     Placemark place = placemarks[0];
-    print(placemarks[0]);
+    //print(placemarks[0]);
     setState(() {
       locatlity = place.subLocality.toString();
       address = place.subAdministrativeArea.toString() +

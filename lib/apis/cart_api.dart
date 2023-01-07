@@ -14,6 +14,7 @@ class CartAPI {
         'Content-Type': 'application/json'
       },
     );
+    print("crtt---" + response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response'];
     } else {
@@ -30,10 +31,9 @@ class CartAPI {
         'Content-Type': 'application/json'
       },
     );
-    print(response.body);
+    print("test---" + response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
-      return int.parse(
-          jsonDecode(response.body)['Response']['badge'].toString());
+      return int.parse(jsonDecode(response.body)['Data']['badge'].toString());
     }
     return 0;
   }
@@ -95,6 +95,7 @@ class CartAPI {
           'Content-Type': 'application/json'
         },
         body: jsonEncode({"order_id": orderId.toString()}));
+    print(response.body);
     if (jsonDecode(response.body)['ErrorCode'] == 0) {
       return jsonDecode(response.body)['Response'];
     }
@@ -133,6 +134,7 @@ class CartAPI {
         'Content-Type': 'application/json'
       },
     );
+    print("coo-----" + response.body);
     return jsonDecode(response.body);
   }
 

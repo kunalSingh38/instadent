@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void reloadApis() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(prefs.getString("token"));
+    //print(prefs.getString("token"));
     setState(() {
       defaultAddress = prefs.getString("defaultAddress").toString();
       addressType = prefs.getString("subLocality").toString();

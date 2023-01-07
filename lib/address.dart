@@ -54,7 +54,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
     }
 
     if (pref.containsKey("recent_address_list")) {
-      print(pref.getString("recent_address_list"));
+      //print(pref.getString("recent_address_list"));
       List list = jsonDecode(pref.getString("recent_address_list").toString());
 
       setState(() {
@@ -815,16 +815,16 @@ class _AddressListScreenState extends State<AddressListScreen> {
                   ],
                 ));
       } else {
-        print("test----------");
+        //print("test----------");
         // ScaffoldMessenger.of(context).showSnackBar(
         //   SnackBar(
         //       content: Text("You have selected same address"),
         //       duration: Duration(seconds: 1)),
         // );
         Navigator.of(context).pop();
-        print(pincode);
-        print(address);
-        print(address_type);
+        //print(pincode);
+        //print(address);
+        //print(address_type);
         setState(() {
           pref.setString("pincode", pincode.toString());
           pref.setString("defaultAddress", address);
@@ -844,14 +844,14 @@ class _AddressListScreenState extends State<AddressListScreen> {
     } else {
       // Navigator.pop(context, true);
       // reloadApis();
-      print("test2----------");
+      //print("test2----------");
       setState(() {
         pref.setString("pincode", pincode.toString());
         pref.setString("defaultAddress", address);
         pref.setString("address_type", address_type);
       });
 
-      print(pref.getString("token"));
+      //print(pref.getString("token"));
 
       // log("Default Pin Code---->" + pref.getString('pincode').toString());
 

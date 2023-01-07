@@ -28,7 +28,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
     // TODO: implement initState
     super.initState();
     if (widget.update) {
-      print(widget.map);
+      // print(widget.map);
       setState(() {
         addressType.text = widget.map['address_type'].toString();
         deliveryAddress.text = widget.map['address'].toString();
@@ -38,7 +38,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
       });
     } else {
       if (widget.map.isNotEmpty) {
-        print(widget.map);
+        //  print(widget.map);
         setState(() {
           addressType.text = widget.map['address_type'].toString();
           deliveryAddress.text = widget.map['address'].toString();
@@ -246,7 +246,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                                 m['landmark'] = landmark.text.toString();
                                 m['address_type'] = addressType.text.toString();
 
-                                print(m);
+                                //print(m);
                                 showLaoding(context);
 
                                 LoginAPI().editAddress(m).then((value) async {
@@ -281,7 +281,7 @@ class _AddUpdateAddressScreenState extends State<AddUpdateAddressScreen> {
                                 m['landmark'] = landmark.text.toString();
                                 m['address_type'] = addressType.text.toString();
                                 m['is_default'] = "1";
-                                print(m);
+                                //print(m);
                                 showLaoding(context);
 
                                 LoginAPI().addAddress(m).then((value) async {

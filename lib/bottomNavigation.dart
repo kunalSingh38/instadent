@@ -72,7 +72,7 @@ class BottomNavigation extends StatelessWidget {
                           controller4.reset();
                           controller0.animateTo(40,
                               duration: const Duration(milliseconds: 1000));
-                          print(controller0.value);
+                          //print(controller0.value);
                         } else if (e.getIndex() == 1) {
                           controller0.reset();
                           controller2.reset();

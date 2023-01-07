@@ -1438,6 +1438,7 @@ class _CartViewState extends State<CartView> {
   Future getAccessDetails() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String currentPincode = pref.getString("pincode").toString();
+    print(pref.getString("token"));
     var url = URL + "pincode-estimate-delivery";
     var body = {
       "pincode": currentPincode,
