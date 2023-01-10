@@ -281,4 +281,20 @@ class OtherAPI {
     print(respStr);
     return true;
   }
+
+  Future<bool> deleteAccount() async {
+    print("object");
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response = await http.post(
+      Uri.parse(URL + "delete-user"),
+      headers: {
+        'Authorization': 'Bearer ' + pref.getString("token").toString(),
+        'Content-Type': 'application/json'
+      },
+    );
+    if (jsonDecode(response.body)['ErrorCode'] == 0) {
+      return true;
+    }
+    return false;
+  }
 }

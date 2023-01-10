@@ -9,10 +9,13 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instadent/UpdateCart.dart';
 import 'package:instadent/apis/login_api.dart';
 import 'package:instadent/apis/other_api.dart';
 import 'package:instadent/constants.dart';
 import 'package:instadent/dashboard.dart';
+import 'package:instadent/main.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -159,6 +162,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Form(
             key: form,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   height: 20,
@@ -259,6 +263,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 20,
                 ),
                 TextFormField(
+                  validator: (value) {
+                    if (value!.isEmpty)
+                      return "Required Field";
+                    else
+                      return null;
+                  },
                   controller: clinicName,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   decoration: InputDecoration(
@@ -268,7 +278,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.circular(10)),
-                    labelText: "Clinic Name",
+                    labelText: "Clinic Name*",
                     labelStyle: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -772,6 +782,189 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                 SizedBox(
                   height: 20,
+                ),
+                Divider(
+                  thickness: 1,
+                  color: Colors.grey,
+                  height: 40,
+                ),
+                InkWell(
+                  onTap: () async {
+                    await showModalBottomSheet(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20.0))),
+                        backgroundColor: Colors.white,
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) => Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+                            child: SingleChildScrollView(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                  Image.asset(
+                                    "assets/warning.png",
+                                    scale: 8,
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Text("Sad To See You Go",
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      )),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                      "You will lose your past order details. Would you still like to proceed?",
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      )),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 2),
+                                          child: SizedBox(
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              height: 45,
+                                              child: ElevatedButton(
+                                                  style: ButtonStyle(
+                                                      backgroundColor:
+                                                          MaterialStateProperty
+                                                              .all(
+                                                                  Colors.white),
+                                                      side:
+                                                          MaterialStateProperty
+                                                              .all(BorderSide(
+                                                                  color: Colors
+                                                                      .grey))),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text(
+                                                    "No, Thank You",
+                                                    style: TextStyle(
+                                                        color: Colors.pink,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        fontSize: 16),
+                                                  ))),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 2),
+                                          child: SizedBox(
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              height: 45,
+                                              child: ElevatedButton(
+                                                  style: ButtonStyle(
+                                                      backgroundColor:
+                                                          MaterialStateProperty
+                                                              .all(
+                                                                  Colors.pink)),
+                                                  onPressed: () {
+                                                    OtherAPI()
+                                                        .deleteAccount()
+                                                        .then((value) async {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      if (value) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                              content: Text(
+                                                                  "Account Deleted."),
+                                                              duration:
+                                                                  Duration(
+                                                                      seconds:
+                                                                          2)),
+                                                        );
+
+                                                        SharedPreferences
+                                                            prefs =
+                                                            await SharedPreferences
+                                                                .getInstance();
+                                                        setState(() {
+                                                          DashboardState
+                                                              .currentTab = 0;
+                                                        });
+
+                                                        await prefs
+                                                            .clear()
+                                                            .then((value) {
+                                                          Navigator.of(context,
+                                                                  rootNavigator:
+                                                                      true)
+                                                              .pushAndRemoveUntil(
+                                                                  MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              SplashScreen()),
+                                                                  (route) =>
+                                                                      false);
+                                                        });
+                                                        Provider.of<UpdateCartData>(
+                                                                context,
+                                                                listen: false)
+                                                            .showCartorNot();
+                                                      }
+                                                    });
+                                                  },
+                                                  child: Text(
+                                                    "Continue",
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        fontSize: 16),
+                                                  ))),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ]))));
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Delete Account",
+                        style: TextStyle(
+                            color: Colors.red[800],
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "Deleting your account will remove all your orders.",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14),
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),

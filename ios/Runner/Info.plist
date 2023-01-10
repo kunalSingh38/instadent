@@ -53,7 +53,7 @@
 	<string>Older devices need location.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Need location when in use</string>
-	<key>FirebaseAppDelegateProxyEnabled</key>
+	<key>We need your location data for getting the address for delivery purpose.</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
     <array>
