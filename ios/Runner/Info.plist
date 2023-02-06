@@ -52,8 +52,8 @@
 	<key>NSLocationUsageDescription</key>
 	<string>Older devices need location.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need location when in use</string>
-	<key>We need your location data for getting the address for delivery purpose.</key>
+	<string>We need your location data for getting the address for delivery purpose.</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
     <array>

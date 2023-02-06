@@ -1,10 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:instadent/apis/cart_api.dart';
-import 'package:instadent/apis/login_api.dart';
-import 'package:instadent/constants.dart';
-import 'package:instadent/dashboard.dart';
+
+import 'package:biz_sales_admin/constants.dart';
+import 'package:biz_sales_admin/dashboard.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -35,26 +34,26 @@ class UpdateCartData extends ChangeNotifier {
   bool get counterDeliveryAddressSelected => _deliveryAddressSelected;
 
   Future<void> incrementCounter() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    if (pref.getBool("loggedIn") ?? false) {
-      CartAPI().cartBadge().then((value) {
-        if (value > 0) {
-          CartAPI().cartData().then((value) {
-            List temp = value['items'];
-            _totalItemCount = temp.length.toString();
-            _totalItemCost = value['total_price'].toString();
-            _showCart = true;
-            notifyListeners();
-          });
-        } else {
-          _totalItemCount = "0";
-          _totalItemCost = "0";
-          _showCart = false;
-          _deliveryAddressSelected = false;
-          notifyListeners();
-        }
-      });
-    }
+    // SharedPreferences pref = await SharedPreferences.getInstance();
+    // if (pref.getBool("loggedIn") ?? false) {
+    //   CartAPI().cartBadge().then((value) {
+    //     if (value > 0) {
+    //       CartAPI().cartData().then((value) {
+    //         List temp = value['items'];
+    //         _totalItemCount = temp.length.toString();
+    //         _totalItemCost = value['total_price'].toString();
+    //         _showCart = true;
+    //         notifyListeners();
+    //       });
+    //     } else {
+    //       _totalItemCount = "0";
+    //       _totalItemCost = "0";
+    //       _showCart = false;
+    //       _deliveryAddressSelected = false;
+    //       notifyListeners();
+    //     }
+    //   });
+    // }
   }
 
   Future<bool> showCartorNot() async {

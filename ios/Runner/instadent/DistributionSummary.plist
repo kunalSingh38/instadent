@@ -1146,7 +1146,7 @@
 			<key>entitlements</key>
 			<dict>
 				<key>application-identifier</key>
-				<string>X3HLVBGNT2.com.instadent.instadent</string>
+				<string>X3HLVBGNT2.com.biz.biz_sales_admin</string>
 				<key>com.apple.developer.team-identifier</key>
 				<string>X3HLVBGNT2</string>
 				<key>get-task-allow</key>

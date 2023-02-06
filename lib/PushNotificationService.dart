@@ -1,18 +1,67 @@
+import 'dart:convert';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
 
 class PushNotificationService {
 // It is assumed that all messages contain a data field with the key 'type'
-  Future<void> setupInteractedMessage() async {
+  Future<void> setupInteractedMessage(
+      GlobalKey<NavigatorState> navigatorKey) async {
     await Firebase.initializeApp();
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      // Get.toNamed(NOTIFICATIONS_ROUTE);
-      if (message.data['type'] == 'chat') {
-        // Navigator.pushNamed(context, '/chat',
-        //     arguments: ChatArguments(message));
-      }
-    });
+    // FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    //   if (message.data['type'] == 'carousel') {
+    //     Navigator.push(
+    //         navigatorKey.currentState!.context,
+    //         MaterialPageRoute(
+    //             builder: (context) => BannerProductsView(
+    //                   id: message.data['data'].toString(),
+    //                   banner: true,
+    //                   data: [],
+    //                 )));
+    //   } else if (message.data['type'] == 'category') {
+    //     Navigator.push(
+    //         navigatorKey.currentState!.context,
+    //         MaterialPageRoute(
+    //             builder: (context) => SubCategoriesScreen(
+    //                 catName: jsonDecode(message.data['data'])['category_name']
+    //                     .toString(),
+    //                 catId: jsonDecode(message.data['data'])['id'].toString(),
+    //                 bannerImage:
+    //                     jsonDecode(message.data['data'])['category_banner']
+    //                         .toString())));
+    //   }
+    // });
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   if (message.data['type'] == 'carousel') {
+    //     Navigator.push(
+    //         navigatorKey.currentState!.context,
+    //         MaterialPageRoute(
+    //             builder: (context) => BannerProductsView(
+    //                   id: message.data['data'].toString(),
+    //                   banner: true,
+    //                   data: [],
+    //                 )));
+    //   } else if (message.data['type'] == 'category') {
+    //     print(jsonDecode(message.data['data'])['category_name'].toString());
+    //     print(jsonDecode(message.data['data'])['id'].toString());
+    //     print(jsonDecode(message.data['data'])['category_banner'].toString());
+    //     Navigator.push(
+    //         navigatorKey.currentState!.context,
+    //         MaterialPageRoute(
+    //             builder: (context) => SubCategoriesScreen(
+    //                 catName: jsonDecode(message.data['data'])['category_name']
+    //                     .toString(),
+    //                 catId: jsonDecode(message.data['data'])['id'].toString(),
+    //                 bannerImage:
+    //                     jsonDecode(message.data['data'])['category_banner']
+    //                         .toString())));
+    //   }
+    // });
+
     enableIOSNotifications();
     await registerNotificationListeners();
   }
@@ -40,7 +89,7 @@ class PushNotificationService {
       onDidReceiveNotificationResponse: (NotificationResponse details) {},
     );
 // onMessage is called when the app is in foreground and a notification is received
-    FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage? message) async {
       // homeController.getHomeData(
       //   withLoading: false,
       // );
@@ -49,6 +98,17 @@ class PushNotificationService {
 // If `onMessage` is triggered with a notification, construct our own
       // local notification to show to users using the created channel.
       if (notification != null && android != null) {
+        final ByteArrayAndroidBitmap bigPicture = ByteArrayAndroidBitmap(
+            await _getByteArrayFromUrl(message.data['bigPicture']));
+
+        final BigPictureStyleInformation bigPictureStyleInformation =
+            BigPictureStyleInformation(bigPicture,
+                largeIcon: DrawableResourceAndroidBitmap("@mipmap/ic_launcher"),
+                contentTitle: notification.title,
+                htmlFormatContentTitle: true,
+                summaryText: notification.body,
+                htmlFormatSummaryText: true);
+
         flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,
@@ -59,6 +119,8 @@ class PushNotificationService {
               channel.name,
               channelDescription: channel.description,
               icon: android.smallIcon,
+              fullScreenIntent: true,
+              styleInformation: bigPictureStyleInformation,
             ),
           ),
         );
@@ -73,6 +135,11 @@ class PushNotificationService {
       badge: true,
       sound: true,
     );
+  }
+
+  Future<Uint8List> _getByteArrayFromUrl(String url) async {
+    final http.Response response = await http.get(Uri.parse(url));
+    return response.bodyBytes;
   }
 
   AndroidNotificationChannel androidNotificationChannel() =>

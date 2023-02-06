@@ -1,14 +1,14 @@
 // ignore_for_file: non_constant_identifier_names, prefer_const_constructors
 
+import 'package:biz_sales_admin/customer/customer_list.dart';
+import 'package:biz_sales_admin/items/items_list.dart';
+import 'package:biz_sales_admin/orders/orders_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gif/flutter_gif.dart';
-import 'package:instadent/UpdateCart.dart';
-import 'package:instadent/account.dart';
-import 'package:instadent/apis/cart_api.dart';
-import 'package:instadent/brand/brands.dart';
-import 'package:instadent/category/all_categories.dart';
-import 'package:instadent/home.dart';
-import 'package:instadent/search/search.dart';
+import 'package:biz_sales_admin/UpdateCart.dart';
+import 'package:biz_sales_admin/account.dart';
+import 'package:biz_sales_admin/home.dart';
+import 'package:biz_sales_admin/search/search.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,19 +32,19 @@ class DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       page: HomeScreen(),
     ),
     TabItem(
-      tabName: "Categories",
-      icon: "assets/categories-ac.gif",
-      page: AllCategoriesScreen(),
+      tabName: "Orders",
+      icon: "assets/orders.gif",
+      page: Orders(),
     ),
     TabItem(
-      tabName: "Search",
-      icon: "assets/search-ac.gif",
-      page: SearchScreen(),
-    ),
-    TabItem(
-      tabName: "Brands",
+      tabName: "Items",
       icon: "assets/offers-ac.gif",
-      page: OffersScreen(),
+      page: ItemsList(),
+    ),
+    TabItem(
+      tabName: "Customers",
+      icon: "assets/account-ac.gif",
+      page: CustomerList(),
     ),
     TabItem(
       tabName: "Account",

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:instadent/dashboard.dart';
+import 'package:biz_sales_admin/dashboard.dart';
 
 class TabItem {
   // you can customize what kind of information is needed

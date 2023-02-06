@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter_gif/flutter_gif.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:instadent/UpdateCart.dart';
+import 'package:biz_sales_admin/UpdateCart.dart';
 import 'package:provider/provider.dart';
 
 import 'dashboard.dart';

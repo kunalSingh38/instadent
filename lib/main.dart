@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:location/location.dart' as loc;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -12,18 +13,28 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:instadent/PushNotificationService.dart';
-import 'package:instadent/UpdateCart.dart';
-import 'package:instadent/dashboard.dart';
-import 'package:instadent/login.dart';
+import 'package:biz_sales_admin/PushNotificationService.dart';
+import 'package:biz_sales_admin/UpdateCart.dart';
+import 'package:biz_sales_admin/dashboard.dart';
+import 'package:biz_sales_admin/login.dart';
 import 'package:new_version_plus/new_version_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:upgrader/upgrader.dart';
 
+final GlobalKey<NavigatorState> navigatorKey =
+    GlobalKey(debugLabel: "Main Navigator");
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await PushNotificationService().setupInteractedMessage();
+  await Upgrader.clearSavedSettings();
+  await FlutterDownloader.initialize(
+      debug:
+          true, // optional: set to false to disable printing logs to console (default: true)
+      ignoreSsl:
+          true // option: set to false to disable working with http links (default: false)
+      );
+  await PushNotificationService().setupInteractedMessage(navigatorKey);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) async {
     runApp(MyApp());
@@ -47,6 +58,7 @@ class MyApp extends StatelessWidget {
         title: 'Instadent',
         theme: ThemeData(fontFamily: 'Roboto-Regular'),
         home: SplashScreen(),
+        navigatorKey: navigatorKey,
         // navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,
       ),
@@ -67,138 +79,24 @@ class _SplashScreenState extends State<SplashScreen> {
     return pref.getBool("loggedIn") ?? false;
   }
 
-  // basicStatusCheck(NewVersionPlus newVersion) {
-  //   newVersion.showAlertIfNecessary(context: context);
-  // }
-
-  // advancedStatusCheck(NewVersionPlus newVersion) async {
-  //   final status = await newVersion.getVersionStatus();
-  //   if (status != null) {
-  //     debugPrint(status.releaseNotes);
-  //     debugPrint(status.appStoreLink);
-  //     debugPrint(status.localVersion);
-  //     debugPrint(status.storeVersion);
-  //     debugPrint(status.canUpdate.toString());
-  //     newVersion.showUpdateDialog(
-  //       context: context,
-  //       versionStatus: status,
-  //       dialogTitle: 'Custom Title',
-  //       dialogText: 'Custom Text',
-  //     );
-  //   }
-  // }
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    // final newVersion = NewVersionPlus(
-    //   iOSId: 'com.google.Vespa',
-    //   androidId: 'com.instadent.instadent',
-    // );
-    // print(newVersion.getVersionStatus().then((value) {
-    //   print(value!.storeVersion.toString());
-    // }));
-
-    // // You can let the plugin handle fetching the status and showing a dialog,
-    // // or you can fetch the status and display your own dialog, or no dialog.
-    // const simpleBehavior = true;
-
-    // if (simpleBehavior) {
-    //   basicStatusCheck(newVersion);
-    // }
-
     Timer(Duration(seconds: 4), () async {
-      if (await Geolocator.isLocationServiceEnabled()) {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                child: SizedBox(
-                    height: 180,
-                    child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                "assets/location_loading.gif",
-                                scale: 5,
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                "Getting your location",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500, fontSize: 16),
-                              )
-                            ])))));
-        _determinePosition().then((value) {
-          _getAddress(value).then((value) {
-            Navigator.of(context).pop();
-            checkLoggedIn().then((value) {
-              if (value) {
-                Provider.of<UpdateCartData>(context, listen: false)
-                    .incrementCounter();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Dashboard()),
-                );
-              } else {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (BuildContext context) => LoginScreen()));
-              }
-            });
-          });
-        });
-      } else {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                child: SizedBox(
-                    height: 180,
-                    child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                                "Location services are disabled. Please enable location and restart your app."
-                                    .toString()),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  Navigator.of(context).pop();
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  setState(() {
-                                    DashboardState.currentTab = 0;
-                                  });
-
-                                  await prefs.clear().then((value) {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pushAndRemoveUntil(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    SplashScreen()),
-                                            (route) => false);
-                                  });
-                                  Provider.of<UpdateCartData>(context,
-                                          listen: false)
-                                      .showCartorNot();
-                                },
-                                child: Text("Restart App"))
-                          ],
-                        )))));
-      }
+      checkLoggedIn().then((value) {
+        if (value) {
+          Provider.of<UpdateCartData>(context, listen: false)
+              .incrementCounter();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Dashboard()),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (BuildContext context) => LoginScreen()));
+        }
+      });
     });
     // }
   }
@@ -209,67 +107,5 @@ class _SplashScreenState extends State<SplashScreen> {
       decoration: BoxDecoration(color: Colors.white),
       child: Image.asset("assets/singleSplash.gif"),
     );
-  }
-
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
-  }
-
-  Future<void> _getAddress(value) async {
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(value.latitude, value.longitude);
-    Placemark place = placemarks[0];
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      pref.setString("pincode", place.postalCode.toString());
-      pref.setString("address_type", place.subLocality.toString());
-
-      pref.setString("defaultAddress",
-          "${place.subAdministrativeArea} ,${place.name} ,${place.subLocality} ,${place.locality} ,${place.postalCode} ,${place.country}");
-      pref.setString("subLocality", place.subLocality.toString());
-      List temp = [
-        {
-          "address_type": place.subLocality.toString(),
-          "address":
-              "${place.subAdministrativeArea} ,${place.name} ,${place.subLocality} ,${place.locality} ,${place.postalCode} ,${place.country}",
-          "pincode": place.postalCode.toString()
-        }
-      ];
-      pref.setString("recent_address_list", jsonEncode(temp));
-      Provider.of<UpdateCartData>(context, listen: false).setDefaultAddress();
-    });
   }
 }
